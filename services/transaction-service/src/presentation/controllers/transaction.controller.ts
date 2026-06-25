@@ -12,7 +12,7 @@ import {
   HttpStatus,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { TransactionType, UserId } from '@money-manager/shared-kernel';
+import { TransactionType, UserId, ApiResponse, CurrentUser } from '@money-manager/shared-kernel';
 import { CreateTransactionHandler } from '../../application/handlers/create-transaction.handler';
 import { UpdateTransactionHandler } from '../../application/handlers/update-transaction.handler';
 import { DeleteTransactionHandler } from '../../application/handlers/delete-transaction.handler';
@@ -43,9 +43,9 @@ export class TransactionController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateTransactionDto): Promise<TransactionResponseDto> {
+  async create(@CurrentUser() userId: UserId, @Body() dto: CreateTransactionDto) {
     const cmd = new CreateTransactionCommand(
-      UserId.DEFAULT.value,
+      userId.value,
       dto.amount,
       dto.currency ?? 'VND',
       dto.type,
@@ -54,20 +54,21 @@ export class TransactionController {
       new Date(dto.date),
     );
     const transaction = await this.createHandler.execute(cmd);
-    return TransactionResponseDto.from(transaction);
+    return ApiResponse.ok(TransactionResponseDto.from(transaction));
   }
 
   @Get()
   async findAll(
+    @CurrentUser() userId: UserId,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
     @Query('categoryId') categoryId?: string,
     @Query('type') type?: TransactionType,
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
-  ): Promise<TransactionResponseDto[]> {
+  ) {
     const query = new GetTransactionsQuery(
-      UserId.DEFAULT.value,
+      userId.value,
       page ? Number(page) : undefined,
       limit ? Number(limit) : undefined,
       categoryId,
@@ -76,16 +77,17 @@ export class TransactionController {
       dateTo ? new Date(dateTo) : undefined,
     );
     const transactions = await this.getTransactionsHandler.execute(query);
-    return transactions.map(TransactionResponseDto.from);
+    return ApiResponse.ok(transactions.map(TransactionResponseDto.from));
   }
 
   @Get('summary')
   async getMonthlySummary(
+    @CurrentUser() userId: UserId,
     @Query('year') year: string,
     @Query('month') month: string,
-  ): Promise<MonthlySummaryResponseDto> {
+  ) {
     const query = new GetMonthlySummaryQuery(
-      UserId.DEFAULT.value,
+      userId.value,
       Number(year),
       Number(month),
     );
@@ -96,24 +98,25 @@ export class TransactionController {
     dto.net = summary.net;
     dto.transactionCount = summary.transactionCount;
     dto.period = `${year}-${String(Number(month)).padStart(2, '0')}`;
-    return dto;
+    return ApiResponse.ok(dto);
   }
 
   @Get(':id')
-  async findById(@Param('id', ParseUUIDPipe) id: string): Promise<TransactionResponseDto> {
-    const query = new GetTransactionByIdQuery(id, UserId.DEFAULT.value);
+  async findById(@CurrentUser() userId: UserId, @Param('id', ParseUUIDPipe) id: string) {
+    const query = new GetTransactionByIdQuery(id, userId.value);
     const transaction = await this.getByIdHandler.execute(query);
-    return TransactionResponseDto.from(transaction);
+    return ApiResponse.ok(TransactionResponseDto.from(transaction));
   }
 
   @Put(':id')
   async update(
+    @CurrentUser() userId: UserId,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTransactionDto,
-  ): Promise<TransactionResponseDto> {
+  ) {
     const cmd = new UpdateTransactionCommand(
       id,
-      UserId.DEFAULT.value,
+      userId.value,
       dto.amount,
       dto.currency,
       dto.type,
@@ -122,13 +125,13 @@ export class TransactionController {
       dto.date ? new Date(dto.date) : undefined,
     );
     const transaction = await this.updateHandler.execute(cmd);
-    return TransactionResponseDto.from(transaction);
+    return ApiResponse.ok(TransactionResponseDto.from(transaction));
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    const cmd = new DeleteTransactionCommand(id, UserId.DEFAULT.value);
+  async remove(@CurrentUser() userId: UserId, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    const cmd = new DeleteTransactionCommand(id, userId.value);
     await this.deleteHandler.execute(cmd);
   }
 }

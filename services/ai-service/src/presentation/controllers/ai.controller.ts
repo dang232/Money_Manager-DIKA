@@ -1,13 +1,13 @@
 // ponytail: AI controller — exposes POST /ai/suggest endpoint
 import { Controller, Post, Body } from '@nestjs/common';
+import { ApiResponse, CurrentUser, UserId } from '@money-manager/shared-kernel';
 import { SuggestCategoryHandler } from '../../application/handlers/suggest-category.handler';
 import { SuggestCategoryCommand } from '../../application/commands/suggest-category.command';
-import { CategoryInfo, CategorySuggestion } from '../../domain/interfaces/ai-provider.port';
+import { CategoryInfo } from '../../domain/interfaces/ai-provider.port';
 
 interface SuggestRequestBody {
   transactionId: string;
   description: string;
-  userId?: string;
   categories: CategoryInfo[];
 }
 
@@ -16,13 +16,14 @@ export class AiController {
   constructor(private readonly suggestHandler: SuggestCategoryHandler) {}
 
   @Post('suggest')
-  async suggest(@Body() body: SuggestRequestBody): Promise<CategorySuggestion> {
+  async suggest(@CurrentUser() userId: UserId, @Body() body: SuggestRequestBody) {
     const cmd = new SuggestCategoryCommand(
       body.transactionId,
       body.description,
-      body.userId ?? '',
+      userId.value,
       body.categories,
     );
-    return this.suggestHandler.execute(cmd);
+    const result = await this.suggestHandler.execute(cmd);
+    return ApiResponse.ok(result);
   }
 }

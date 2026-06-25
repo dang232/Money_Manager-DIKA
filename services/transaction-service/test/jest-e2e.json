@@ -1,0 +1,13 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@money-manager/shared-kernel(.*)$": "<rootDir>/../../../packages/shared-kernel/src$1",
+    "^@money-manager/infrastructure(.*)$": "<rootDir>/../../../packages/infrastructure/src$1"
+  }
+}

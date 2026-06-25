@@ -1,6 +1,7 @@
 // ponytail: gateway bootstrap — CORS, validation pipe, global filters
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { ApiExceptionFilter } from '@money-manager/shared-kernel';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { CircuitOpenFilter } from './filters/circuit-open.filter';
@@ -14,7 +15,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  app.useGlobalFilters(new HttpExceptionFilter(), new CircuitOpenFilter());
+  app.useGlobalFilters(new ApiExceptionFilter(), new HttpExceptionFilter(), new CircuitOpenFilter());
 
   await app.listen(3000);
 }

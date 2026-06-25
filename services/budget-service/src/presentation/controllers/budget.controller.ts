@@ -1,6 +1,6 @@
 // ponytail: budget REST controller
 import { Controller, Get, Post, Body, Query, HttpCode, HttpStatus } from '@nestjs/common';
-import { UserId } from '@money-manager/shared-kernel';
+import { UserId, ApiResponse, CurrentUser } from '@money-manager/shared-kernel';
 import { SetBudgetHandler } from '../../application/handlers/set-budget.handler';
 import { GetBudgetStatusHandler } from '../../application/handlers/get-budget-status.handler';
 import { GetBudgetProjectionsHandler } from '../../application/handlers/get-budget-projections.handler';
@@ -19,12 +19,11 @@ export class BudgetController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async setBudget(@Body() dto: SetBudgetDto): Promise<BudgetStatusResponseDto> {
-    const userId = UserId.DEFAULT.value;
+  async setBudget(@CurrentUser() userId: UserId, @Body() dto: SetBudgetDto) {
     const budget = await this.setHandler.execute(
-      new SetBudgetCommand(userId, dto.categoryId, dto.monthlyLimit, dto.currency, dto.year, dto.month),
+      new SetBudgetCommand(userId.value, dto.categoryId, dto.monthlyLimit, dto.currency, dto.year, dto.month),
     );
-    return {
+    const result: BudgetStatusResponseDto = {
       budgetId: budget.id,
       categoryId: budget.categoryId,
       monthlyLimit: budget.monthlyLimit.amount,
@@ -33,29 +32,32 @@ export class BudgetController {
       usagePercentage: budget.usagePercentage(),
       isExceeded: budget.isExceeded(),
     };
+    return ApiResponse.ok(result);
   }
 
   @Get()
   async getStatus(
+    @CurrentUser() userId: UserId,
     @Query('year') yearStr?: string,
     @Query('month') monthStr?: string,
-  ): Promise<BudgetStatusResponseDto[]> {
-    const userId = UserId.DEFAULT.value;
+  ) {
     const now = new Date();
     const year = yearStr ? parseInt(yearStr, 10) : now.getFullYear();
     const month = monthStr ? parseInt(monthStr, 10) : now.getMonth() + 1;
-    return this.statusHandler.execute(new GetBudgetStatusQuery(userId, year, month));
+    const statuses = await this.statusHandler.execute(new GetBudgetStatusQuery(userId.value, year, month));
+    return ApiResponse.ok(statuses);
   }
 
   @Get('projections')
   async getProjections(
+    @CurrentUser() userId: UserId,
     @Query('year') yearStr?: string,
     @Query('month') monthStr?: string,
-  ): Promise<BudgetProjectionResponseDto[]> {
-    const userId = UserId.DEFAULT.value;
+  ) {
     const now = new Date();
     const year = yearStr ? parseInt(yearStr, 10) : now.getFullYear();
     const month = monthStr ? parseInt(monthStr, 10) : now.getMonth() + 1;
-    return this.projectionsHandler.execute(new GetBudgetProjectionsQuery(userId, year, month));
+    const projections = await this.projectionsHandler.execute(new GetBudgetProjectionsQuery(userId.value, year, month));
+    return ApiResponse.ok(projections);
   }
 }

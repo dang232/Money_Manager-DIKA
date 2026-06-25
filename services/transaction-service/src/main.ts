@@ -1,6 +1,7 @@
 // ponytail: bootstrap the transaction service
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { ApiExceptionFilter } from '@money-manager/shared-kernel';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -11,6 +12,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true,
   }));
+  app.useGlobalFilters(new ApiExceptionFilter());
 
   const port = process.env['PORT'] ?? 3001;
   await app.listen(port);
