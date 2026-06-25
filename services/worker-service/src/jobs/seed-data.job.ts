@@ -1,7 +1,6 @@
 // ponytail: SeedDataJob — generates 3 months of realistic Vietnamese transaction data
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { TransactionEntity } from '../infrastructure/persistence/transaction.entity';
 import { CategoryEntity } from '../infrastructure/persistence/category.entity';
 import { UserId, TransactionType } from '@money-manager/shared-kernel';
@@ -38,10 +37,7 @@ const EXPENSE_DESCRIPTIONS = [
 
 @Injectable()
 export class SeedDataJob {
-  constructor(
-    @InjectRepository(TransactionEntity) private readonly txRepo: Repository<TransactionEntity>,
-    @InjectRepository(CategoryEntity) private readonly catRepo: Repository<CategoryEntity>,
-  ) {}
+  constructor(private readonly em: EntityManager) {}
 
   async execute(userId?: string): Promise<void> {
     const uid = userId ?? UserId.DEFAULT.value;
@@ -51,14 +47,14 @@ export class SeedDataJob {
     for (const cat of DEFAULT_CATEGORIES) {
       const id = uuid();
       categoryIds[cat.name] = id;
-      await this.catRepo.save({
-        id,
-        userId: uid,
-        name: cat.name,
-        type: cat.type,
-        icon: cat.icon,
-        color: cat.color,
-      });
+      const entity = new CategoryEntity();
+      entity.id = id;
+      entity.userId = uid;
+      entity.name = cat.name;
+      entity.type = cat.type;
+      entity.icon = cat.icon;
+      entity.color = cat.color;
+      this.em.persist(entity);
     }
 
     const expenseCategories = DEFAULT_CATEGORIES.filter(c => c.type === TransactionType.EXPENSE);
@@ -73,16 +69,16 @@ export class SeedDataJob {
 
       // 1 salary per month
       const salaryDay = Math.min(25, this.daysInMonth(monthDate));
-      await this.txRepo.save({
-        id: uuid(),
-        userId: uid,
-        amount: 15_000_000,
-        currency: 'VND',
-        type: TransactionType.INCOME,
-        categoryId: categoryIds[incomeCategory.name],
-        description: 'Lương tháng',
-        transactionDate: new Date(monthDate.getFullYear(), monthDate.getMonth(), salaryDay),
-      });
+      const salaryTxn = new TransactionEntity();
+      salaryTxn.id = uuid();
+      salaryTxn.userId = uid;
+      salaryTxn.amount = 15_000_000;
+      salaryTxn.currency = 'VND';
+      salaryTxn.type = TransactionType.INCOME;
+      salaryTxn.categoryId = categoryIds[incomeCategory.name];
+      salaryTxn.description = 'Lương tháng';
+      salaryTxn.transactionDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), salaryDay);
+      this.em.persist(salaryTxn);
       totalTransactions++;
 
       // 15-25 random expenses
@@ -95,20 +91,21 @@ export class SeedDataJob {
         const amount = Math.round((10_000 + Math.random() * 490_000) / 1000) * 1000;
         const day = 1 + Math.floor(Math.random() * maxDay);
 
-        await this.txRepo.save({
-          id: uuid(),
-          userId: uid,
-          amount,
-          currency: 'VND',
-          type: TransactionType.EXPENSE,
-          categoryId: categoryIds[cat.name],
-          description: desc,
-          transactionDate: new Date(monthDate.getFullYear(), monthDate.getMonth(), day),
-        });
+        const txn = new TransactionEntity();
+        txn.id = uuid();
+        txn.userId = uid;
+        txn.amount = amount;
+        txn.currency = 'VND';
+        txn.type = TransactionType.EXPENSE;
+        txn.categoryId = categoryIds[cat.name];
+        txn.description = desc;
+        txn.transactionDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+        this.em.persist(txn);
         totalTransactions++;
       }
     }
 
+    await this.em.flush(); // single batch insert
     console.log(`Seeded ${totalTransactions} transactions for 3 months`);
   }
 

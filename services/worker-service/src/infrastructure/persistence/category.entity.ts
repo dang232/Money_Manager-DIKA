@@ -1,21 +1,20 @@
-// ponytail: TypeORM entity for categories (used by seed job)
-import { Entity, Column } from 'typeorm';
+import { Entity, Property } from '@mikro-orm/core';
 import { BaseEntity } from '@money-manager/infrastructure';
 
-@Entity('categories')
+@Entity({ tableName: 'categories' })
 export class CategoryEntity extends BaseEntity {
-  @Column({ name: 'user_id', type: 'uuid' })
+  @Property({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Property({ type: 'varchar', length: 100 })
   name!: string;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Property({ type: 'varchar', length: 10 })
   type!: string;
 
-  @Column({ type: 'varchar', length: 50, default: 'default' })
+  @Property({ type: 'varchar', length: 50, default: 'default' })
   icon!: string;
 
-  @Column({ type: 'varchar', length: 7, default: '#808080' })
+  @Property({ type: 'varchar', length: 7, default: '#808080' })
   color!: string;
 }
