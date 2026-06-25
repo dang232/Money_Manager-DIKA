@@ -1,7 +1,5 @@
-// ponytail: TypeORM implementation of CategoryRepository
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { TransactionType } from '@money-manager/shared-kernel';
 import { Category } from '../../domain/aggregates/category.aggregate';
 import { CategoryRepository } from '../../domain/repositories/category.repository.port';
@@ -10,32 +8,31 @@ import { CategoryMapper } from './category.mapper';
 
 @Injectable()
 export class CategoryRepositoryImpl implements CategoryRepository {
-  constructor(
-    @InjectRepository(CategoryEntity) private readonly repo: Repository<CategoryEntity>,
-  ) {}
+  constructor(private readonly em: EntityManager) {}
 
   async findById(id: string): Promise<Category | null> {
-    const entity = await this.repo.findOne({ where: { id } });
+    const entity = await this.em.findOne(CategoryEntity, { id });
     return entity ? CategoryMapper.toDomain(entity) : null;
   }
 
   async save(category: Category): Promise<Category> {
     const entity = CategoryMapper.toEntity(category);
-    const saved = await this.repo.save(entity);
+    const saved = await this.em.upsert(CategoryEntity, entity);
+    await this.em.flush();
     return CategoryMapper.toDomain(saved);
   }
 
   async delete(id: string): Promise<void> {
-    await this.repo.delete(id);
+    await this.em.nativeDelete(CategoryEntity, { id });
   }
 
   async findByUserId(userId: string): Promise<Category[]> {
-    const entities = await this.repo.find({ where: { userId } });
+    const entities = await this.em.find(CategoryEntity, { userId });
     return entities.map(CategoryMapper.toDomain);
   }
 
   async findByName(userId: string, name: string, type: TransactionType): Promise<Category | null> {
-    const entity = await this.repo.findOne({ where: { userId, name, type } });
+    const entity = await this.em.findOne(CategoryEntity, { userId, name, type });
     return entity ? CategoryMapper.toDomain(entity) : null;
   }
 }

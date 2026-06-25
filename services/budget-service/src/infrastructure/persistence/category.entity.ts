@@ -1,22 +1,21 @@
-// ponytail: TypeORM entity for categories table
-import { Entity, Column, Unique } from 'typeorm';
+import { Entity, Property, Unique } from '@mikro-orm/core';
 import { BaseEntity } from '@money-manager/infrastructure';
 
-@Entity('categories')
-@Unique(['userId', 'name', 'type'])
+@Entity({ tableName: 'categories' })
+@Unique({ properties: ['userId', 'name', 'type'] })
 export class CategoryEntity extends BaseEntity {
-  @Column({ name: 'user_id', type: 'uuid' })
+  @Property({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Property({ type: 'varchar', length: 100 })
   name!: string;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Property({ type: 'varchar', length: 10 })
   type!: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Property({ type: 'varchar', length: 50 })
   icon!: string;
 
-  @Column({ type: 'varchar', length: 7 })
+  @Property({ type: 'varchar', length: 7 })
   color!: string;
 }
