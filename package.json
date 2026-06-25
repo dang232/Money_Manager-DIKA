@@ -1,0 +1,13 @@
+{
+  "name": "money-manager",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "dev:transaction": "pnpm --filter @money-manager/transaction-service start:dev"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
