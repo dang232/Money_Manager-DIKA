@@ -1,1 +1,0 @@
-{"version":3,"file":"event-bus.port.js","sourceRoot":"","sources":["event-bus.port.ts"],"names":[],"mappings":";;AAqBA,0CAGC;AAxBD,qEAAqE;AACrE,wCAA6C;AAmB7C,qCAAqC;AACrC,SAAgB,eAAe,CAAC,WAAmB;IACjD,MAAM,GAAG,GAAG,IAAI,IAAI,EAAE,CAAC;IACvB,OAAO,EAAE,OAAO,EAAE,IAAA,mBAAY,GAAE,EAAE,WAAW,EAAE,SAAS,EAAE,GAAG,EAAE,UAAU,EAAE,GAAG,EAAE,CAAC;AACnF,CAAC"}
