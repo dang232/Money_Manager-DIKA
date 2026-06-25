@@ -1,12 +1,10 @@
 // ponytail: TypeORM entity for budgets table
-import { Entity, PrimaryColumn, Column, CreateDateColumn, Unique } from 'typeorm';
+import { Entity, Column, Unique } from 'typeorm';
+import { BaseEntity } from '@money-manager/infrastructure';
 
 @Entity('budgets')
 @Unique(['userId', 'categoryId', 'periodYear', 'periodMonth'])
-export class BudgetEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
+export class BudgetEntity extends BaseEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
@@ -27,7 +25,4 @@ export class BudgetEntity {
 
   @Column({ name: 'running_total', type: 'decimal', precision: 12, scale: 2, default: 0 })
   runningTotal!: number;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
 }

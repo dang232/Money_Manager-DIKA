@@ -15,3 +15,6 @@ export { LoggerModule, LOGGER_TOKEN } from './logging/logger.module';
 
 // health
 export { KafkaHealthIndicator, RedisHealthIndicator, PostgresHealthIndicator } from './health/health-indicators';
+
+// persistence
+export { BaseEntity } from './persistence/base.entity';

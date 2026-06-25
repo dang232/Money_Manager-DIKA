@@ -1,12 +1,10 @@
 // ponytail: TypeORM entity for categories table
-import { Entity, PrimaryColumn, Column, CreateDateColumn, Unique } from 'typeorm';
+import { Entity, Column, Unique } from 'typeorm';
+import { BaseEntity } from '@money-manager/infrastructure';
 
 @Entity('categories')
 @Unique(['userId', 'name', 'type'])
-export class CategoryEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
+export class CategoryEntity extends BaseEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
@@ -21,7 +19,4 @@ export class CategoryEntity {
 
   @Column({ type: 'varchar', length: 7 })
   color!: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
 }

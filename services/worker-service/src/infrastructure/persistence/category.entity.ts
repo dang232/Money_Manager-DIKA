@@ -1,11 +1,9 @@
 // ponytail: TypeORM entity for categories (used by seed job)
-import { Entity, PrimaryColumn, Column, CreateDateColumn } from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from '@money-manager/infrastructure';
 
 @Entity('categories')
-export class CategoryEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
+export class CategoryEntity extends BaseEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
@@ -20,7 +18,4 @@ export class CategoryEntity {
 
   @Column({ type: 'varchar', length: 7, default: '#808080' })
   color!: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
 }

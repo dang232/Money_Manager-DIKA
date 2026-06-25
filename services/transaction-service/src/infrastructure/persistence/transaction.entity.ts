@@ -1,13 +1,11 @@
 // ponytail: TypeORM entity for transactions table
-import { Entity, PrimaryColumn, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
+import { BaseEntity } from '@money-manager/infrastructure';
 
 @Entity('transactions')
 @Index(['userId', 'transactionDate'])
 @Index(['userId', 'categoryId'])
-export class TransactionEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
+export class TransactionEntity extends BaseEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
@@ -28,10 +26,4 @@ export class TransactionEntity {
 
   @Column({ name: 'transaction_date', type: 'date' })
   transactionDate!: Date;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
 }
