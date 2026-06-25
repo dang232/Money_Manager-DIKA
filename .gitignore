@@ -153,3 +153,5 @@ vite.config.ts.timestamp-*
 # IDE
 .idea/
 *.swp
+# OMC runtime/state (agent orchestration local files)
+/.omc
