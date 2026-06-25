@@ -44,16 +44,7 @@ export class TransactionController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@CurrentUser() userId: UserId, @Body() dto: CreateTransactionDto) {
-    const cmd = new CreateTransactionCommand(
-      userId.value,
-      dto.amount,
-      dto.currency ?? 'VND',
-      dto.type,
-      dto.categoryId,
-      dto.description,
-      new Date(dto.date),
-    );
-    const transaction = await this.createHandler.execute(cmd);
+    const transaction = await this.createHandler.execute(CreateTransactionCommand.fromDto(dto, userId));
     return ApiResponse.ok(TransactionResponseDto.from(transaction));
   }
 
@@ -114,24 +105,13 @@ export class TransactionController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateTransactionDto,
   ) {
-    const cmd = new UpdateTransactionCommand(
-      id,
-      userId.value,
-      dto.amount,
-      dto.currency,
-      dto.type,
-      dto.categoryId,
-      dto.description,
-      dto.date ? new Date(dto.date) : undefined,
-    );
-    const transaction = await this.updateHandler.execute(cmd);
+    const transaction = await this.updateHandler.execute(UpdateTransactionCommand.fromDto(id, dto, userId));
     return ApiResponse.ok(TransactionResponseDto.from(transaction));
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@CurrentUser() userId: UserId, @Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    const cmd = new DeleteTransactionCommand(id, userId.value);
-    await this.deleteHandler.execute(cmd);
+    await this.deleteHandler.execute(DeleteTransactionCommand.from(id, userId));
   }
 }
