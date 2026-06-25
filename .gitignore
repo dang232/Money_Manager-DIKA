@@ -141,3 +141,15 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# OMC agent state
+.omc/
+
+# TypeScript build artifacts in src/ (leftover from tsc)
+**/*.js
+**/*.js.map
+**/*.d.ts
+
+# IDE
+.idea/
+*.swp
