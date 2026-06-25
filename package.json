@@ -5,6 +5,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "lint": "pnpm -r run lint",
     "dev:transaction": "pnpm --filter @money-manager/transaction-service start:dev"
   },
   "devDependencies": {
