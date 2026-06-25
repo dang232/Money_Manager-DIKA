@@ -13,12 +13,6 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
-    "paths": {
-      "@money-manager/shared-kernel": ["packages/shared-kernel/src"],
-      "@money-manager/shared-kernel/*": ["packages/shared-kernel/src/*"],
-      "@money-manager/infrastructure": ["packages/infrastructure/src"],
-      "@money-manager/infrastructure/*": ["packages/infrastructure/src/*"]
-    }
+    "moduleResolution": "node"
   }
 }
