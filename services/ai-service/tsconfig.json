@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@money-manager/shared-kernel": ["../../packages/shared-kernel/src"],
+      "@money-manager/shared-kernel/*": ["../../packages/shared-kernel/src/*"],
+      "@money-manager/infrastructure": ["../../packages/infrastructure/src"],
+      "@money-manager/infrastructure/*": ["../../packages/infrastructure/src/*"]
+    }
+  },
+  "include": ["src/**/*", "../../packages/shared-kernel/src/**/*", "../../packages/infrastructure/src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
