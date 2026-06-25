@@ -1,0 +1,33 @@
+// ponytail: handler for DeleteTransactionCommand
+import { Injectable, Inject } from '@nestjs/common';
+import { EventBusPort, NotFoundException } from '@money-manager/shared-kernel';
+import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { DeleteTransactionCommand } from '../commands/delete-transaction.command';
+import { TransactionRepository, TRANSACTION_REPOSITORY } from '../../domain/repositories/transaction.repository.port';
+import { TransactionDeletedEvent } from '../../domain/events/transaction-deleted.event';
+
+@Injectable()
+export class DeleteTransactionHandler {
+  constructor(
+    @Inject(TRANSACTION_REPOSITORY) private readonly repo: TransactionRepository,
+    @Inject(EVENT_BUS_PORT) private readonly eventBus: EventBusPort,
+  ) {}
+
+  async execute(cmd: DeleteTransactionCommand): Promise<void> {
+    const transaction = await this.repo.findById(cmd.id);
+    if (!transaction) {
+      throw new NotFoundException('Transaction', cmd.id);
+    }
+
+    await this.repo.delete(cmd.id);
+
+    await this.eventBus.publish('transaction.events', new TransactionDeletedEvent(
+      transaction.id,
+      transaction.userId,
+      transaction.categoryId,
+      transaction.amount,
+      transaction.currency,
+      transaction.type,
+    ));
+  }
+}
