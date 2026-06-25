@@ -70,11 +70,13 @@ export class RedisStreamsEventBusAdapter implements EventBusPort {
     for (let i = 0; i < fields.length; i += 2) {
       obj[fields[i]] = fields[i + 1];
     }
+    const occurredAt = new Date(obj['occurredAt'] ?? Date.now());
     return {
       eventId: obj['eventId'] ?? messageId,
       eventType: obj['eventType'] ?? '',
       aggregateId: obj['aggregateId'] ?? '',
-      occurredAt: new Date(obj['occurredAt'] ?? Date.now()),
+      occurredAt,
+      timestamp: occurredAt,
       payload: JSON.parse(obj['payload'] ?? '{}'),
       correlationId: obj['correlationId'] || undefined,
     };
