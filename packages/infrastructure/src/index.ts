@@ -18,3 +18,5 @@ export { KafkaHealthIndicator, RedisHealthIndicator, PostgresHealthIndicator } f
 
 // persistence
 export { BaseEntity } from './persistence/base.entity';
+export { DatabaseModule } from './persistence/mikro-orm.module';
+export type { MikroOrmConfig } from './persistence/mikro-orm.module';

@@ -1,16 +1,16 @@
 // ponytail: shared base entity — id, timestamps, soft delete for all tables
-import { PrimaryColumn, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { PrimaryKey, Property, BaseEntity as MikroBaseEntity } from '@mikro-orm/core';
 
-export abstract class BaseEntity {
-  @PrimaryColumn('uuid')
+export abstract class BaseEntity extends MikroBaseEntity {
+  @PrimaryKey({ type: 'uuid', defaultRaw: 'gen_random_uuid()' })
   id!: string;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
+  @Property({ type: 'Date', onCreate: () => new Date() })
+  createdAt: Date = new Date();
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
+  @Property({ type: 'Date', onUpdate: () => new Date(), onCreate: () => new Date() })
+  updatedAt: Date = new Date();
 
-  @DeleteDateColumn({ name: 'deleted_at' })
+  @Property({ type: 'Date', nullable: true })
   deletedAt?: Date;
 }
