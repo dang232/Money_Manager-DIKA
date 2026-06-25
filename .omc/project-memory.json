@@ -9,7 +9,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd \"C:/Users/Admin/Desktop/Money_Manager-DIKA/.claude/worktrees/awesome-mcnulty-043435/services/worker-service\" && npx tsc --noEmit 2>&1",
+    "buildCommand": "cd \"C:\\Users\\Admin\\Desktop\\Money_Manager-DIKA\\.claude\\worktrees\\awesome-mcnulty-043435/frontend\" && npx vue-tsc --noEmit 2>&1",
     "testCommand": "cd \"C:/Users/Admin/Desktop/Money_Manager-DIKA/.claude/worktrees/awesome-mcnulty-043435/services/worker-service\" && npx jest --no-coverage 2>&1",
     "lintCommand": null,
     "devCommand": null,
@@ -124,6 +124,12 @@
       "type": "file"
     },
     {
+      "path": "services\\gateway\\tsconfig.json",
+      "accessCount": 3,
+      "lastAccessed": 1782380001228,
+      "type": "file"
+    },
+    {
       "path": "packages\\infrastructure\\tsconfig.json",
       "accessCount": 2,
       "lastAccessed": 1782377063651,
@@ -217,12 +223,6 @@
       "path": "packages\\shared-kernel\\tsconfig.json",
       "accessCount": 1,
       "lastAccessed": 1782377040415,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\tsconfig.json",
-      "accessCount": 1,
-      "lastAccessed": 1782377043230,
       "type": "file"
     },
     {

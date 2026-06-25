@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd \\\"C:/Users/Admin/Desktop/Money_Manager-DIKA/.claude/worktrees/awesome-mcnulty-043435/services/budget-service\\\" && npx nest build 2>&1\",\"timeout\":60000,\"description\":\"Build budget-servic...",
-  "error": "Exit code 1\n\u001b[96m../../packages/infrastructure/src/event-bus/kafka.adapter.ts\u001b[0m:\u001b[93m4\u001b[0m:\u001b[93m62\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS6059: \u001b[0mFile 'C:/Users/Admin/Desktop/Money_Manager-DIKA/.claude/worktrees/awesome-mcnulty-043435/packages/shared-kernel/src/index.ts' is not under 'rootDir' 'C:/Users/Admin/Desktop/Money_Manager-DIKA/.claude/worktrees/awesome-mcnulty-043435/services/budget-service/src'. 'rootDir' is expected to contain all source files.\r\n  The file is in the program because:\r\n    Imp...",
-  "timestamp": "2026-06-25T09:15:24.714Z",
-  "retry_count": 3
+  "tool_input_preview": "{\"command\":\"cd \\\"C:\\\\Users\\\\Admin\\\\Desktop\\\\Money_Manager-DIKA\\\\.claude\\\\worktrees\\\\awesome-mcnulty-043435\\\\services\\\\gateway\\\" && npx jest --no-coverage 2>&1\",\"timeout\":60000,\"description\":\"Run gatew...",
+  "error": "Exit code 1\nFAIL src/proxy/dashboard.controller.spec.ts\n  ● Test suite failed to run\n\n    Configuration error:\n\n    Could not locate module @money-manager/infrastructure mapped as:\n    C:\\Users\\Admin\\Desktop\\Money_Manager-DIKA\\.claude\\worktrees\\awesome-mcnulty-043435\\services\\packages\\infrastructure\\src$1.\n\n    Please check your configuration for these entries:\n    {\n      \"moduleNameMapper\": {\n        \"/^@money-manager\\/infrastructure(.*)$/\": \"C:\\Users\\Admin\\Desktop\\Money_Manager-DIKA\\.claude\\w...",
+  "timestamp": "2026-06-25T09:34:30.792Z",
+  "retry_count": 1
 }
