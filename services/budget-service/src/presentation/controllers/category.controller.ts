@@ -1,6 +1,6 @@
 // ponytail: category REST controller
 import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
-import { UserId } from '@money-manager/shared-kernel';
+import { UserId, ApiResponse, CurrentUser } from '@money-manager/shared-kernel';
 import { CreateCategoryHandler } from '../../application/handlers/create-category.handler';
 import { UpdateCategoryHandler } from '../../application/handlers/update-category.handler';
 import { DeleteCategoryHandler } from '../../application/handlers/delete-category.handler';
@@ -22,35 +22,31 @@ export class CategoryController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() dto: CreateCategoryDto): Promise<CategoryResponseDto> {
-    const userId = UserId.DEFAULT.value;
+  async create(@CurrentUser() userId: UserId, @Body() dto: CreateCategoryDto) {
     const category = await this.createHandler.execute(
-      new CreateCategoryCommand(userId, dto.name, dto.type, dto.icon, dto.color),
+      new CreateCategoryCommand(userId.value, dto.name, dto.type, dto.icon, dto.color),
     );
-    return this.toResponse(category);
+    return ApiResponse.ok(this.toResponse(category));
   }
 
   @Get()
-  async findAll(): Promise<CategoryResponseDto[]> {
-    const userId = UserId.DEFAULT.value;
-    const categories = await this.getHandler.execute(new GetCategoriesQuery(userId));
-    return categories.map((c) => this.toResponse(c));
+  async findAll(@CurrentUser() userId: UserId) {
+    const categories = await this.getHandler.execute(new GetCategoriesQuery(userId.value));
+    return ApiResponse.ok(categories.map((c) => this.toResponse(c)));
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateCategoryDto): Promise<CategoryResponseDto> {
-    const userId = UserId.DEFAULT.value;
+  async update(@CurrentUser() userId: UserId, @Param('id') id: string, @Body() dto: UpdateCategoryDto) {
     const category = await this.updateHandler.execute(
-      new UpdateCategoryCommand(id, userId, dto.name, dto.icon, dto.color),
+      new UpdateCategoryCommand(id, userId.value, dto.name, dto.icon, dto.color),
     );
-    return this.toResponse(category);
+    return ApiResponse.ok(this.toResponse(category));
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
-    const userId = UserId.DEFAULT.value;
-    await this.deleteHandler.execute(new DeleteCategoryCommand(id, userId));
+  async remove(@CurrentUser() userId: UserId, @Param('id') id: string): Promise<void> {
+    await this.deleteHandler.execute(new DeleteCategoryCommand(id, userId.value));
   }
 
   private toResponse(category: { id: string; name: string; type: string; icon: string; color: string; createdAt: Date }): CategoryResponseDto {

@@ -1,6 +1,7 @@
-// ponytail: Worker service app module — TypeORM + EventBus + jobs
+// ponytail: Worker service app module — MikroORM + EventBus + jobs
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { ScheduleModule } from '@nestjs/schedule';
 import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
 import { TransactionEntity } from './infrastructure/persistence/transaction.entity';
@@ -10,17 +11,18 @@ import { DlqRetryJob } from './jobs/dlq-retry.job';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
+    MikroOrmModule.forRoot({
+      driver: PostgreSqlDriver,
       host: process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['DB_PORT'] ?? 5432),
-      username: process.env['DB_USERNAME'] ?? 'money_manager',
+      dbName: process.env['DB_NAME'] ?? 'money_manager',
+      user: process.env['DB_USER'] ?? 'money_manager',
       password: process.env['DB_PASSWORD'] ?? 'money_manager',
-      database: process.env['DB_NAME'] ?? 'money_manager',
       entities: [TransactionEntity, CategoryEntity],
-      synchronize: process.env['NODE_ENV'] !== 'production',
+      debug: process.env['NODE_ENV'] !== 'production',
+      allowGlobalContext: true,
     }),
-    TypeOrmModule.forFeature([TransactionEntity, CategoryEntity]),
+    MikroOrmModule.forFeature([TransactionEntity, CategoryEntity]),
     ScheduleModule.forRoot(),
     EventBusModule.forRoot(),
     LoggerModule,

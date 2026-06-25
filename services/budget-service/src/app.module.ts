@@ -1,6 +1,7 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { EventBusModule, CacheModule, LoggerModule } from '@money-manager/infrastructure';
 import { CategoryEntity } from './infrastructure/persistence/category.entity';
 import { BudgetEntity } from './infrastructure/persistence/budget.entity';
@@ -25,17 +26,18 @@ import { BudgetController } from './presentation/controllers/budget.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env['DB_HOST'] ?? 'localhost',
-      port: Number(process.env['DB_PORT'] ?? 5432),
-      username: process.env['DB_USERNAME'] ?? 'money_manager',
-      password: process.env['DB_PASSWORD'] ?? 'money_manager',
-      database: process.env['DB_NAME'] ?? 'money_manager',
+    MikroOrmModule.forRoot({
+      driver: PostgreSqlDriver,
+      host: process.env.DB_HOST || 'localhost',
+      port: Number(process.env.DB_PORT) || 5433,
+      dbName: process.env.DB_NAME || 'budget_db',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
       entities: [CategoryEntity, BudgetEntity],
-      synchronize: process.env['NODE_ENV'] !== 'production',
+      debug: process.env.NODE_ENV !== 'production',
+      allowGlobalContext: true,
     }),
-    TypeOrmModule.forFeature([CategoryEntity, BudgetEntity]),
+    MikroOrmModule.forFeature([CategoryEntity, BudgetEntity]),
     EventBusModule.forRoot(),
     CacheModule.forRoot({
       host: process.env['REDIS_HOST'] ?? 'localhost',

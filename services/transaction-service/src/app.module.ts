@@ -1,6 +1,7 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
 import { TransactionEntity } from './infrastructure/persistence/transaction.entity';
 import { TransactionRepositoryImpl } from './infrastructure/persistence/transaction.repository.impl';
@@ -16,17 +17,18 @@ import { TransactionController } from './presentation/controllers/transaction.co
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
+    MikroOrmModule.forRoot({
+      driver: PostgreSqlDriver,
       host: process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['DB_PORT'] ?? 5432),
-      username: process.env['DB_USERNAME'] ?? 'money_manager',
+      dbName: process.env['DB_NAME'] ?? 'money_manager',
+      user: process.env['DB_USERNAME'] ?? 'money_manager',
       password: process.env['DB_PASSWORD'] ?? 'money_manager',
-      database: process.env['DB_NAME'] ?? 'money_manager',
       entities: [TransactionEntity],
-      synchronize: process.env['NODE_ENV'] !== 'production',
+      debug: process.env['NODE_ENV'] !== 'production',
+      allowGlobalContext: true,
     }),
-    TypeOrmModule.forFeature([TransactionEntity]),
+    MikroOrmModule.forFeature([TransactionEntity]),
     EventBusModule.forRoot(),
     LoggerModule,
   ],

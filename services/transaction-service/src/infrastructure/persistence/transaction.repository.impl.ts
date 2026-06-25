@@ -1,7 +1,7 @@
-// ponytail: TypeORM implementation of TransactionRepository
+// ponytail: MikroORM implementation of TransactionRepository
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager } from '@mikro-orm/postgresql';
+import { raw } from '@mikro-orm/core';
 import { TransactionType } from '@money-manager/shared-kernel';
 import { Transaction } from '../../domain/aggregates/transaction.aggregate';
 import {
@@ -14,74 +14,79 @@ import { TransactionMapper } from './transaction.mapper';
 
 @Injectable()
 export class TransactionRepositoryImpl implements TransactionRepository {
-  constructor(
-    @InjectRepository(TransactionEntity)
-    private readonly ormRepo: Repository<TransactionEntity>,
-  ) {}
+  constructor(private readonly em: EntityManager) {}
 
   async findById(id: string): Promise<Transaction | null> {
-    const entity = await this.ormRepo.findOne({ where: { id } });
+    const entity = await this.em.findOne(TransactionEntity, { id });
     return entity ? TransactionMapper.toDomain(entity) : null;
   }
 
   async save(transaction: Transaction): Promise<Transaction> {
     const entity = TransactionMapper.toEntity(transaction);
-    const saved = await this.ormRepo.save(entity);
-    return TransactionMapper.toDomain(saved);
+    await this.em.upsert(TransactionEntity, entity);
+    await this.em.flush();
+    return transaction;
   }
 
   async delete(id: string): Promise<void> {
-    await this.ormRepo.delete(id);
+    await this.em.nativeDelete(TransactionEntity, { id });
   }
 
   async findByUserId(userId: string, filters?: TransactionFilters): Promise<Transaction[]> {
-    const qb = this.ormRepo.createQueryBuilder('t')
-      .where('t.user_id = :userId', { userId });
+    const where: Record<string, unknown> = { userId };
 
     if (filters?.categoryId) {
-      qb.andWhere('t.category_id = :categoryId', { categoryId: filters.categoryId });
+      where['categoryId'] = filters.categoryId;
     }
     if (filters?.type) {
-      qb.andWhere('t.type = :type', { type: filters.type });
+      where['type'] = filters.type;
     }
-    if (filters?.dateFrom) {
-      qb.andWhere('t.transaction_date >= :dateFrom', { dateFrom: filters.dateFrom });
+    if (filters?.dateFrom || filters?.dateTo) {
+      const dateFilter: Record<string, unknown> = {};
+      if (filters.dateFrom) dateFilter['$gte'] = filters.dateFrom;
+      if (filters.dateTo) dateFilter['$lte'] = filters.dateTo;
+      where['transactionDate'] = dateFilter;
     }
-    if (filters?.dateTo) {
-      qb.andWhere('t.transaction_date <= :dateTo', { dateTo: filters.dateTo });
-    }
-
-    qb.orderBy('t.transaction_date', 'DESC');
 
     const page = filters?.page ?? 1;
     const limit = filters?.limit ?? 20;
-    qb.skip((page - 1) * limit).take(limit);
 
-    const entities = await qb.getMany();
+    const entities = await this.em.find(TransactionEntity, where, {
+      orderBy: { transactionDate: 'DESC' },
+      limit,
+      offset: (page - 1) * limit,
+    });
+
     return entities.map(TransactionMapper.toDomain);
   }
 
   async findByPeriod(userId: string, year: number, month: number): Promise<Transaction[]> {
-    const entities = await this.ormRepo.createQueryBuilder('t')
-      .where('t.user_id = :userId', { userId })
-      .andWhere('EXTRACT(YEAR FROM t.transaction_date) = :year', { year })
-      .andWhere('EXTRACT(MONTH FROM t.transaction_date) = :month', { month })
-      .orderBy('t.transaction_date', 'DESC')
-      .getMany();
+    const entities = await this.em.find(
+      TransactionEntity,
+      {
+        userId,
+        $and: [
+          raw(`EXTRACT(YEAR FROM transaction_date) = ${year}`),
+          raw(`EXTRACT(MONTH FROM transaction_date) = ${month}`),
+        ],
+      },
+      { orderBy: { transactionDate: 'DESC' } },
+    );
 
     return entities.map(TransactionMapper.toDomain);
   }
 
   async getMonthlySummary(userId: string, year: number, month: number): Promise<MonthlySummary> {
-    const result = await this.ormRepo.createQueryBuilder('t')
-      .select('t.type', 'type')
-      .addSelect('SUM(t.amount)', 'total')
-      .addSelect('COUNT(*)', 'count')
-      .where('t.user_id = :userId', { userId })
-      .andWhere('EXTRACT(YEAR FROM t.transaction_date) = :year', { year })
-      .andWhere('EXTRACT(MONTH FROM t.transaction_date) = :month', { month })
-      .groupBy('t.type')
-      .getRawMany();
+    const conn = this.em.getConnection();
+    const result = await conn.execute<Array<{ type: string; total: string; count: string }>>(
+      `SELECT type, SUM(amount) AS total, COUNT(*) AS count
+       FROM transactions
+       WHERE user_id = ?
+         AND EXTRACT(YEAR FROM transaction_date) = ?
+         AND EXTRACT(MONTH FROM transaction_date) = ?
+       GROUP BY type`,
+      [userId, year, month],
+    );
 
     let totalIncome = 0;
     let totalExpense = 0;

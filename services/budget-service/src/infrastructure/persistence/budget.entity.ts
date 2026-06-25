@@ -1,33 +1,27 @@
-// ponytail: TypeORM entity for budgets table
-import { Entity, PrimaryColumn, Column, CreateDateColumn, Unique } from 'typeorm';
+import { Entity, Property, Unique } from '@mikro-orm/core';
+import { BaseEntity } from '@money-manager/infrastructure';
 
-@Entity('budgets')
-@Unique(['userId', 'categoryId', 'periodYear', 'periodMonth'])
-export class BudgetEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
-  @Column({ name: 'user_id', type: 'uuid' })
+@Entity({ tableName: 'budgets' })
+@Unique({ properties: ['userId', 'categoryId', 'periodYear', 'periodMonth'] })
+export class BudgetEntity extends BaseEntity {
+  @Property({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
-  @Column({ name: 'category_id', type: 'uuid' })
+  @Property({ name: 'category_id', type: 'uuid' })
   categoryId!: string;
 
-  @Column({ name: 'monthly_limit', type: 'decimal', precision: 12, scale: 2 })
+  @Property({ name: 'monthly_limit', type: 'decimal', columnType: 'decimal(12,2)' })
   monthlyLimit!: number;
 
-  @Column({ type: 'varchar', length: 3, default: 'VND' })
+  @Property({ type: 'varchar', length: 3, default: 'VND' })
   currency!: string;
 
-  @Column({ name: 'period_year', type: 'int' })
+  @Property({ name: 'period_year', type: 'int' })
   periodYear!: number;
 
-  @Column({ name: 'period_month', type: 'int' })
+  @Property({ name: 'period_month', type: 'int' })
   periodMonth!: number;
 
-  @Column({ name: 'running_total', type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Property({ name: 'running_total', type: 'decimal', columnType: 'decimal(12,2)', default: 0 })
   runningTotal!: number;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
 }

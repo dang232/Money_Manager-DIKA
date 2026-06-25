@@ -1,4 +1,4 @@
-// ponytail: mapper between domain Transaction and TypeORM TransactionEntity
+// ponytail: mapper between domain Transaction and MikroORM TransactionEntity
 import { TransactionType } from '@money-manager/shared-kernel';
 import { Transaction } from '../../domain/aggregates/transaction.aggregate';
 import { TransactionEntity } from './transaction.entity';

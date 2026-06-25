@@ -1,35 +1,26 @@
-// ponytail: TypeORM entity for transactions (used by seed job)
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Property } from '@mikro-orm/core';
+import { BaseEntity } from '@money-manager/infrastructure';
 
-@Entity('transactions')
-export class TransactionEntity {
-  @PrimaryColumn('uuid')
-  id!: string;
-
-  @Column({ name: 'user_id', type: 'uuid' })
+@Entity({ tableName: 'transactions' })
+export class TransactionEntity extends BaseEntity {
+  @Property({ name: 'user_id', type: 'uuid' })
   userId!: string;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2 })
+  @Property({ type: 'decimal', columnType: 'decimal(12,2)' })
   amount!: number;
 
-  @Column({ type: 'varchar', length: 3, default: 'VND' })
+  @Property({ type: 'varchar', length: 3, default: 'VND' })
   currency!: string;
 
-  @Column({ type: 'varchar', length: 10 })
+  @Property({ type: 'varchar', length: 10 })
   type!: string;
 
-  @Column({ name: 'category_id', type: 'uuid' })
+  @Property({ name: 'category_id', type: 'uuid' })
   categoryId!: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Property({ type: 'varchar', length: 255 })
   description!: string;
 
-  @Column({ name: 'transaction_date', type: 'date' })
+  @Property({ name: 'transaction_date', type: 'date' })
   transactionDate!: Date;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt!: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt!: Date;
 }
