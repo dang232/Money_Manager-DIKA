@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd services/worker-service && pnpm add @money-manager/infrastructure@workspace:* 2>&1 | tail -5\",\"timeout\":30000,\"description\":\"Add infrastructure dependency to worker-service\"}",
+  "error": "Exit code 1\n/usr/bin/bash: line 1: cd: services/worker-service: No such file or directory",
+  "timestamp": "2026-06-25T10:57:32.228Z",
+  "retry_count": 3
+}
