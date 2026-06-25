@@ -1,20 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import {
   TransactionType,
   generateUuid,
   EventBusPort,
-  CachePort,
   UserId,
   Money,
   BudgetPeriod,
+  ApiExceptionFilter,
 } from '@money-manager/shared-kernel';
 import { Category } from '../src/domain/aggregates/category.aggregate';
 import { Budget } from '../src/domain/aggregates/budget.aggregate';
 import { CategoryRepository, CATEGORY_REPOSITORY } from '../src/domain/repositories/category.repository.port';
 import { BudgetRepository, BUDGET_REPOSITORY } from '../src/domain/repositories/budget.repository.port';
-import { EVENT_BUS_PORT, CACHE_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
 import { CategoryController } from '../src/presentation/controllers/category.controller';
 import { BudgetController } from '../src/presentation/controllers/budget.controller';
 import { CreateCategoryHandler } from '../src/application/handlers/create-category.handler';
@@ -113,7 +113,6 @@ describe('Budget Flow E2E', () => {
   let categoryRepo: InMemoryCategoryRepository;
   let budgetRepo: InMemoryBudgetRepository;
   let mockEventBus: EventBusPort;
-  let mockCache: CachePort;
 
   beforeAll(async () => {
     categoryRepo = new InMemoryCategoryRepository();
@@ -122,12 +121,6 @@ describe('Budget Flow E2E', () => {
       publish: jest.fn().mockResolvedValue(undefined),
       subscribe: jest.fn().mockResolvedValue(undefined),
     };
-    mockCache = {
-      get: jest.fn().mockResolvedValue(null),
-      set: jest.fn().mockResolvedValue(undefined),
-      del: jest.fn().mockResolvedValue(undefined),
-      invalidate: jest.fn().mockResolvedValue(undefined),
-    };
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       controllers: [CategoryController, BudgetController],
@@ -135,7 +128,6 @@ describe('Budget Flow E2E', () => {
         { provide: CATEGORY_REPOSITORY, useValue: categoryRepo },
         { provide: BUDGET_REPOSITORY, useValue: budgetRepo },
         { provide: EVENT_BUS_PORT, useValue: mockEventBus },
-        { provide: CACHE_PORT, useValue: mockCache },
         BudgetProjectionService,
         CreateCategoryHandler,
         UpdateCategoryHandler,
@@ -155,6 +147,7 @@ describe('Budget Flow E2E', () => {
         transform: true,
       }),
     );
+    app.useGlobalFilters(new ApiExceptionFilter());
     await app.init();
   });
 
@@ -182,29 +175,30 @@ describe('Budget Flow E2E', () => {
         .send(validCategoryDto)
         .expect(201);
 
-      expect(res.body).toHaveProperty('id');
-      expect(res.body.name).toBe('Food & Dining');
-      expect(res.body.type).toBe(TransactionType.EXPENSE);
-      expect(res.body.icon).toBe('utensils');
-      expect(res.body.color).toBe('#FF5733');
-      expect(res.body).toHaveProperty('createdAt');
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('id');
+      expect(res.body.data.name).toBe('Food & Dining');
+      expect(res.body.data.type).toBe(TransactionType.EXPENSE);
+      expect(res.body.data.icon).toBe('utensils');
+      expect(res.body.data.color).toBe('#FF5733');
+      expect(res.body.data).toHaveProperty('createdAt');
       expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
     });
 
     it('returns 400 for duplicate name+type combination', async () => {
-      // Create the first one
       await request(app.getHttpServer())
         .post('/categories')
         .send(validCategoryDto)
         .expect(201);
 
-      // Try to create a duplicate
       const res = await request(app.getHttpServer())
         .post('/categories')
         .send(validCategoryDto)
         .expect(400);
 
-      expect(res.body).toHaveProperty('message');
+      expect(res.body.success).toBe(false);
+      expect(res.body.error).toHaveProperty('message');
+      expect(res.body.error.code).toBe('CATEGORY_DUPLICATE');
     });
 
     it('allows same name with different type', async () => {
@@ -213,10 +207,12 @@ describe('Budget Flow E2E', () => {
         .send(validCategoryDto)
         .expect(201);
 
-      await request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .post('/categories')
         .send({ ...validCategoryDto, type: TransactionType.INCOME })
         .expect(201);
+
+      expect(res.body.success).toBe(true);
     });
 
     it('returns 400 for invalid color format', async () => {
@@ -255,8 +251,9 @@ describe('Budget Flow E2E', () => {
         .get('/categories')
         .expect(200);
 
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBe(2);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(2);
     });
 
     it('returns empty array when no categories exist', async () => {
@@ -264,7 +261,8 @@ describe('Budget Flow E2E', () => {
         .get('/categories')
         .expect(200);
 
-      expect(res.body).toEqual([]);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toEqual([]);
     });
   });
 
@@ -284,13 +282,14 @@ describe('Budget Flow E2E', () => {
         })
         .expect(201);
 
-      expect(res.body).toHaveProperty('budgetId');
-      expect(res.body.categoryId).toBe(categoryId);
-      expect(res.body.monthlyLimit).toBe(5000000);
-      expect(res.body.currency).toBe('VND');
-      expect(res.body.runningTotal).toBe(0);
-      expect(res.body.usagePercentage).toBe(0);
-      expect(res.body.isExceeded).toBe(false);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('budgetId');
+      expect(res.body.data.categoryId).toBe(categoryId);
+      expect(res.body.data.monthlyLimit).toBe(5000000);
+      expect(res.body.data.currency).toBe('VND');
+      expect(res.body.data.runningTotal).toBe(0);
+      expect(res.body.data.usagePercentage).toBe(0);
+      expect(res.body.data.isExceeded).toBe(false);
     });
 
     it('updates existing budget for same category+period', async () => {
@@ -304,19 +303,17 @@ describe('Budget Flow E2E', () => {
         month: now.getMonth() + 1,
       };
 
-      // Create
       await request(app.getHttpServer())
         .post('/budgets')
         .send(budgetDto)
         .expect(201);
 
-      // Update limit
       const res = await request(app.getHttpServer())
         .post('/budgets')
         .send({ ...budgetDto, monthlyLimit: 8000000 })
         .expect(201);
 
-      expect(res.body.monthlyLimit).toBe(8000000);
+      expect(res.body.data.monthlyLimit).toBe(8000000);
     });
 
     it('returns 400 for invalid monthlyLimit', async () => {
@@ -358,7 +355,6 @@ describe('Budget Flow E2E', () => {
       const now = new Date();
       const categoryId = generateUuid();
 
-      // Create a budget
       await request(app.getHttpServer())
         .post('/budgets')
         .send({
@@ -373,14 +369,15 @@ describe('Budget Flow E2E', () => {
         .get(`/budgets?year=${now.getFullYear()}&month=${now.getMonth() + 1}`)
         .expect(200);
 
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBe(1);
-      expect(res.body[0]).toHaveProperty('budgetId');
-      expect(res.body[0]).toHaveProperty('categoryId');
-      expect(res.body[0]).toHaveProperty('monthlyLimit');
-      expect(res.body[0]).toHaveProperty('runningTotal');
-      expect(res.body[0]).toHaveProperty('usagePercentage');
-      expect(res.body[0]).toHaveProperty('isExceeded');
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0]).toHaveProperty('budgetId');
+      expect(res.body.data[0]).toHaveProperty('categoryId');
+      expect(res.body.data[0]).toHaveProperty('monthlyLimit');
+      expect(res.body.data[0]).toHaveProperty('runningTotal');
+      expect(res.body.data[0]).toHaveProperty('usagePercentage');
+      expect(res.body.data[0]).toHaveProperty('isExceeded');
     });
 
     it('returns empty array when no budgets exist for period', async () => {
@@ -388,7 +385,8 @@ describe('Budget Flow E2E', () => {
         .get('/budgets?year=2020&month=1')
         .expect(200);
 
-      expect(res.body).toEqual([]);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toEqual([]);
     });
   });
 
@@ -397,7 +395,6 @@ describe('Budget Flow E2E', () => {
       const now = new Date();
       const categoryId = generateUuid();
 
-      // Create a budget
       await request(app.getHttpServer())
         .post('/budgets')
         .send({
@@ -412,13 +409,14 @@ describe('Budget Flow E2E', () => {
         .get(`/budgets/projections?year=${now.getFullYear()}&month=${now.getMonth() + 1}`)
         .expect(200);
 
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBe(1);
-      expect(res.body[0]).toHaveProperty('budgetId');
-      expect(res.body[0]).toHaveProperty('categoryId');
-      expect(res.body[0]).toHaveProperty('dailyVelocity');
-      expect(res.body[0]).toHaveProperty('projectedOverageDate');
-      expect(res.body[0]).toHaveProperty('daysUntilExceeded');
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0]).toHaveProperty('budgetId');
+      expect(res.body.data[0]).toHaveProperty('categoryId');
+      expect(res.body.data[0]).toHaveProperty('dailyVelocity');
+      expect(res.body.data[0]).toHaveProperty('projectedOverageDate');
+      expect(res.body.data[0]).toHaveProperty('daysUntilExceeded');
     });
 
     it('returns empty array when no budgets exist', async () => {
@@ -426,7 +424,8 @@ describe('Budget Flow E2E', () => {
         .get('/budgets/projections?year=2020&month=1')
         .expect(200);
 
-      expect(res.body).toEqual([]);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toEqual([]);
     });
   });
 });

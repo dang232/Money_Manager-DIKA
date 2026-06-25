@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { TransactionType, generateUuid, EventBusPort, ApiExceptionFilter } from '@money-manager/shared-kernel';
 import { Transaction } from '../src/domain/aggregates/transaction.aggregate';
 import {
@@ -123,6 +123,7 @@ describe('Transactions E2E', () => {
         transform: true,
       }),
     );
+    app.useGlobalFilters(new ApiExceptionFilter());
     await app.init();
   });
 
@@ -155,12 +156,13 @@ describe('Transactions E2E', () => {
         .send(validCreateDto)
         .expect(201);
 
-      expect(res.body).toHaveProperty('id');
-      expect(res.body.amount).toBe(50000);
-      expect(res.body.type).toBe(TransactionType.EXPENSE);
-      expect(res.body.categoryId).toBe(validCategoryId);
-      expect(res.body.description).toBe('Test transaction');
-      expect(res.body.currency).toBe('VND');
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('id');
+      expect(res.body.data.amount).toBe(50000);
+      expect(res.body.data.type).toBe(TransactionType.EXPENSE);
+      expect(res.body.data.categoryId).toBe(validCategoryId);
+      expect(res.body.data.description).toBe('Test transaction');
+      expect(res.body.data.currency).toBe('VND');
       expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
     });
 
@@ -170,7 +172,8 @@ describe('Transactions E2E', () => {
         .send({ ...validCreateDto, amount: 0 })
         .expect(400);
 
-      expect(res.body).toHaveProperty('message');
+      expect(res.body.success).toBe(false);
+      expect(res.body.error).toHaveProperty('message');
     });
 
     it('returns 400 for negative amount', async () => {
@@ -214,7 +217,6 @@ describe('Transactions E2E', () => {
 
   describe('GET /transactions', () => {
     it('returns paginated list of transactions', async () => {
-      // Create some transactions first
       await request(app.getHttpServer()).post('/transactions').send(validCreateDto);
       await request(app.getHttpServer()).post('/transactions').send({
         ...validCreateDto,
@@ -226,8 +228,9 @@ describe('Transactions E2E', () => {
         .get('/transactions')
         .expect(200);
 
-      expect(Array.isArray(res.body)).toBe(true);
-      expect(res.body.length).toBe(2);
+      expect(res.body.success).toBe(true);
+      expect(Array.isArray(res.body.data)).toBe(true);
+      expect(res.body.data.length).toBe(2);
     });
 
     it('returns empty array when no transactions exist', async () => {
@@ -235,11 +238,11 @@ describe('Transactions E2E', () => {
         .get('/transactions')
         .expect(200);
 
-      expect(res.body).toEqual([]);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toEqual([]);
     });
 
     it('supports pagination via query params', async () => {
-      // Create 3 transactions
       for (let i = 0; i < 3; i++) {
         await request(app.getHttpServer())
           .post('/transactions')
@@ -250,7 +253,7 @@ describe('Transactions E2E', () => {
         .get('/transactions?page=1&limit=2')
         .expect(200);
 
-      expect(res.body.length).toBe(2);
+      expect(res.body.data.length).toBe(2);
     });
   });
 
@@ -261,18 +264,22 @@ describe('Transactions E2E', () => {
         .send(validCreateDto);
 
       const res = await request(app.getHttpServer())
-        .get(`/transactions/${createRes.body.id}`)
+        .get(`/transactions/${createRes.body.data.id}`)
         .expect(200);
 
-      expect(res.body.id).toBe(createRes.body.id);
-      expect(res.body.amount).toBe(50000);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.id).toBe(createRes.body.data.id);
+      expect(res.body.data.amount).toBe(50000);
     });
 
     it('returns 404 for non-existent transaction', async () => {
       const fakeId = generateUuid();
-      await request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .get(`/transactions/${fakeId}`)
         .expect(404);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('NOT_FOUND');
     });
 
     it('returns 400 for invalid UUID format', async () => {
@@ -289,20 +296,24 @@ describe('Transactions E2E', () => {
         .send(validCreateDto);
 
       const res = await request(app.getHttpServer())
-        .put(`/transactions/${createRes.body.id}`)
+        .put(`/transactions/${createRes.body.data.id}`)
         .send({ amount: 75000, description: 'Updated' })
         .expect(200);
 
-      expect(res.body.amount).toBe(75000);
-      expect(res.body.description).toBe('Updated');
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.amount).toBe(75000);
+      expect(res.body.data.description).toBe('Updated');
     });
 
     it('returns 404 for non-existent transaction', async () => {
       const fakeId = generateUuid();
-      await request(app.getHttpServer())
+      const res = await request(app.getHttpServer())
         .put(`/transactions/${fakeId}`)
         .send({ amount: 75000 })
         .expect(404);
+
+      expect(res.body.success).toBe(false);
+      expect(res.body.error.code).toBe('NOT_FOUND');
     });
   });
 
@@ -313,12 +324,12 @@ describe('Transactions E2E', () => {
         .send(validCreateDto);
 
       await request(app.getHttpServer())
-        .delete(`/transactions/${createRes.body.id}`)
+        .delete(`/transactions/${createRes.body.data.id}`)
         .expect(204);
 
       // Verify it's gone
       await request(app.getHttpServer())
-        .get(`/transactions/${createRes.body.id}`)
+        .get(`/transactions/${createRes.body.data.id}`)
         .expect(404);
     });
 
@@ -336,7 +347,6 @@ describe('Transactions E2E', () => {
       const currentMonth = now.getMonth() + 1;
       const currentYear = now.getFullYear();
 
-      // Create income and expense in the current month
       await request(app.getHttpServer())
         .post('/transactions')
         .send({ ...validCreateDto, amount: 200000, type: TransactionType.INCOME });
@@ -349,11 +359,12 @@ describe('Transactions E2E', () => {
         .get(`/transactions/summary?year=${currentYear}&month=${currentMonth}`)
         .expect(200);
 
-      expect(res.body).toHaveProperty('totalIncome');
-      expect(res.body).toHaveProperty('totalExpense');
-      expect(res.body).toHaveProperty('net');
-      expect(res.body).toHaveProperty('transactionCount');
-      expect(res.body).toHaveProperty('period');
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('totalIncome');
+      expect(res.body.data).toHaveProperty('totalExpense');
+      expect(res.body.data).toHaveProperty('net');
+      expect(res.body.data).toHaveProperty('transactionCount');
+      expect(res.body.data).toHaveProperty('period');
     });
 
     it('returns zero totals for empty period', async () => {
@@ -361,10 +372,11 @@ describe('Transactions E2E', () => {
         .get('/transactions/summary?year=2020&month=1')
         .expect(200);
 
-      expect(res.body.totalIncome).toBe(0);
-      expect(res.body.totalExpense).toBe(0);
-      expect(res.body.net).toBe(0);
-      expect(res.body.transactionCount).toBe(0);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.totalIncome).toBe(0);
+      expect(res.body.data.totalExpense).toBe(0);
+      expect(res.body.data.net).toBe(0);
+      expect(res.body.data.transactionCount).toBe(0);
     });
   });
 });
