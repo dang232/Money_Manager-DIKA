@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui.store'
 import { useTheme } from '@/composables/useTheme'
@@ -21,8 +21,6 @@ const router = useRouter()
 const ui = useUiStore()
 useTheme()
 
-const showTransactionForm = ref(false)
-
 function handleResize() {
   ui.setMobile(window.innerWidth < 768)
 }
@@ -43,11 +41,6 @@ const mobileNav = [
   { path: '/categories', label: 'Categories', icon: Tag },
   { path: '/reports', label: 'Reports', icon: BarChart3 },
 ]
-
-function openAddTransaction() {
-  router.push('/transactions')
-  showTransactionForm.value = true
-}
 </script>
 
 <template>
@@ -90,7 +83,7 @@ function openAddTransaction() {
     <button
       class="fixed bottom-24 md:bottom-8 right-6 md:right-8 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_12px_24px_rgba(16,185,129,0.4)] hover:scale-105 hover:bg-primary/90 transition-all z-40"
       title="Add Transaction"
-      @click="openAddTransaction"
+      @click="router.push({ path: '/transactions', query: { add: '1' } })"
     >
       <Plus :size="24" />
     </button>

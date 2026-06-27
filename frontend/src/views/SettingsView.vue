@@ -236,6 +236,7 @@ async function handleSubmit() {
             <button
               type="button"
               class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+              @click="userStore.fetchProfile()"
             >
               Cancel
             </button>

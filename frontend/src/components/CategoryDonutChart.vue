@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 
@@ -13,7 +13,7 @@ const props = defineProps<{
   centerLabel?: string
 }>()
 
-const chartData = ref({
+const chartData = computed(() => ({
   labels: props.labels,
   datasets: [{
     data: props.data,
@@ -22,7 +22,7 @@ const chartData = ref({
     spacing: 2,
     hoverOffset: 6,
   }],
-})
+}))
 
 const chartOptions = {
   responsive: true,
@@ -40,19 +40,6 @@ const chartOptions = {
     },
   },
 }
-
-watch(() => [props.labels, props.data, props.colors], () => {
-  chartData.value = {
-    labels: props.labels,
-    datasets: [{
-      data: props.data,
-      backgroundColor: props.colors,
-      borderWidth: 0,
-      spacing: 2,
-      hoverOffset: 6,
-    }],
-  }
-})
 </script>
 
 <template>

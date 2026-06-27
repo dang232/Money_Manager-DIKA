@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -21,7 +21,7 @@ const props = defineProps<{
   expenses: number[]
 }>()
 
-const chartData = ref({
+const chartData = computed(() => ({
   labels: props.labels,
   datasets: [
     {
@@ -53,7 +53,7 @@ const chartData = ref({
       pointHoverRadius: 6,
     },
   ],
-})
+}))
 
 const chartOptions = {
   responsive: true,
@@ -95,16 +95,6 @@ const chartOptions = {
     },
   },
 }
-
-watch(() => [props.labels, props.income, props.expenses], () => {
-  chartData.value = {
-    labels: props.labels,
-    datasets: [
-      { ...chartData.value.datasets[0], data: props.income },
-      { ...chartData.value.datasets[1], data: props.expenses },
-    ],
-  }
-})
 </script>
 
 <template>

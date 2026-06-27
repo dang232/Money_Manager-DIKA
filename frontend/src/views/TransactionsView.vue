@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useTransactionStore } from '@/stores/transaction.store'
 import { useCategoryStore } from '@/stores/category.store'
 import TransactionForm from '@/components/TransactionForm.vue'
@@ -7,6 +8,7 @@ import { formatVND, formatDate } from '@/lib/utils'
 import type { CreateTransactionDto, TransactionFilters, Transaction } from '@/api/transaction.api'
 import { Plus, TrendingUp, TrendingDown } from '@lucide/vue'
 
+const route = useRoute()
 const txStore = useTransactionStore()
 const categoryStore = useCategoryStore()
 
@@ -18,12 +20,11 @@ const activeFilter = ref<'all' | 'income' | 'expense'>('all')
 const filters = ref<TransactionFilters>({
   type: undefined,
   categoryId: undefined,
-  startDate: undefined,
-  endDate: undefined,
 })
 
 onMounted(async () => {
   await Promise.all([txStore.fetchAll(), categoryStore.fetchAll()])
+  if (route.query.add === '1') openCreate()
 })
 
 const groupedTransactions = computed(() => txStore.byDate)
