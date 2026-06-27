@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "useDefineForClassFields": false,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "types": ["jest", "node"]
+  },
+  "include": ["./**/*.ts"]
+}

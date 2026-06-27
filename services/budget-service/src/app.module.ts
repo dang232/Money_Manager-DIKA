@@ -29,11 +29,11 @@ import { HealthController } from './presentation/controllers/health.controller';
   imports: [
     MikroOrmModule.forRoot({
       driver: PostgreSqlDriver,
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 5433,
-      dbName: process.env.DB_NAME || 'budget_db',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
+      host: process.env.BUDGET_DB_HOST || process.env.DB_HOST || 'localhost',
+      port: Number(process.env.BUDGET_DB_PORT || process.env.DB_PORT) || 5432,
+      dbName: process.env.BUDGET_DB_NAME || process.env.DB_NAME || 'budget_db',
+      user: process.env.BUDGET_DB_USER || process.env.DB_USER || 'postgres',
+      password: process.env.BUDGET_DB_PASSWORD || process.env.DB_PASSWORD || 'postgres',
       entities: [CategoryEntity, BudgetEntity],
       debug: process.env.NODE_ENV !== 'production',
       allowGlobalContext: true,

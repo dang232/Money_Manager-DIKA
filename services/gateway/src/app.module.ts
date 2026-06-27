@@ -9,6 +9,8 @@ import { HttpProxyService } from './proxy/http-proxy.service';
 import { TransactionProxyController } from './proxy/transaction-proxy.controller';
 import { BudgetProxyController, CategoryProxyController } from './proxy/budget-proxy.controller';
 import { AiProxyController } from './proxy/ai-proxy.controller';
+import { AuthProxyController } from './proxy/auth-proxy.controller';
+import { UsersProxyController } from './proxy/users-proxy.controller';
 import { DashboardController } from './proxy/dashboard.controller';
 import { HealthController } from './health/health.controller';
 import { WsGateway } from './websocket/ws.gateway';
@@ -30,6 +32,8 @@ import { EventRelayService } from './websocket/event-relay.service';
     BudgetProxyController,
     CategoryProxyController,
     AiProxyController,
+    AuthProxyController,
+    UsersProxyController,
     DashboardController,
     HealthController,
   ],

@@ -16,7 +16,7 @@ describe('SeedDataJob', () => {
   beforeEach(() => {
     persistedEntities = [];
     jest.clearAllMocks();
-    job = new SeedDataJob(mockEm as any);
+    job = new SeedDataJob(mockEm as any, mockEm as any);
   });
 
   it('generates correct number of transactions (15-25 expenses per month * 3 + 3 salaries)', async () => {
@@ -83,8 +83,9 @@ describe('SeedDataJob', () => {
     }
   });
 
-  it('calls flush once for batch insert', async () => {
+  it('calls flush for batch insert', async () => {
     await job.execute();
-    expect(mockEm.flush).toHaveBeenCalledTimes(1);
+    // ponytail: flushes both txnEm and budgetEm
+    expect(mockEm.flush).toHaveBeenCalledTimes(2);
   });
 });

@@ -142,3 +142,11 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
 /.omc
+
+# mTLS certs — generated locally via scripts/gen-certs.sh
+infra/certs/*.pem
+infra/certs/*.key
+infra/certs/*.crt
+infra/certs/*.csr
+infra/certs/*.srl
+!infra/certs/.gitkeep

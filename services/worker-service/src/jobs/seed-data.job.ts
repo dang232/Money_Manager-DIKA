@@ -1,6 +1,7 @@
 // ponytail: SeedDataJob — generates 3 months of realistic Vietnamese transaction data
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
+import { InjectEntityManager } from '@mikro-orm/nestjs';
 import { TransactionEntity } from '../infrastructure/persistence/transaction.entity';
 import { CategoryEntity } from '../infrastructure/persistence/category.entity';
 import { UserId, TransactionType } from '@money-manager/shared-kernel';
@@ -37,12 +38,15 @@ const EXPENSE_DESCRIPTIONS = [
 
 @Injectable()
 export class SeedDataJob {
-  constructor(private readonly em: EntityManager) {}
+  constructor(
+    private readonly txnEm: EntityManager,
+    @InjectEntityManager('budget') private readonly budgetEm: EntityManager,
+  ) {}
 
   async execute(userId?: string): Promise<void> {
     const uid = userId ?? UserId.DEFAULT.value;
 
-    // Seed categories
+    // Seed categories into budget_db
     const categoryIds: Record<string, string> = {};
     for (const cat of DEFAULT_CATEGORIES) {
       const id = uuid();
@@ -54,8 +58,9 @@ export class SeedDataJob {
       entity.type = cat.type;
       entity.icon = cat.icon;
       entity.color = cat.color;
-      this.em.persist(entity);
+      this.budgetEm.persist(entity);
     }
+    await this.budgetEm.flush();
 
     const expenseCategories = DEFAULT_CATEGORIES.filter(c => c.type === TransactionType.EXPENSE);
     const incomeCategory = DEFAULT_CATEGORIES.find(c => c.type === TransactionType.INCOME)!;
@@ -63,7 +68,7 @@ export class SeedDataJob {
     let totalTransactions = 0;
     const now = new Date();
 
-    // Generate 3 months of data
+    // Generate 3 months of data into txn_db
     for (let monthOffset = 0; monthOffset < 3; monthOffset++) {
       const monthDate = new Date(now.getFullYear(), now.getMonth() - monthOffset, 1);
 
@@ -78,7 +83,7 @@ export class SeedDataJob {
       salaryTxn.categoryId = categoryIds[incomeCategory.name];
       salaryTxn.description = 'Lương tháng';
       salaryTxn.transactionDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), salaryDay);
-      this.em.persist(salaryTxn);
+      this.txnEm.persist(salaryTxn);
       totalTransactions++;
 
       // 15-25 random expenses
@@ -100,12 +105,12 @@ export class SeedDataJob {
         txn.categoryId = categoryIds[cat.name];
         txn.description = desc;
         txn.transactionDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
-        this.em.persist(txn);
+        this.txnEm.persist(txn);
         totalTransactions++;
       }
     }
 
-    await this.em.flush(); // single batch insert
+    await this.txnEm.flush(); // single batch insert
     console.log(`Seeded ${totalTransactions} transactions for 3 months`);
   }
 
