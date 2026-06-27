@@ -39,7 +39,7 @@ describe('UpdateTransactionHandler', () => {
     });
     mockRepo.findById.mockResolvedValue(existing);
 
-    const cmd = new UpdateTransactionCommand('tx-1', { amount: 75000, description: 'New' });
+    const cmd = new UpdateTransactionCommand('tx-1', 'user-1', 75000, undefined, undefined, undefined, 'New');
     await handler.execute(cmd);
 
     expect(mockRepo.save).toHaveBeenCalledTimes(1);
@@ -52,7 +52,7 @@ describe('UpdateTransactionHandler', () => {
 
   it('throws NotFoundException when transaction does not exist', async () => {
     mockRepo.findById.mockResolvedValue(null);
-    const cmd = new UpdateTransactionCommand('missing-id', { amount: 100 });
+    const cmd = new UpdateTransactionCommand('missing-id', 'user-1', 100);
 
     await expect(handler.execute(cmd)).rejects.toThrow(NotFoundException);
     expect(mockRepo.save).not.toHaveBeenCalled();
@@ -74,7 +74,7 @@ describe('UpdateTransactionHandler', () => {
     });
     mockRepo.findById.mockResolvedValue(existing);
 
-    const cmd = new UpdateTransactionCommand('tx-1', { amount: -1 });
+    const cmd = new UpdateTransactionCommand('tx-1', 'user-1', -1);
     await expect(handler.execute(cmd)).rejects.toThrow();
     expect(mockRepo.save).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();

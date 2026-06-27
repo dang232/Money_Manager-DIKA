@@ -39,7 +39,7 @@ describe('DeleteTransactionHandler', () => {
     });
     mockRepo.findById.mockResolvedValue(existing);
 
-    await handler.execute(new DeleteTransactionCommand('tx-1'));
+    await handler.execute(new DeleteTransactionCommand('tx-1', 'user-1'));
 
     expect(mockRepo.delete).toHaveBeenCalledWith('tx-1');
     expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
@@ -52,7 +52,7 @@ describe('DeleteTransactionHandler', () => {
   it('throws NotFoundException and skips publish when transaction does not exist', async () => {
     mockRepo.findById.mockResolvedValue(null);
 
-    await expect(handler.execute(new DeleteTransactionCommand('missing'))).rejects.toThrow(NotFoundException);
+    await expect(handler.execute(new DeleteTransactionCommand('missing', 'user-1'))).rejects.toThrow(NotFoundException);
     expect(mockRepo.delete).not.toHaveBeenCalled();
     expect(mockEventBus.publish).not.toHaveBeenCalled();
   });

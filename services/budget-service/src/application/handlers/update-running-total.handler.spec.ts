@@ -1,7 +1,8 @@
 // ponytail: unit tests for UpdateRunningTotalHandler
 import { UpdateRunningTotalHandler } from './update-running-total.handler';
 import { UpdateRunningTotalCommand } from '../commands/update-running-total.command';
-import { TransactionType, UserId, Money, BudgetPeriod, Budget } from '@money-manager/shared-kernel';
+import { TransactionType, UserId, Money, BudgetPeriod } from '@money-manager/shared-kernel';
+import { Budget } from '../../domain/aggregates/budget.aggregate';
 
 describe('UpdateRunningTotalHandler', () => {
   let handler: UpdateRunningTotalHandler;
@@ -77,7 +78,7 @@ describe('UpdateRunningTotalHandler', () => {
     mockBudgetRepo.findByUserCategoryPeriod.mockResolvedValue(budget);
 
     await handler.execute(new UpdateRunningTotalCommand(
-      'user-1', 'cat-1', 500, 'VND', 2026, 6, TransactionType.INCOME,
+      'user-1', 'cat-1', 500, 'VND', TransactionType.INCOME, 2026, 6,
     ));
 
     expect(mockBudgetRepo.save).not.toHaveBeenCalled();
