@@ -11,6 +11,9 @@ export * from './interfaces/event-bus.port';
 export * from './interfaces/cache.port';
 export * from './interfaces/repository.port';
 
+// di tokens — colocated with the interfaces they identify
+export * from './di/tokens';
+
 // exceptions
 export * from './exceptions/domain.exception';
 export * from './exceptions/not-found.exception';

@@ -2,8 +2,9 @@
 import { Global, Module } from '@nestjs/common';
 import { createLogger } from './winston-loki.config';
 import winston from 'winston';
+import { LOGGER_TOKEN } from '@money-manager/shared-kernel';
 
-export const LOGGER_TOKEN = 'WINSTON_LOGGER';
+export { LOGGER_TOKEN };
 
 @Global()
 @Module({

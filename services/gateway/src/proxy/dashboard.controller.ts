@@ -3,7 +3,7 @@ import { Controller, Get, Inject, Query } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import axios from 'axios';
 import { CachePort } from '@money-manager/shared-kernel';
-import { CACHE_PORT } from '@money-manager/infrastructure';
+import { CACHE_PORT } from '@money-manager/shared-kernel';
 import { appConfig } from '../config/app.config';
 
 interface DashboardResponse {

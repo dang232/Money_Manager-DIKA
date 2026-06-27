@@ -1,7 +1,7 @@
 // ponytail: budget cache service — Redis-backed read-through cache
 import { Injectable, Inject } from '@nestjs/common';
 import { CachePort } from '@money-manager/shared-kernel';
-import { CACHE_PORT } from '@money-manager/infrastructure';
+import { CACHE_PORT } from '@money-manager/shared-kernel';
 import { BudgetStatusResponseDto } from '../../presentation/dtos/budget.dto';
 
 const TTL_SECONDS = 3600;

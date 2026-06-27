@@ -1,7 +1,7 @@
 // ponytail: handler for UpdateTransactionCommand
 import { Injectable, Inject } from '@nestjs/common';
 import { EventBusPort, NotFoundException } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { UpdateTransactionCommand } from '../commands/update-transaction.command';
 import { Transaction } from '../../domain/aggregates/transaction.aggregate';
 import { TransactionRepository, TRANSACTION_REPOSITORY } from '../../domain/repositories/transaction.repository.port';

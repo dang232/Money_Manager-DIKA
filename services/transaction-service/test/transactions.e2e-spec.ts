@@ -9,7 +9,7 @@ import {
   MonthlySummary,
   TRANSACTION_REPOSITORY,
 } from '../src/domain/repositories/transaction.repository.port';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { TransactionController } from '../src/presentation/controllers/transaction.controller';
 import { CreateTransactionHandler } from '../src/application/handlers/create-transaction.handler';
 import { UpdateTransactionHandler } from '../src/application/handlers/update-transaction.handler';

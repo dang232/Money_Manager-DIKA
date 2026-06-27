@@ -2,6 +2,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import Redis from 'ioredis';
 import { RedisCacheAdapter } from './redis-cache.adapter';
+import { CACHE_PORT } from '@money-manager/shared-kernel';
 
 export interface CacheModuleConfig {
   host: string;
@@ -9,7 +10,7 @@ export interface CacheModuleConfig {
   password?: string;
 }
 
-export const CACHE_PORT = 'CACHE_PORT';
+export { CACHE_PORT };
 
 @Module({})
 export class CacheModule {

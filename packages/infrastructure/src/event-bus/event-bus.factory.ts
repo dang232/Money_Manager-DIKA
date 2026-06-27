@@ -4,6 +4,7 @@ import { KafkaConfig } from 'kafkajs';
 import Redis from 'ioredis';
 import { KafkaEventBusAdapter } from './kafka.adapter';
 import { RedisStreamsEventBusAdapter } from './redis-streams.adapter';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 
 export interface EventBusConfig {
   adapter?: 'kafka' | 'redis-streams';
@@ -11,7 +12,7 @@ export interface EventBusConfig {
   redis?: { host: string; port: number; password?: string };
 }
 
-export const EVENT_BUS_PORT = 'EVENT_BUS_PORT';
+export { EVENT_BUS_PORT };
 
 @Module({})
 export class EventBusModule {
