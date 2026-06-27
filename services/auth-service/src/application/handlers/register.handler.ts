@@ -1,6 +1,6 @@
 // ponytail: handler for RegisterCommand — creates user, returns access + refresh tokens
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainException } from '@money-manager/shared-kernel';
+import { DomainException, USER_EMAIL_TAKEN, PASSWORD_TOO_WEAK } from '@money-manager/shared-kernel';
 import { RegisterCommand } from '../commands/register.command';
 import { User } from '../../domain/aggregates/user.aggregate';
 import { Email } from '../../domain/value-objects/email';
@@ -27,11 +27,11 @@ export class RegisterHandler {
 
     const existing = await this.userRepo.findByEmail(email.value);
     if (existing) {
-      throw new DomainException('A user with this email already exists', 'USER_EMAIL_TAKEN');
+      throw DomainException.fromError(USER_EMAIL_TAKEN);
     }
 
     if (command.password.length < 8) {
-      throw new DomainException('Password must be at least 8 characters', 'PASSWORD_TOO_WEAK');
+      throw DomainException.fromError(PASSWORD_TOO_WEAK);
     }
 
     const hash = await this.hasher.hash(command.password);

@@ -1,6 +1,6 @@
 // ponytail: shared token-issuance helper for register + login + refresh handlers
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainException } from '@money-manager/shared-kernel';
+import { DomainException, AUTH_REFRESH_INVALID } from '@money-manager/shared-kernel';
 import { User } from '../domain/aggregates/user.aggregate';
 import { RefreshToken } from '../domain/aggregates/refresh-token.aggregate';
 import { RefreshTokenRepository, REFRESH_TOKEN_REPOSITORY } from '../domain/repositories/refresh-token.repository.port';
@@ -43,11 +43,11 @@ export class TokenIssuer {
   async rotate(refreshPlaintext: string): Promise<IssuedTokenPair> {
     const existing = await this.refreshRepo.findByPlaintext(refreshPlaintext);
     if (!existing || !existing.isUsable()) {
-      throw new DomainException('Refresh token is invalid or expired', 'AUTH_REFRESH_INVALID');
+      throw DomainException.fromError(AUTH_REFRESH_INVALID);
     }
     const user = await this.userRepo.findById(existing.userId);
     if (!user) {
-      throw new DomainException('Refresh token references unknown user', 'AUTH_REFRESH_INVALID');
+      throw DomainException.fromError(AUTH_REFRESH_INVALID);
     }
 
     existing.revoke();

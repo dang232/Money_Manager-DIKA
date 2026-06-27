@@ -1,7 +1,7 @@
 // ponytail: JWT implementation of TokenService — short-lived access tokens
 import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { DomainException } from '@money-manager/shared-kernel';
+import { DomainException, AUTH_TOKEN_INVALID } from '@money-manager/shared-kernel';
 import { TokenService, AccessTokenPayload, IssuedAccessToken } from '../../domain/services/token-service.port';
 
 const DEFAULT_TTL_SECONDS = 60 * 15; // 15 minutes
@@ -37,17 +37,17 @@ export class JwtTokenService implements TokenService {
     try {
       const decoded = jwt.verify(token, this.secret, { algorithms: ['HS256'] });
       if (typeof decoded === 'string' || !decoded || typeof decoded !== 'object') {
-        throw new DomainException('Invalid access token', 'AUTH_TOKEN_INVALID');
+        throw DomainException.fromError(AUTH_TOKEN_INVALID);
       }
       const sub = (decoded as jwt.JwtPayload).sub;
       const email = (decoded as jwt.JwtPayload & { email?: string }).email;
       if (typeof sub !== 'string' || typeof email !== 'string') {
-        throw new DomainException('Invalid access token payload', 'AUTH_TOKEN_INVALID');
+        throw DomainException.fromError(AUTH_TOKEN_INVALID);
       }
       return { sub, email };
     } catch (err) {
       if (err instanceof DomainException) throw err;
-      throw new DomainException('Access token is invalid or expired', 'AUTH_TOKEN_INVALID');
+      throw DomainException.fromError(AUTH_TOKEN_INVALID);
     }
   }
 }

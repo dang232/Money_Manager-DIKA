@@ -1,5 +1,5 @@
 // ponytail: Transaction aggregate — core domain entity
-import { Money, UserId, TransactionType, DomainException, generateUuid } from '@money-manager/shared-kernel';
+import { Money, UserId, TransactionType, DomainException, generateUuid, INVALID_AMOUNT, INVALID_DATE, INVALID_DESCRIPTION, INVALID_CATEGORY } from '@money-manager/shared-kernel';
 
 export interface CreateTransactionProps {
   userId: string;
@@ -120,7 +120,7 @@ export class Transaction {
 
   private static validateAmount(amount: number): void {
     if (amount <= 0) {
-      throw new DomainException('Transaction amount must be greater than 0', 'INVALID_AMOUNT');
+      throw DomainException.fromError(INVALID_AMOUNT);
     }
   }
 
@@ -129,19 +129,19 @@ export class Transaction {
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
     if (date >= tomorrow) {
-      throw new DomainException('Transaction date cannot be in the future', 'INVALID_DATE');
+      throw DomainException.fromError(INVALID_DATE);
     }
   }
 
   private static validateDescription(description: string): void {
     if (description.length > 255) {
-      throw new DomainException('Description must not exceed 255 characters', 'INVALID_DESCRIPTION');
+      throw DomainException.fromError(INVALID_DESCRIPTION);
     }
   }
 
   private static validateCategoryId(categoryId: string): void {
     if (!categoryId || categoryId.trim().length === 0) {
-      throw new DomainException('Category ID must not be empty', 'INVALID_CATEGORY');
+      throw DomainException.fromError(INVALID_CATEGORY);
     }
   }
 }

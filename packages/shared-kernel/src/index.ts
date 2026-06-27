@@ -17,6 +17,7 @@ export * from './di/tokens';
 // exceptions
 export * from './exceptions/domain.exception';
 export * from './exceptions/not-found.exception';
+export * from './exceptions/error-codes';
 
 // utils
 export * from './utils/uuid';
