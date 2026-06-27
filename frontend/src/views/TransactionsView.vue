@@ -4,7 +4,7 @@ import { useTransactionStore } from '@/stores/transaction.store'
 import { useCategoryStore } from '@/stores/category.store'
 import TransactionForm from '@/components/TransactionForm.vue'
 import { formatVND, formatDate } from '@/lib/utils'
-import type { CreateTransactionDto, TransactionFilters } from '@/api/transaction.api'
+import type { CreateTransactionDto, TransactionFilters, Transaction } from '@/api/transaction.api'
 
 const txStore = useTransactionStore()
 const categoryStore = useCategoryStore()
@@ -32,7 +32,7 @@ function openCreate() {
   showForm.value = true
 }
 
-function openEdit(tx: any) {
+function openEdit(tx: Transaction) {
   editingId.value = tx.id
   editingInitial.value = { amount: tx.amount, type: tx.type, categoryId: tx.categoryId, description: tx.description, date: tx.date.split('T')[0] }
   showForm.value = true

@@ -5,7 +5,6 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
 import { TransactionEntity } from './infrastructure/persistence/transaction.entity';
 import { TransactionRepositoryImpl } from './infrastructure/persistence/transaction.repository.impl';
-import { TransactionEventPublisher } from './infrastructure/messaging/transaction-event.publisher';
 import { TRANSACTION_REPOSITORY } from './domain/repositories/transaction.repository.port';
 import { CreateTransactionHandler } from './application/handlers/create-transaction.handler';
 import { UpdateTransactionHandler } from './application/handlers/update-transaction.handler';
@@ -14,6 +13,7 @@ import { GetTransactionsHandler } from './application/handlers/get-transactions.
 import { GetTransactionByIdHandler } from './application/handlers/get-transaction-by-id.handler';
 import { GetMonthlySummaryHandler } from './application/handlers/get-monthly-summary.handler';
 import { TransactionController } from './presentation/controllers/transaction.controller';
+import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
@@ -32,15 +32,13 @@ import { TransactionController } from './presentation/controllers/transaction.co
     EventBusModule.forRoot(),
     LoggerModule,
   ],
-  controllers: [TransactionController],
+  controllers: [TransactionController, HealthController],
   providers: [
     // repository
     {
       provide: TRANSACTION_REPOSITORY,
       useClass: TransactionRepositoryImpl,
     },
-    // event publisher
-    TransactionEventPublisher,
     // handlers
     CreateTransactionHandler,
     UpdateTransactionHandler,

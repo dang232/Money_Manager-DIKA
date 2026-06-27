@@ -14,7 +14,7 @@ import { Category } from '../src/domain/aggregates/category.aggregate';
 import { Budget } from '../src/domain/aggregates/budget.aggregate';
 import { CategoryRepository, CATEGORY_REPOSITORY } from '../src/domain/repositories/category.repository.port';
 import { BudgetRepository, BUDGET_REPOSITORY } from '../src/domain/repositories/budget.repository.port';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { CategoryController } from '../src/presentation/controllers/category.controller';
 import { BudgetController } from '../src/presentation/controllers/budget.controller';
 import { CreateCategoryHandler } from '../src/application/handlers/create-category.handler';

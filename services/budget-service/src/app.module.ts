@@ -23,6 +23,7 @@ import { TransactionCreatedConsumer } from './application/consumers/transaction-
 import { TransactionDeletedConsumer } from './application/consumers/transaction-deleted.consumer';
 import { CategoryController } from './presentation/controllers/category.controller';
 import { BudgetController } from './presentation/controllers/budget.controller';
+import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
@@ -46,7 +47,7 @@ import { BudgetController } from './presentation/controllers/budget.controller';
     }),
     LoggerModule,
   ],
-  controllers: [CategoryController, BudgetController],
+  controllers: [CategoryController, BudgetController, HealthController],
   providers: [
     // repositories
     { provide: CATEGORY_REPOSITORY, useClass: CategoryRepositoryImpl },

@@ -1,7 +1,7 @@
 // ponytail: DLQ retry job — exponential backoff for failed events
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { EventBusPort, DomainEvent } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT, LOGGER_TOKEN } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT, LOGGER_TOKEN } from '@money-manager/shared-kernel';
 
 interface Logger { info(msg: string, meta?: any): void; warn(msg: string, meta?: any): void; error(msg: string, meta?: any): void; }
 

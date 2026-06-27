@@ -2,6 +2,7 @@
 import { Module } from '@nestjs/common';
 import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
 import { AiController } from './presentation/controllers/ai.controller';
+import { HealthController } from './presentation/controllers/health.controller';
 import { SuggestCategoryHandler } from './application/handlers/suggest-category.handler';
 import { TransactionCreatedConsumer } from './application/consumers/transaction-created.consumer';
 import { aiProviderFactory } from './infrastructure/providers/ai-provider.factory';
@@ -11,7 +12,7 @@ import { aiProviderFactory } from './infrastructure/providers/ai-provider.factor
     EventBusModule.forRoot(),
     LoggerModule,
   ],
-  controllers: [AiController],
+  controllers: [AiController, HealthController],
   providers: [
     aiProviderFactory,
     SuggestCategoryHandler,

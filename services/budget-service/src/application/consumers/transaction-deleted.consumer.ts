@@ -1,7 +1,7 @@
 // ponytail: consumes transaction.deleted events → removes spending from budget
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { EventBusPort, DomainEvent, TransactionType, BudgetPeriod, Money } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { BudgetRepository, BUDGET_REPOSITORY } from '../../domain/repositories/budget.repository.port';
 
 const TRANSACTION_EVENTS_TOPIC = 'transaction.events';

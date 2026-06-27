@@ -1,7 +1,7 @@
 // ponytail: handler for SetBudgetCommand — creates or updates a budget
 import { Injectable, Inject } from '@nestjs/common';
 import { UserId, Money, BudgetPeriod, EventBusPort } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { SetBudgetCommand } from '../commands/set-budget.command';
 import { Budget } from '../../domain/aggregates/budget.aggregate';
 import { BudgetRepository, BUDGET_REPOSITORY } from '../../domain/repositories/budget.repository.port';

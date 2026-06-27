@@ -55,7 +55,7 @@ async function handleSetBudget() {
           class="rounded-xl border border-border bg-card p-5"
         >
           <div class="flex justify-between items-start mb-3">
-            <h3 class="text-sm font-medium text-foreground">{{ b.categoryName }}</h3>
+            <h3 class="text-sm font-medium text-foreground">{{ b.categoryId }}</h3>
             <button
               class="text-xs text-primary hover:text-primary/80"
               @click="openSetBudget(b.categoryId)"
@@ -66,23 +66,23 @@ async function handleSetBudget() {
           <div class="space-y-2">
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Spent</span>
-              <span class="text-foreground font-medium">{{ formatVND(b.spentAmount) }}</span>
+              <span class="text-foreground font-medium">{{ formatVND(b.runningTotal) }}</span>
             </div>
             <div class="flex justify-between text-sm">
               <span class="text-muted-foreground">Budget</span>
-              <span class="text-foreground font-medium">{{ formatVND(b.budgetAmount) }}</span>
+              <span class="text-foreground font-medium">{{ formatVND(b.monthlyLimit) }}</span>
             </div>
             <div class="w-full h-2 bg-muted rounded-full overflow-hidden">
               <div
-                :class="cn('h-full rounded-full', b.percentage > 100 ? 'bg-red-500' : b.percentage > 70 ? 'bg-yellow-500' : 'bg-green-500')"
-                :style="{ width: `${Math.min(b.percentage, 100)}%` }"
+                :class="cn('h-full rounded-full', b.usagePercentage > 100 ? 'bg-red-500' : b.usagePercentage > 70 ? 'bg-yellow-500' : 'bg-green-500')"
+                :style="{ width: `${Math.min(b.usagePercentage, 100)}%` }"
               />
             </div>
             <p
-              v-if="b.projectedOverageDate"
-              class="text-xs text-yellow-600 dark:text-yellow-400"
+              v-if="b.isExceeded"
+              class="text-xs text-red-600 dark:text-red-400"
             >
-              Projected to exceed by {{ b.projectedOverageDate }}
+              Over budget by {{ formatVND(b.runningTotal - b.monthlyLimit) }}
             </p>
           </div>
         </div>

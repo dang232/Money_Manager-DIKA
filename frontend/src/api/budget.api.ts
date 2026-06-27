@@ -1,12 +1,13 @@
 import httpClient from './http-client'
 
 export interface BudgetStatus {
+  budgetId: string
   categoryId: string
-  categoryName: string
-  budgetAmount: number
-  spentAmount: number
-  percentage: number
-  projectedOverageDate?: string
+  monthlyLimit: number
+  currency: string
+  runningTotal: number
+  usagePercentage: number
+  isExceeded: boolean
 }
 
 export interface SetBudgetDto {
@@ -18,7 +19,7 @@ export interface SetBudgetDto {
 
 export interface BudgetProjection {
   categoryId: string
-  categoryName: string
+  categoryName?: string
   projectedAmount: number
   budgetAmount: number
   overageDate?: string

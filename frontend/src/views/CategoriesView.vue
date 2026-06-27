@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useCategoryStore } from '@/stores/category.store'
-import type { CreateCategoryDto } from '@/api/category.api'
+import type { CreateCategoryDto, Category } from '@/api/category.api'
 
 const categoryStore = useCategoryStore()
 
@@ -17,7 +17,7 @@ function openCreate() {
   showForm.value = true
 }
 
-function openEdit(cat: any) {
+function openEdit(cat: Category) {
   editingId.value = cat.id
   form.value = { name: cat.name, type: cat.type, icon: cat.icon || '', color: cat.color || '' }
   showForm.value = true

@@ -1,7 +1,7 @@
 // ponytail: handler for UpdateRunningTotalCommand — adjusts budget spending
 import { Injectable, Inject } from '@nestjs/common';
 import { Money, BudgetPeriod, TransactionType, EventBusPort } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { UpdateRunningTotalCommand } from '../commands/update-running-total.command';
 import { BudgetRepository, BUDGET_REPOSITORY } from '../../domain/repositories/budget.repository.port';
 import { BudgetExceededEvent } from '../../domain/events/budget-exceeded.event';
