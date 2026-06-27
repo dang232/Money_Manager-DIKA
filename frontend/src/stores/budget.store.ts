@@ -1,49 +1,48 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { budgetApi, type BudgetStatus, type BudgetProjection, type SetBudgetDto } from '@/api/budget.api'
+import { useAsync } from '@/composables/use-async'
 
 export const useBudgetStore = defineStore('budget', () => {
   const budgets = ref<BudgetStatus[]>([])
   const projections = ref<BudgetProjection[]>([])
-  const loading = ref(false)
+  const { loading, error, run } = useAsync()
 
   const exceededBudgets = computed(() => budgets.value.filter((b) => b.percentage > 100))
   const warningBudgets = computed(() => budgets.value.filter((b) => b.percentage > 70 && b.percentage <= 100))
 
-  async function fetchStatus(year?: number, month?: number) {
-    loading.value = true
+  function currentYearMonth(year?: number, month?: number) {
     const now = new Date()
-    const y = year ?? now.getFullYear()
-    const m = month ?? now.getMonth() + 1
-    try {
+    return { y: year ?? now.getFullYear(), m: month ?? now.getMonth() + 1 }
+  }
+
+  async function fetchStatus(year?: number, month?: number) {
+    const { y, m } = currentYearMonth(year, month)
+    await run(async () => {
       const res = await budgetApi.getStatus(y, m)
       budgets.value = res.data
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
   async function setBudget(dto: SetBudgetDto) {
-    loading.value = true
-    try {
+    await run(async () => {
       await budgetApi.setBudget(dto)
-      await fetchStatus(dto.year, dto.month)
-    } finally {
-      loading.value = false
-    }
+      const res = await budgetApi.getStatus(dto.year, dto.month)
+      budgets.value = res.data
+    })
   }
 
   async function fetchProjections(year?: number, month?: number) {
-    const now = new Date()
-    const y = year ?? now.getFullYear()
-    const m = month ?? now.getMonth() + 1
-    try {
-      const res = await budgetApi.getProjections(y, m)
-      projections.value = res.data
-    } catch {
-      projections.value = []
-    }
+    const { y, m } = currentYearMonth(year, month)
+    await run(async () => {
+      try {
+        const res = await budgetApi.getProjections(y, m)
+        projections.value = res.data
+      } catch {
+        projections.value = []
+      }
+    })
   }
 
-  return { budgets, projections, loading, exceededBudgets, warningBudgets, fetchStatus, setBudget, fetchProjections }
+  return { budgets, projections, loading, error, exceededBudgets, warningBudgets, fetchStatus, setBudget, fetchProjections }
 })
