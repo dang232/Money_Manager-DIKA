@@ -74,21 +74,20 @@ export class TransactionController {
   @Get('summary')
   async getMonthlySummary(
     @CurrentUser() userId: UserId,
-    @Query('year') year: string,
-    @Query('month') month: string,
+    @Query('year') year?: string,
+    @Query('month') month?: string,
   ) {
-    const query = new GetMonthlySummaryQuery(
-      userId.value,
-      Number(year),
-      Number(month),
-    );
+    const now = new Date();
+    const y = Number.isFinite(Number(year)) ? Number(year) : now.getFullYear();
+    const m = Number.isFinite(Number(month)) ? Number(month) : now.getMonth() + 1;
+    const query = new GetMonthlySummaryQuery(userId.value, y, m);
     const summary = await this.getMonthlySummaryHandler.execute(query);
     const dto = new MonthlySummaryResponseDto();
     dto.totalIncome = summary.totalIncome;
     dto.totalExpense = summary.totalExpense;
     dto.net = summary.net;
     dto.transactionCount = summary.transactionCount;
-    dto.period = `${year}-${String(Number(month)).padStart(2, '0')}`;
+    dto.period = `${y}-${String(m).padStart(2, '0')}`;
     return ApiResponse.ok(dto);
   }
 

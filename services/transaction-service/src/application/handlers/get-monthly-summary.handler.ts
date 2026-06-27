@@ -10,6 +10,10 @@ export class GetMonthlySummaryHandler {
   ) {}
 
   async execute(query: GetMonthlySummaryQuery): Promise<MonthlySummary> {
-    return this.repo.getMonthlySummary(query.userId, query.year, query.month);
+    const now = new Date();
+    // ponytail: default to current month when caller doesn't pass year/month
+    const year = Number.isFinite(query.year) ? query.year : now.getFullYear();
+    const month = Number.isFinite(query.month) ? query.month : now.getMonth() + 1;
+    return this.repo.getMonthlySummary(query.userId, year, month);
   }
 }

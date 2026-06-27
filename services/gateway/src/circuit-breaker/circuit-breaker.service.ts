@@ -6,6 +6,9 @@ import winston from 'winston';
 import { appConfig } from '../config/app.config';
 import { LOGGER_TOKEN } from '@money-manager/shared-kernel';
 
+// ponytail: 4xx errors are tagged with this flag by http-proxy; the breaker skips them
+export const CLIENT_ERROR_FLAG = '__mmClientError';
+
 @Injectable()
 export class CircuitBreakerService {
   private readonly breakers = new Map<string, CircuitBreaker>();
@@ -25,6 +28,10 @@ export class CircuitBreakerService {
         timeout: this.config.CIRCUIT_BREAKER.timeout,
         errorThresholdPercentage: this.config.CIRCUIT_BREAKER.errorThresholdPercentage,
         resetTimeout: this.config.CIRCUIT_BREAKER.resetTimeout,
+        // ponytail: client errors (4xx from downstream) don't trip the breaker
+        errorFilter: (err: unknown) => Boolean(
+          (err as Record<string, unknown> | undefined)?.[CLIENT_ERROR_FLAG],
+        ),
       },
     );
 
