@@ -24,7 +24,8 @@ async function handleSetBudget() {
   const now = new Date()
   await budgetStore.setBudget({
     categoryId: budgetForm.value.categoryId,
-    amount: budgetForm.value.amount,
+    monthlyLimit: budgetForm.value.amount,
+    currency: 'USD',
     year: now.getFullYear(),
     month: now.getMonth() + 1,
   })
