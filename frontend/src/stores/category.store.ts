@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { categoryApi, type Category, type CreateCategoryDto } from '@/api/category.api'
+import { useAsync } from '@/composables/use-async'
 
 export const useCategoryStore = defineStore('category', () => {
   const categories = ref<Category[]>([])
-  const loading = ref(false)
+  const { loading, error, run } = useAsync()
 
   const incomeCategories = computed(() => categories.value.filter((c) => c.type === 'income'))
   const expenseCategories = computed(() => categories.value.filter((c) => c.type === 'expense'))
@@ -15,44 +16,22 @@ export const useCategoryStore = defineStore('category', () => {
   })
 
   async function fetchAll() {
-    loading.value = true
-    try {
+    await run(async () => {
       const res = await categoryApi.getAll()
       categories.value = res.data
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
-  async function create(dto: CreateCategoryDto) {
-    loading.value = true
-    try {
-      await categoryApi.create(dto)
+  async function mutateAndRefresh<T>(op: () => Promise<T>) {
+    await run(async () => {
+      await op()
       await fetchAll()
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
-  async function update(id: string, dto: Partial<CreateCategoryDto>) {
-    loading.value = true
-    try {
-      await categoryApi.update(id, dto)
-      await fetchAll()
-    } finally {
-      loading.value = false
-    }
-  }
+  const create = (dto: CreateCategoryDto) => mutateAndRefresh(() => categoryApi.create(dto))
+  const update = (id: string, dto: Partial<CreateCategoryDto>) => mutateAndRefresh(() => categoryApi.update(id, dto))
+  const remove = (id: string) => mutateAndRefresh(() => categoryApi.delete(id))
 
-  async function remove(id: string) {
-    loading.value = true
-    try {
-      await categoryApi.delete(id)
-      await fetchAll()
-    } finally {
-      loading.value = false
-    }
-  }
-
-  return { categories, loading, incomeCategories, expenseCategories, byId, fetchAll, create, update, remove }
+  return { categories, loading, error, incomeCategories, expenseCategories, byId, fetchAll, create, update, remove }
 })

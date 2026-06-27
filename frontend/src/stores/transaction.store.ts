@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { transactionApi, type Transaction, type CreateTransactionDto, type TransactionFilters } from '@/api/transaction.api'
+import { useAsync } from '@/composables/use-async'
 
 export const useTransactionStore = defineStore('transaction', () => {
   const transactions = ref<Transaction[]>([])
-  const loading = ref(false)
-  const error = ref<string | null>(null)
   const pagination = ref({ page: 1, limit: 20, total: 0 })
+  const { loading, error, run } = useAsync()
 
   const byDate = computed(() => {
     const grouped: Record<string, Transaction[]> = {}
@@ -29,9 +29,7 @@ export const useTransactionStore = defineStore('transaction', () => {
   })
 
   async function fetchAll(filters?: TransactionFilters) {
-    loading.value = true
-    error.value = null
-    try {
+    await run(async () => {
       const res = await transactionApi.getAll({
         page: pagination.value.page,
         limit: pagination.value.limit,
@@ -39,42 +37,19 @@ export const useTransactionStore = defineStore('transaction', () => {
       })
       transactions.value = res.data.data
       pagination.value.total = res.data.total
-    } catch (e: any) {
-      error.value = e.message || 'Failed to fetch transactions'
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
-  async function create(dto: CreateTransactionDto) {
-    loading.value = true
-    try {
-      await transactionApi.create(dto)
+  async function mutateAndRefresh<T>(op: () => Promise<T>) {
+    await run(async () => {
+      await op()
       await fetchAll()
-    } finally {
-      loading.value = false
-    }
+    })
   }
 
-  async function update(id: string, dto: Partial<CreateTransactionDto>) {
-    loading.value = true
-    try {
-      await transactionApi.update(id, dto)
-      await fetchAll()
-    } finally {
-      loading.value = false
-    }
-  }
-
-  async function remove(id: string) {
-    loading.value = true
-    try {
-      await transactionApi.delete(id)
-      await fetchAll()
-    } finally {
-      loading.value = false
-    }
-  }
+  const create = (dto: CreateTransactionDto) => mutateAndRefresh(() => transactionApi.create(dto))
+  const update = (id: string, dto: Partial<CreateTransactionDto>) => mutateAndRefresh(() => transactionApi.update(id, dto))
+  const remove = (id: string) => mutateAndRefresh(() => transactionApi.delete(id))
 
   return { transactions, loading, error, pagination, byDate, byCategory, fetchAll, create, update, remove }
 })

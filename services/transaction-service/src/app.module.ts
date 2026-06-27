@@ -5,7 +5,6 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
 import { TransactionEntity } from './infrastructure/persistence/transaction.entity';
 import { TransactionRepositoryImpl } from './infrastructure/persistence/transaction.repository.impl';
-import { TransactionEventPublisher } from './infrastructure/messaging/transaction-event.publisher';
 import { TRANSACTION_REPOSITORY } from './domain/repositories/transaction.repository.port';
 import { CreateTransactionHandler } from './application/handlers/create-transaction.handler';
 import { UpdateTransactionHandler } from './application/handlers/update-transaction.handler';
@@ -39,8 +38,6 @@ import { TransactionController } from './presentation/controllers/transaction.co
       provide: TRANSACTION_REPOSITORY,
       useClass: TransactionRepositoryImpl,
     },
-    // event publisher
-    TransactionEventPublisher,
     // handlers
     CreateTransactionHandler,
     UpdateTransactionHandler,
