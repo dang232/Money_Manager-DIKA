@@ -1,7 +1,7 @@
 // ponytail: consumes transaction.created events → updates budget running total
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { EventBusPort, DomainEvent, TransactionType } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { UpdateRunningTotalHandler } from '../handlers/update-running-total.handler';
 import { UpdateRunningTotalCommand } from '../commands/update-running-total.command';
 

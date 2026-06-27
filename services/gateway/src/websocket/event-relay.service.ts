@@ -1,7 +1,7 @@
 // ponytail: event relay — subscribes to domain events and pushes to WebSocket clients
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { EventBusPort, DomainEvent } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT, CACHE_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT, CACHE_PORT } from '@money-manager/shared-kernel';
 import { CachePort } from '@money-manager/shared-kernel';
 import { WsGateway } from './ws.gateway';
 

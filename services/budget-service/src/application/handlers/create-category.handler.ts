@@ -1,7 +1,7 @@
 // ponytail: handler for CreateCategoryCommand
 import { Injectable, Inject } from '@nestjs/common';
 import { UserId, DomainException, EventBusPort } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { CreateCategoryCommand } from '../commands/create-category.command';
 import { Category } from '../../domain/aggregates/category.aggregate';
 import { CategoryRepository, CATEGORY_REPOSITORY } from '../../domain/repositories/category.repository.port';

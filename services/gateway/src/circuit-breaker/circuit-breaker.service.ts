@@ -4,7 +4,7 @@ import { ConfigType } from '@nestjs/config';
 import CircuitBreaker from 'opossum';
 import winston from 'winston';
 import { appConfig } from '../config/app.config';
-import { LOGGER_TOKEN } from '@money-manager/infrastructure';
+import { LOGGER_TOKEN } from '@money-manager/shared-kernel';
 
 @Injectable()
 export class CircuitBreakerService {

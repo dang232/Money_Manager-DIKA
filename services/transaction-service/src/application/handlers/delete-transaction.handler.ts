@@ -1,7 +1,7 @@
 // ponytail: handler for DeleteTransactionCommand
 import { Injectable, Inject } from '@nestjs/common';
 import { EventBusPort, NotFoundException } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { DeleteTransactionCommand } from '../commands/delete-transaction.command';
 import { TransactionRepository, TRANSACTION_REPOSITORY } from '../../domain/repositories/transaction.repository.port';
 import { TransactionDeletedEvent } from '../../domain/events/transaction-deleted.event';

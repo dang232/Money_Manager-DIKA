@@ -1,7 +1,7 @@
 // ponytail: listens for transaction.created events, triggers AI suggestion
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
 import { EventBusPort, DomainEvent } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT, LOGGER_TOKEN } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT, LOGGER_TOKEN } from '@money-manager/shared-kernel';
 import { SuggestCategoryHandler } from '../handlers/suggest-category.handler';
 import { SuggestCategoryCommand } from '../commands/suggest-category.command';
 

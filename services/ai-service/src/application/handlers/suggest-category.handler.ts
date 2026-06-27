@@ -1,7 +1,7 @@
 // ponytail: handles SuggestCategoryCommand — calls AI provider, publishes if confident
 import { Injectable, Inject } from '@nestjs/common';
 import { EventBusPort, createEventMeta } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/infrastructure';
+import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { AiProviderPort, AI_PROVIDER, CategorySuggestion } from '../../domain/interfaces/ai-provider.port';
 import { SuggestCategoryCommand } from '../commands/suggest-category.command';
 
