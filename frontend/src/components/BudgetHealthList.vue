@@ -36,18 +36,18 @@ onMounted(() => {
       class="rounded-lg border border-border bg-card p-4"
     >
       <div class="flex justify-between items-center mb-2">
-        <span class="text-sm font-medium text-foreground">{{ budget.categoryName }}</span>
+        <span class="text-sm font-medium text-foreground">{{ budget.categoryId }}</span>
         <span
-          :class="cn('text-sm font-medium', budget.percentage > 100 ? 'text-red-500' : budget.percentage > 70 ? 'text-yellow-500' : 'text-green-500')"
+          :class="cn('text-sm font-medium', budget.usagePercentage > 100 ? 'text-red-500' : budget.usagePercentage > 70 ? 'text-yellow-500' : 'text-green-500')"
         >
-          {{ Math.round(budget.percentage) }}%
+          {{ Math.round(budget.usagePercentage) }}%
         </span>
       </div>
       <div class="w-full h-2 bg-muted rounded-full overflow-hidden">
         <div
           data-bar
-          :class="cn('h-full rounded-full transition-all', getBarColor(budget.percentage))"
-          :style="{ width: `${Math.min(budget.percentage, 100)}%` }"
+          :class="cn('h-full rounded-full transition-all', getBarColor(budget.usagePercentage))"
+          :style="{ width: `${Math.min(budget.usagePercentage, 100)}%` }"
         />
       </div>
     </div>
