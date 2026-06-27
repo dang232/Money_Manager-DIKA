@@ -2,7 +2,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { CachePort } from '@money-manager/shared-kernel';
 import { CACHE_PORT } from '@money-manager/infrastructure';
-import { BudgetStatusDto } from '../../application/handlers/get-budget-status.handler';
+import { BudgetStatusResponseDto } from '../../presentation/dtos/budget.dto';
 
 const TTL_SECONDS = 3600;
 
@@ -16,11 +16,11 @@ export class BudgetCacheService {
     return `budget:${userId}:${year}:${month}`;
   }
 
-  async getStatus(userId: string, year: number, month: number): Promise<BudgetStatusDto[] | null> {
-    return this.cache.get<BudgetStatusDto[]>(this.key(userId, year, month));
+  async getStatus(userId: string, year: number, month: number): Promise<BudgetStatusResponseDto[] | null> {
+    return this.cache.get<BudgetStatusResponseDto[]>(this.key(userId, year, month));
   }
 
-  async setStatus(userId: string, year: number, month: number, data: BudgetStatusDto[]): Promise<void> {
+  async setStatus(userId: string, year: number, month: number, data: BudgetStatusResponseDto[]): Promise<void> {
     await this.cache.set(this.key(userId, year, month), data, 'write-through', TTL_SECONDS);
   }
 
