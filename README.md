@@ -58,6 +58,10 @@ Infrastructure
 | Build | pnpm workspaces, Docker multi-stage |
 | Deploy | Render (7 deployables) |
 
+## Design Notes
+
+- **Frontend palette:** Primary color (`hsl(221.2 83.2% / 217.2 91.2%)`) is the shadcn default, kept intentionally for the MVP. Swap to a custom palette in `frontend/src/assets/styles/globals.css` if brand alignment becomes a requirement.
+
 ## Quick Start
 
 ### Prerequisites
