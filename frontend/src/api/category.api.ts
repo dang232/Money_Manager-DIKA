@@ -23,7 +23,7 @@ export const categoryApi = {
     return httpClient.post<Category>('/categories', dto)
   },
   update(id: string, dto: Partial<CreateCategoryDto>) {
-    return httpClient.patch<Category>(`/categories/${id}`, dto)
+    return httpClient.put<Category>(`/categories/${id}`, dto)
   },
   delete(id: string) {
     return httpClient.delete(`/categories/${id}`)
