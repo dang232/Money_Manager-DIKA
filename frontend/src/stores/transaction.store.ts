@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { transactionApi, type Transaction, type CreateTransactionDto, type TransactionFilters } from '@/api/transaction.api'
 import { useAsync } from '@/composables/use-async'
+import { useSocket } from '@/composables/useSocket'
 
 export const useTransactionStore = defineStore('transaction', () => {
   const transactions = ref<Transaction[]>([])
   const pagination = ref({ page: 1, limit: 20, total: 0 })
   const { loading, error, run } = useAsync()
+  const { on } = useSocket()
 
   const byDate = computed(() => {
     const grouped: Record<string, Transaction[]> = {}
@@ -51,5 +53,13 @@ export const useTransactionStore = defineStore('transaction', () => {
   const update = (id: string, dto: Partial<CreateTransactionDto>) => mutateAndRefresh(() => transactionApi.update(id, dto))
   const remove = (id: string) => mutateAndRefresh(() => transactionApi.delete(id))
 
-  return { transactions, loading, error, pagination, byDate, byCategory, fetchAll, create, update, remove }
+  function onTransactionCreated(data: Transaction) {
+    transactions.value.unshift(data)
+    pagination.value.total += 1
+  }
+
+  // Subscribe to real-time transaction events from the WebSocket
+  on('transaction.created', (data) => onTransactionCreated(data as Transaction))
+
+  return { transactions, loading, error, pagination, byDate, byCategory, fetchAll, create, update, remove, onTransactionCreated }
 })

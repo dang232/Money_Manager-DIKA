@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { budgetApi, type BudgetStatus, type BudgetProjection, type SetBudgetDto } from '@/api/budget.api'
 import { useAsync } from '@/composables/use-async'
+import { useSocket } from '@/composables/useSocket'
 
 export const useBudgetStore = defineStore('budget', () => {
   const budgets = ref<BudgetStatus[]>([])
   const projections = ref<BudgetProjection[]>([])
   const { loading, error, run } = useAsync()
+  const { on } = useSocket()
 
   const exceededBudgets = computed(() => budgets.value.filter((b) => b.usagePercentage > 100))
   const warningBudgets = computed(() => budgets.value.filter((b) => b.usagePercentage > 70 && b.usagePercentage <= 100))
@@ -44,5 +46,13 @@ export const useBudgetStore = defineStore('budget', () => {
     })
   }
 
-  return { budgets, projections, loading, error, exceededBudgets, warningBudgets, fetchStatus, setBudget, fetchProjections }
+  function onBudgetUpdated() {
+    // Re-fetch budget status for the current period
+    fetchStatus()
+  }
+
+  // Subscribe to real-time budget events from the WebSocket
+  on('budget.updated', () => onBudgetUpdated())
+
+  return { budgets, projections, loading, error, exceededBudgets, warningBudgets, fetchStatus, setBudget, fetchProjections, onBudgetUpdated }
 })
