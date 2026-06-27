@@ -12,7 +12,8 @@ export interface BudgetStatus {
 
 export interface SetBudgetDto {
   categoryId: string
-  amount: number
+  monthlyLimit: number
+  currency: string
   year: number
   month: number
 }
@@ -27,12 +28,12 @@ export interface BudgetProjection {
 
 export const budgetApi = {
   getStatus(year: number, month: number) {
-    return httpClient.get<BudgetStatus[]>(`/budgets/status/${year}/${month}`)
+    return httpClient.get<BudgetStatus[]>(`/budgets`, { params: { year, month } })
   },
   setBudget(dto: SetBudgetDto) {
     return httpClient.post('/budgets', dto)
   },
   getProjections(year: number, month: number) {
-    return httpClient.get<BudgetProjection[]>(`/budgets/projections/${year}/${month}`)
+    return httpClient.get<BudgetProjection[]>(`/budgets/projections`, { params: { year, month } })
   },
 }

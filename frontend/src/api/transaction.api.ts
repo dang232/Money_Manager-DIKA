@@ -39,12 +39,12 @@ export const transactionApi = {
     return httpClient.post<Transaction>('/transactions', dto)
   },
   update(id: string, dto: Partial<CreateTransactionDto>) {
-    return httpClient.patch<Transaction>(`/transactions/${id}`, dto)
+    return httpClient.put<Transaction>(`/transactions/${id}`, dto)
   },
   delete(id: string) {
     return httpClient.delete(`/transactions/${id}`)
   },
   getMonthlySummary(year: number, month: number) {
-    return httpClient.get(`/transactions/summary/${year}/${month}`)
+    return httpClient.get(`/transactions/summary`, { params: { year, month } })
   },
 }
