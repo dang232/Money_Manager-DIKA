@@ -21,6 +21,8 @@ services:
         value: https://mm-budget.onrender.com
       - key: AI_SERVICE_URL
         value: https://mm-ai.onrender.com
+      - key: AUTH_SERVICE_URL
+        value: https://mm-auth.onrender.com
 
   - type: web
     name: mm-transaction
