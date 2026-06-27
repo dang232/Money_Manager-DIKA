@@ -119,6 +119,7 @@ services:
   transaction-service:
     build:
       context: .
+      dockerfile: services/transaction-service/Dockerfile
       target: dev
     container_name: transaction-service
     ports:
@@ -141,6 +142,7 @@ services:
   budget-service:
     build:
       context: .
+      dockerfile: services/budget-service/Dockerfile
       target: dev
     container_name: budget-service
     ports:
@@ -163,6 +165,7 @@ services:
   ai-service:
     build:
       context: .
+      dockerfile: services/ai-service/Dockerfile
       target: dev
     container_name: ai-service
     ports:
@@ -181,6 +184,7 @@ services:
   worker-service:
     build:
       context: .
+      dockerfile: services/worker-service/Dockerfile
       target: dev
     container_name: worker-service
     env_file: .env
@@ -201,6 +205,7 @@ services:
   gateway:
     build:
       context: .
+      dockerfile: services/gateway/Dockerfile
       target: dev
     container_name: gateway
     ports:
