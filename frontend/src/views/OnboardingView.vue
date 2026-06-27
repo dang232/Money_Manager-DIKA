@@ -77,7 +77,8 @@ async function finishStep2() {
     if (amount > 0) {
       await budgetStore.setBudget({
         categoryId,
-        amount,
+        monthlyLimit: amount,
+        currency: 'USD',
         year: now.getFullYear(),
         month: now.getMonth() + 1,
       })
