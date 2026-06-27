@@ -10,6 +10,7 @@ const router = createRouter({
     { path: '/transactions', name: 'transactions', component: () => import('@/views/TransactionsView.vue') },
     { path: '/budget', name: 'budget', component: () => import('@/views/BudgetView.vue') },
     { path: '/categories', name: 'categories', component: () => import('@/views/CategoriesView.vue') },
+    { path: '/reports', name: 'reports', component: () => import('@/views/ReportsView.vue') },
     { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
     { path: '/onboarding', name: 'onboarding', component: () => import('@/views/OnboardingView.vue'), meta: { guest: true } },
   ],
