@@ -83,8 +83,9 @@ describe('SeedDataJob', () => {
     }
   });
 
-  it('calls flush once for batch insert', async () => {
+  it('calls flush for batch insert', async () => {
     await job.execute();
-    expect(mockEm.flush).toHaveBeenCalledTimes(1);
+    // ponytail: flushes both txnEm and budgetEm
+    expect(mockEm.flush).toHaveBeenCalledTimes(2);
   });
 });
