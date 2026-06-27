@@ -16,7 +16,7 @@ describe('SeedDataJob', () => {
   beforeEach(() => {
     persistedEntities = [];
     jest.clearAllMocks();
-    job = new SeedDataJob(mockEm as any);
+    job = new SeedDataJob(mockEm as any, mockEm as any);
   });
 
   it('generates correct number of transactions (15-25 expenses per month * 3 + 3 salaries)', async () => {
