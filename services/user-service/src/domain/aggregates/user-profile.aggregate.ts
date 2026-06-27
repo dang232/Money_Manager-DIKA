@@ -1,5 +1,5 @@
 // ponytail: UserProfile aggregate — user preferences and settings
-import { UserId, DomainException } from '@money-manager/shared-kernel';
+import { UserId, DomainException, INVALID_ANCHOR_DAY } from '@money-manager/shared-kernel';
 import { Locale } from '../value-objects/locale';
 import { Timezone } from '../value-objects/timezone';
 import { Currency } from '../value-objects/currency';
@@ -97,7 +97,7 @@ export class UserProfile {
 
   private static validateAnchorDay(day: number): number {
     if (!Number.isInteger(day) || day < 1 || day > 31) {
-      throw new DomainException('budgetAnchorDay must be an integer between 1 and 31', 'INVALID_ANCHOR_DAY');
+      throw DomainException.fromError(INVALID_ANCHOR_DAY);
     }
     return day;
   }

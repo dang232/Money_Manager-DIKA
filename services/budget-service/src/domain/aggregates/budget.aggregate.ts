@@ -1,5 +1,5 @@
 // ponytail: Budget aggregate — monthly spending limit per category
-import { UserId, Money, BudgetPeriod, DomainException, generateUuid } from '@money-manager/shared-kernel';
+import { UserId, Money, BudgetPeriod, DomainException, generateUuid, INVALID_BUDGET_LIMIT } from '@money-manager/shared-kernel';
 
 export interface CreateBudgetProps {
   userId: UserId;
@@ -58,7 +58,7 @@ export class Budget {
 
   private static validateLimit(limit: Money): void {
     if (limit.amount <= 0) {
-      throw new DomainException('Monthly limit must be greater than 0', 'INVALID_BUDGET_LIMIT');
+      throw DomainException.fromError(INVALID_BUDGET_LIMIT);
     }
   }
 }

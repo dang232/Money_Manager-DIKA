@@ -1,6 +1,6 @@
 // ponytail: handler for CreateCategoryCommand
 import { Injectable, Inject } from '@nestjs/common';
-import { UserId, DomainException, EventBusPort } from '@money-manager/shared-kernel';
+import { UserId, DomainException, EventBusPort, CATEGORY_DUPLICATE } from '@money-manager/shared-kernel';
 import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { CreateCategoryCommand } from '../commands/create-category.command';
 import { Category } from '../../domain/aggregates/category.aggregate';
@@ -17,7 +17,7 @@ export class CreateCategoryHandler {
   async execute(command: CreateCategoryCommand): Promise<Category> {
     const existing = await this.categoryRepo.findByName(command.userId, command.name, command.type);
     if (existing) {
-      throw new DomainException('Category with this name and type already exists', 'CATEGORY_DUPLICATE');
+      throw DomainException.fromError(CATEGORY_DUPLICATE);
     }
 
     const category = Category.create({

@@ -1,6 +1,6 @@
 // ponytail: handler for LoginCommand — verifies password, issues token pair
 import { Injectable, Inject } from '@nestjs/common';
-import { DomainException } from '@money-manager/shared-kernel';
+import { DomainException, AUTH_INVALID_CREDENTIALS } from '@money-manager/shared-kernel';
 import { LoginCommand } from '../commands/login.command';
 import { User } from '../../domain/aggregates/user.aggregate';
 import { Email } from '../../domain/value-objects/email';
@@ -30,7 +30,7 @@ export class LoginHandler {
     const user = await this.userRepo.findByEmail(email.value);
 
     // ponytail: same error for missing user vs wrong password — no enumeration
-    const genericFail = () => new DomainException('Invalid email or password', 'AUTH_INVALID_CREDENTIALS');
+    const genericFail = () => DomainException.fromError(AUTH_INVALID_CREDENTIALS);
 
     if (!user) {
       // ponytail: run a dummy bcrypt verify so timing doesn't leak whether the email exists

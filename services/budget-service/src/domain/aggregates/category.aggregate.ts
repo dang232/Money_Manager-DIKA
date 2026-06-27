@@ -1,5 +1,5 @@
 // ponytail: Category aggregate — spending classification with icon and color
-import { UserId, TransactionType, DomainException, generateUuid } from '@money-manager/shared-kernel';
+import { UserId, TransactionType, DomainException, generateUuid, CATEGORY_NAME_EMPTY, CATEGORY_NAME_TOO_LONG, INVALID_COLOR } from '@money-manager/shared-kernel';
 
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
@@ -56,16 +56,16 @@ export class Category {
 
   private static validateName(name: string): void {
     if (!name || name.trim().length === 0) {
-      throw new DomainException('Category name cannot be empty', 'CATEGORY_NAME_EMPTY');
+      throw DomainException.fromError(CATEGORY_NAME_EMPTY);
     }
     if (name.trim().length > 100) {
-      throw new DomainException('Category name cannot exceed 100 characters', 'CATEGORY_NAME_TOO_LONG');
+      throw DomainException.fromError(CATEGORY_NAME_TOO_LONG);
     }
   }
 
   private static validateColor(color: string): void {
     if (!HEX_COLOR_REGEX.test(color)) {
-      throw new DomainException('Color must be a valid hex color (e.g. #FF0000)', 'INVALID_COLOR');
+      throw DomainException.fromError(INVALID_COLOR);
     }
   }
 }
