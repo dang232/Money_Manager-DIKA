@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUiStore } from '@/stores/ui.store'
 import { useTheme } from '@/composables/useTheme'
 import AppSidebar from './AppSidebar.vue'
+import AiChat from '@/components/AiChat.vue'
 import {
   Search,
   Bell,
@@ -45,7 +46,6 @@ const mobileNav = [
 
 function openAddTransaction() {
   router.push('/transactions')
-  // Emit event or let TransactionsView handle it
   showTransactionForm.value = true
 }
 </script>
@@ -111,5 +111,8 @@ function openAddTransaction() {
         <span class="text-[10px] font-medium">{{ item.label }}</span>
       </router-link>
     </nav>
+
+    <!-- AI Chat (available on every page) -->
+    <AiChat />
   </div>
 </template>
