@@ -11,6 +11,7 @@ const router = createRouter({
     { path: '/budget', name: 'budget', component: () => import('@/views/BudgetView.vue') },
     { path: '/categories', name: 'categories', component: () => import('@/views/CategoriesView.vue') },
     { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue') },
+    { path: '/insights', name: 'insights', component: () => import('@/views/InsightsView.vue') },
     { path: '/onboarding', name: 'onboarding', component: () => import('@/views/OnboardingView.vue'), meta: { guest: true } },
   ],
 })
