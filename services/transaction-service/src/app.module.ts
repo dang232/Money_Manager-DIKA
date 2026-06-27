@@ -13,6 +13,7 @@ import { GetTransactionsHandler } from './application/handlers/get-transactions.
 import { GetTransactionByIdHandler } from './application/handlers/get-transaction-by-id.handler';
 import { GetMonthlySummaryHandler } from './application/handlers/get-monthly-summary.handler';
 import { TransactionController } from './presentation/controllers/transaction.controller';
+import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { TransactionController } from './presentation/controllers/transaction.co
     EventBusModule.forRoot(),
     LoggerModule,
   ],
-  controllers: [TransactionController],
+  controllers: [TransactionController, HealthController],
   providers: [
     // repository
     {
