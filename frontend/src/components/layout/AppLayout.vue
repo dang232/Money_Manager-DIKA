@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import { useUiStore } from '@/stores/ui.store'
 import { useTheme } from '@/composables/useTheme'
 import AppSidebar from './AppSidebar.vue'
+import AiChat from '@/components/AiChat.vue'
 
 const route = useRoute()
 const ui = useUiStore()
@@ -27,6 +28,7 @@ const navItems = [
   { path: '/transactions', label: 'Transactions', icon: '💰' },
   { path: '/budget', label: 'Budget', icon: '📋' },
   { path: '/categories', label: 'Categories', icon: '🏷️' },
+  { path: '/insights', label: 'Insights', icon: '🤖' },
 ]
 </script>
 
@@ -58,5 +60,8 @@ const navItems = [
         <span class="text-xs">{{ item.label }}</span>
       </router-link>
     </nav>
+
+    <!-- AI Chat (available on every page) -->
+    <AiChat />
   </div>
 </template>
