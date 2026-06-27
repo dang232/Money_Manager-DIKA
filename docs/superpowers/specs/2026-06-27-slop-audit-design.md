@@ -62,7 +62,7 @@ Spawn **two** parallel `explore` subagents, split by codebase area rather than b
 1. Spawn both agents in a **single message** (parallel)
 2. Wait for both results
 3. Merge into a single markdown report
-4. De-duplicate findings that touch both areas (rare)
+4. De-duplicate findings that touch both areas (rare; example: a backend DTO shape that frontend types depend on would appear in both reports — keep the one with more context, drop the other)
 5. Produce a **Top 10 actionable** section at the end, ranked by impact × confidence
 6. Write the file to `docs/audits/2026-06-27-slop-audit.md`
 7. Commit with message `docs(audit): fresh slop audit 2026-06-27`
@@ -123,6 +123,6 @@ The audit succeeds when:
 
 ## Remaining risks
 
-- A single agent per area may miss cross-area findings (e.g., frontend store contracts that depend on backend shape). Coordinator will catch obvious cross-references.
+- A single agent per area may miss cross-area findings (e.g., frontend store contracts that depend on backend shape, or a gateway route that doesn't match a service endpoint). Coordinator catches these by checking each finding for the other's perspective before writing the report.
 - The audit will surface findings that pre-date the prior cleanup pass — that's expected. The user will diff mentally against the prior report.
 - `node_modules`, `dist`, `.git`, `.omc`, `pnpm-lock.yaml`, `*.md` files are excluded from the audit scope.
