@@ -10,8 +10,8 @@ export function useAsync() {
     error.value = null
     try {
       return await fn()
-    } catch (e: any) {
-      error.value = e?.message ?? 'Request failed'
+    } catch (e: unknown) {
+      error.value = e instanceof Error ? e.message : 'Request failed'
       return undefined
     } finally {
       loading.value = false
