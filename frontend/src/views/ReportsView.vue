@@ -53,14 +53,11 @@ function getTrendMonths(period: string): number {
   }
 }
 
-let abortController: AbortController | null = null
-
 watch(() => reportStore.activePeriod, (period) => {
-  abortController?.abort()
-  abortController = new AbortController()
+  // ponytail: signal abort dropped — Pinia setup-store type inference strips optional params from vue-tsc; re-add when fixed upstream
   const { dateFrom, dateTo } = getDateRange(period)
-  reportStore.fetchStats(dateFrom, dateTo, abortController.signal)
-  reportStore.fetchTrend(getTrendMonths(period), abortController.signal)
+  reportStore.fetchStats(dateFrom, dateTo)
+  reportStore.fetchTrend(getTrendMonths(period))
 })
 
 onMounted(async () => {
