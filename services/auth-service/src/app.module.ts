@@ -1,8 +1,6 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { LoggerModule } from '@money-manager/infrastructure';
+import { DatabaseModule, LoggerModule } from '@money-manager/infrastructure';
 import { UserEntity } from './infrastructure/persistence/user.entity';
 import { RefreshTokenEntity } from './infrastructure/persistence/refresh-token.entity';
 import { UserRepositoryImpl } from './infrastructure/persistence/user.repository.impl';
@@ -24,18 +22,16 @@ import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
-    MikroOrmModule.forRoot({
-      driver: PostgreSqlDriver,
-      host: process.env['AUTH_DB_HOST'] || process.env['DB_HOST'] || 'localhost',
-      port: Number(process.env['AUTH_DB_PORT'] || process.env['DB_PORT']) || 5432,
-      dbName: process.env['AUTH_DB_NAME'] || process.env['DB_NAME'] || 'auth_db',
-      user: process.env['AUTH_DB_USER'] || process.env['DB_USER'] || 'postgres',
-      password: process.env['AUTH_DB_PASSWORD'] || process.env['DB_PASSWORD'] || 'postgres',
+    DatabaseModule.forRoot({
+      host: process.env['AUTH_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
+      port: Number(process.env['AUTH_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
+      dbName: process.env['AUTH_DB_NAME'] ?? process.env['DB_NAME'] ?? 'auth_db',
+      user: process.env['AUTH_DB_USER'] ?? process.env['DB_USER'] ?? 'postgres',
+      password: process.env['AUTH_DB_PASSWORD'] ?? process.env['DB_PASSWORD'] ?? 'postgres',
       entities: [UserEntity, RefreshTokenEntity],
       debug: process.env['NODE_ENV'] !== 'production',
-      allowGlobalContext: true,
     }),
-    MikroOrmModule.forFeature([UserEntity, RefreshTokenEntity]),
+    DatabaseModule.forFeature([UserEntity, RefreshTokenEntity]),
     LoggerModule,
   ],
   controllers: [AuthController, HealthController],

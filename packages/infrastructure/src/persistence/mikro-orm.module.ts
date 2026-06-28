@@ -11,12 +11,15 @@ export interface MikroOrmConfig {
   password: string;
   entities: any[];
   debug?: boolean;
+  // ponytail: contextName for multi-DB services (worker-service uses two connections)
+  contextName?: string;
 }
 
 @Module({})
 export class DatabaseModule {
   static forRoot(config: MikroOrmConfig): MaybePromise<DynamicModule> {
     return MikroOrmModule.forRoot({
+      ...(config.contextName ? { contextName: config.contextName } : {}),
       driver: PostgreSqlDriver,
       host: config.host,
       port: config.port,
@@ -26,12 +29,13 @@ export class DatabaseModule {
       entities: config.entities,
       debug: config.debug ?? false,
       allowGlobalContext: true,
-      // ponytail: auto-create schema in dev, use migrations in prod
       schemaGenerator: { disableForeignKeys: false },
     });
   }
 
-  static forFeature(entities: any[]): DynamicModule {
-    return MikroOrmModule.forFeature(entities);
+  static forFeature(entities: any[], contextName?: string): DynamicModule {
+    return contextName
+      ? MikroOrmModule.forFeature(entities, contextName)
+      : MikroOrmModule.forFeature(entities);
   }
 }

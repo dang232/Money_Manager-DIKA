@@ -1,8 +1,6 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
+import { DatabaseModule, EventBusModule, LoggerModule } from '@money-manager/infrastructure';
 import { TransactionEntity } from './infrastructure/persistence/transaction.entity';
 import { TransactionRepositoryImpl } from './infrastructure/persistence/transaction.repository.impl';
 import { TRANSACTION_REPOSITORY } from './domain/repositories/transaction.repository.port';
@@ -20,18 +18,16 @@ import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
-    MikroOrmModule.forRoot({
-      driver: PostgreSqlDriver,
-      host: process.env['DB_HOST'] ?? 'localhost',
-      port: Number(process.env['DB_PORT'] ?? 5432),
-      dbName: process.env['DB_NAME'] ?? 'txn_db',
-      user: process.env['DB_USER'] ?? 'postgres',
-      password: process.env['DB_PASSWORD'] ?? 'postgres',
+    DatabaseModule.forRoot({
+      host: process.env['TXN_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
+      port: Number(process.env['TXN_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
+      dbName: process.env['TXN_DB_NAME'] ?? process.env['DB_NAME'] ?? 'txn_db',
+      user: process.env['TXN_DB_USER'] ?? process.env['DB_USER'] ?? 'postgres',
+      password: process.env['TXN_DB_PASSWORD'] ?? process.env['DB_PASSWORD'] ?? 'postgres',
       entities: [TransactionEntity],
       debug: process.env['NODE_ENV'] !== 'production',
-      allowGlobalContext: true,
     }),
-    MikroOrmModule.forFeature([TransactionEntity]),
+    DatabaseModule.forFeature([TransactionEntity]),
     EventBusModule.forRoot(),
     LoggerModule,
   ],
