@@ -1,8 +1,6 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
-import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { PostgreSqlDriver } from '@mikro-orm/postgresql';
-import { EventBusModule, CacheModule, LoggerModule } from '@money-manager/infrastructure';
+import { DatabaseModule, EventBusModule, CacheModule, LoggerModule } from '@money-manager/infrastructure';
 import { CategoryEntity } from './infrastructure/persistence/category.entity';
 import { BudgetEntity } from './infrastructure/persistence/budget.entity';
 import { CategoryRepositoryImpl } from './infrastructure/persistence/category.repository.impl';
@@ -27,18 +25,16 @@ import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
-    MikroOrmModule.forRoot({
-      driver: PostgreSqlDriver,
-      host: process.env.BUDGET_DB_HOST || process.env.DB_HOST || 'localhost',
-      port: Number(process.env.BUDGET_DB_PORT || process.env.DB_PORT) || 5432,
-      dbName: process.env.BUDGET_DB_NAME || process.env.DB_NAME || 'budget_db',
-      user: process.env.BUDGET_DB_USER || process.env.DB_USER || 'postgres',
-      password: process.env.BUDGET_DB_PASSWORD || process.env.DB_PASSWORD || 'postgres',
+    DatabaseModule.forRoot({
+      host: process.env['BUDGET_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
+      port: Number(process.env['BUDGET_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
+      dbName: process.env['BUDGET_DB_NAME'] ?? process.env['DB_NAME'] ?? 'budget_db',
+      user: process.env['BUDGET_DB_USER'] ?? process.env['DB_USER'] ?? 'postgres',
+      password: process.env['BUDGET_DB_PASSWORD'] ?? process.env['DB_PASSWORD'] ?? 'postgres',
       entities: [CategoryEntity, BudgetEntity],
-      debug: process.env.NODE_ENV !== 'production',
-      allowGlobalContext: true,
+      debug: process.env['NODE_ENV'] !== 'production',
     }),
-    MikroOrmModule.forFeature([CategoryEntity, BudgetEntity]),
+    DatabaseModule.forFeature([CategoryEntity, BudgetEntity]),
     EventBusModule.forRoot(),
     CacheModule.forRoot({
       host: process.env['REDIS_HOST'] ?? 'localhost',
