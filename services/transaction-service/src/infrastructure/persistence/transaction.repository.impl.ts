@@ -145,10 +145,10 @@ export class TransactionRepositoryImpl implements TransactionRepository {
               SUM(amount) AS total
        FROM transactions
        WHERE user_id = ?
-         AND transaction_date >= (CURRENT_DATE - INTERVAL '${months} months')
+         AND transaction_date >= (CURRENT_DATE - ? * INTERVAL '1 month')
        GROUP BY year, month, type
        ORDER BY year, month`,
-      [userId],
+      [userId, months],
     );
 
     const map = new Map<string, MonthlyTrendItem>();
@@ -170,16 +170,19 @@ export class TransactionRepositoryImpl implements TransactionRepository {
 
   async getPeriodStats(userId: string, dateFrom: Date, dateTo: Date): Promise<PeriodStats> {
     const conn = this.em.getConnection();
+    // Use ISO date strings to avoid timezone drift with DATE columns
+    const fromStr = dateFrom.toISOString().slice(0, 10);
+    const toStr = dateTo.toISOString().slice(0, 10);
 
     // Average daily spend
     const avgResult = await conn.execute<Array<{ avg_daily: string }>>(
-      `SELECT COALESCE(SUM(amount) / NULLIF(COUNT(DISTINCT DATE(transaction_date)), 0), 0) AS avg_daily
+      `SELECT COALESCE(SUM(amount) / NULLIF(COUNT(DISTINCT transaction_date), 0), 0) AS avg_daily
        FROM transactions
        WHERE user_id = ?
          AND type = 'EXPENSE'
-         AND transaction_date >= ?
-         AND transaction_date <= ?`,
-      [userId, dateFrom, dateTo],
+         AND transaction_date >= ?::date
+         AND transaction_date <= ?::date`,
+      [userId, fromStr, toStr],
     );
     const avgDailySpend = Number(avgResult[0]?.avg_daily) || 0;
 
@@ -189,11 +192,11 @@ export class TransactionRepositoryImpl implements TransactionRepository {
        FROM transactions
        WHERE user_id = ?
          AND type = 'EXPENSE'
-         AND transaction_date >= ?
-         AND transaction_date <= ?
+         AND transaction_date >= ?::date
+         AND transaction_date <= ?::date
        ORDER BY amount DESC
        LIMIT 1`,
-      [userId, dateFrom, dateTo],
+      [userId, fromStr, toStr],
     );
     const largestExpense = largestResult.length > 0
       ? { amount: Number(largestResult[0].amount), description: largestResult[0].description, categoryId: largestResult[0].category_id }
@@ -204,12 +207,12 @@ export class TransactionRepositoryImpl implements TransactionRepository {
       `SELECT EXTRACT(DOW FROM transaction_date) AS dow, COUNT(*) AS count
        FROM transactions
        WHERE user_id = ?
-         AND transaction_date >= ?
-         AND transaction_date <= ?
+         AND transaction_date >= ?::date
+         AND transaction_date <= ?::date
        GROUP BY dow
        ORDER BY count DESC
        LIMIT 1`,
-      [userId, dateFrom, dateTo],
+      [userId, fromStr, toStr],
     );
     const mostActiveDay = dowResult.length > 0
       ? { dayOfWeek: Number(dowResult[0].dow), count: Number(dowResult[0].count) }

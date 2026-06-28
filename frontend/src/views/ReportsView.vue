@@ -53,10 +53,14 @@ function getTrendMonths(period: string): number {
   }
 }
 
+let abortController: AbortController | null = null
+
 watch(() => reportStore.activePeriod, (period) => {
+  abortController?.abort()
+  abortController = new AbortController()
   const { dateFrom, dateTo } = getDateRange(period)
-  reportStore.fetchStats(dateFrom, dateTo)
-  reportStore.fetchTrend(getTrendMonths(period))
+  reportStore.fetchStats(dateFrom, dateTo, abortController.signal)
+  reportStore.fetchTrend(getTrendMonths(period), abortController.signal)
 })
 
 onMounted(async () => {
@@ -132,12 +136,18 @@ const trendOptions = {
   },
 }
 
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
 const avgDailySpend = computed(() => reportStore.stats?.avgDailySpend ?? 0)
 const largestExpense = computed(() => reportStore.stats?.largestExpense ?? { amount: 0, description: '—', categoryId: '' })
-const mostActiveDay = computed(() => reportStore.stats?.mostActiveDay ?? { dayOfWeek: '—', count: 0 })
+const mostActiveDay = computed(() => {
+  const raw = reportStore.stats?.mostActiveDay
+  if (!raw) return { dayOfWeek: '—', count: 0 }
+  return { dayOfWeek: DAY_NAMES[raw.dayOfWeek] ?? '—', count: raw.count }
+})
 
 const largestExpenseCategoryName = computed(() => {
-  if (!largestExpense.value.categoryId) return 'Shopping'
+  if (!largestExpense.value.categoryId) return '—'
   return categoryStore.byId[largestExpense.value.categoryId]?.name ?? 'Unknown'
 })
 </script>

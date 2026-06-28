@@ -22,6 +22,21 @@ export class TransactionProxyController {
     return this.proxy.request('transaction', 'GET', '/transactions/summary', req);
   }
 
+  @Get('category-breakdown')
+  categoryBreakdown(@Req() req: Request) {
+    return this.proxy.request('transaction', 'GET', '/transactions/category-breakdown', req);
+  }
+
+  @Get('monthly-trend')
+  monthlyTrend(@Req() req: Request) {
+    return this.proxy.request('transaction', 'GET', '/transactions/monthly-trend', req);
+  }
+
+  @Get('stats')
+  stats(@Req() req: Request) {
+    return this.proxy.request('transaction', 'GET', '/transactions/stats', req);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: Request) {
     return this.proxy.request('transaction', 'GET', `/transactions/${id}`, req);

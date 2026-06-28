@@ -43,8 +43,8 @@ export interface MonthlyTrend {
 
 export interface PeriodStats {
   avgDailySpend: number
-  largestExpense: { amount: number; description: string; categoryId: string }
-  mostActiveDay: { dayOfWeek: string; count: number }
+  largestExpense: { amount: number; description: string; categoryId: string } | null
+  mostActiveDay: { dayOfWeek: number; count: number } | null
 }
 
 export const transactionApi = {
@@ -67,12 +67,12 @@ export const transactionApi = {
     return httpClient.get(`/transactions/summary`, { params: { year, month } })
   },
   getCategoryBreakdown(year: number, month: number) {
-    return httpClient.get<CategoryBreakdown[]>('/transactions/analytics/category-breakdown', { params: { year, month } })
+    return httpClient.get<CategoryBreakdown[]>('/transactions/category-breakdown', { params: { year, month } })
   },
-  getMonthlyTrend(months: number) {
-    return httpClient.get<MonthlyTrend[]>('/transactions/analytics/monthly-trend', { params: { months } })
+  getMonthlyTrend(months: number, signal?: AbortSignal) {
+    return httpClient.get<MonthlyTrend[]>('/transactions/monthly-trend', { params: { months }, signal })
   },
-  getStats(dateFrom: string, dateTo: string) {
-    return httpClient.get<PeriodStats>('/transactions/analytics/stats', { params: { dateFrom, dateTo } })
+  getStats(dateFrom: string, dateTo: string, signal?: AbortSignal) {
+    return httpClient.get<PeriodStats>('/transactions/stats', { params: { dateFrom, dateTo }, signal })
   },
 }
