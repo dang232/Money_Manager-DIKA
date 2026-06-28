@@ -12,6 +12,9 @@ import { DeleteTransactionHandler } from './application/handlers/delete-transact
 import { GetTransactionsHandler } from './application/handlers/get-transactions.handler';
 import { GetTransactionByIdHandler } from './application/handlers/get-transaction-by-id.handler';
 import { GetMonthlySummaryHandler } from './application/handlers/get-monthly-summary.handler';
+import { GetCategoryBreakdownHandler } from './application/handlers/get-category-breakdown.handler';
+import { GetMonthlyTrendHandler } from './application/handlers/get-monthly-trend.handler';
+import { GetPeriodStatsHandler } from './application/handlers/get-period-stats.handler';
 import { TransactionController } from './presentation/controllers/transaction.controller';
 import { HealthController } from './presentation/controllers/health.controller';
 
@@ -46,6 +49,9 @@ import { HealthController } from './presentation/controllers/health.controller';
     GetTransactionsHandler,
     GetTransactionByIdHandler,
     GetMonthlySummaryHandler,
+    GetCategoryBreakdownHandler,
+    GetMonthlyTrendHandler,
+    GetPeriodStatsHandler,
   ],
 })
 export class AppModule {}
