@@ -37,13 +37,16 @@ function budgetCategoryName(categoryId: string): string {
   return categoryStore.byId[categoryId]?.name ?? categoryId
 }
 
-// ponytail: sample chart data — replace with real API when endpoint exists
-const chartLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
-const chartIncome = [22000000, 24000000, 23500000, 25000000, 24500000, 25000000]
-const chartExpenses = [8000000, 7500000, 8200000, 7100000, 7800000, 6550000]
-const categoryLabels = ['Food', 'Transport', 'Shopping', 'Entertainment', 'Others']
-const categoryData = [32, 22, 18, 15, 13]
-const categoryColors = ['#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#94a3b8']
+const COLOR_PALETTE = ['#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6', '#94a3b8', '#06b6d4', '#84cc16', '#f97316']
+const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+const chartLabels = computed(() => dashboard.monthlyTrend.map((t) => MONTH_NAMES[t.month - 1]))
+const chartIncome = computed(() => dashboard.monthlyTrend.map((t) => t.totalIncome))
+const chartExpenses = computed(() => dashboard.monthlyTrend.map((t) => t.totalExpense))
+
+const categoryLabels = computed(() => dashboard.categoryBreakdown.map((c) => categoryStore.byId[c.categoryId]?.name ?? 'Unknown'))
+const categoryData = computed(() => dashboard.categoryBreakdown.map((c) => c.total))
+const categoryColors = computed(() => dashboard.categoryBreakdown.map((_, i) => COLOR_PALETTE[i % COLOR_PALETTE.length]))
 </script>
 
 <template>

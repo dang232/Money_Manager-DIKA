@@ -28,6 +28,25 @@ export interface TransactionFilters {
   endDate?: string
 }
 
+export interface CategoryBreakdown {
+  categoryId: string
+  total: number
+  count: number
+}
+
+export interface MonthlyTrend {
+  year: number
+  month: number
+  totalIncome: number
+  totalExpense: number
+}
+
+export interface PeriodStats {
+  avgDailySpend: number
+  largestExpense: { amount: number; description: string; categoryId: string }
+  mostActiveDay: { dayOfWeek: string; count: number }
+}
+
 export const transactionApi = {
   getAll(params?: TransactionFilters) {
     return httpClient.get<{ data: Transaction[]; total: number }>('/transactions', { params })
@@ -46,5 +65,14 @@ export const transactionApi = {
   },
   getMonthlySummary(year: number, month: number) {
     return httpClient.get(`/transactions/summary`, { params: { year, month } })
+  },
+  getCategoryBreakdown(year: number, month: number) {
+    return httpClient.get<CategoryBreakdown[]>('/transactions/analytics/category-breakdown', { params: { year, month } })
+  },
+  getMonthlyTrend(months: number) {
+    return httpClient.get<MonthlyTrend[]>('/transactions/analytics/monthly-trend', { params: { months } })
+  },
+  getStats(dateFrom: string, dateTo: string) {
+    return httpClient.get<PeriodStats>('/transactions/analytics/stats', { params: { dateFrom, dateTo } })
   },
 }

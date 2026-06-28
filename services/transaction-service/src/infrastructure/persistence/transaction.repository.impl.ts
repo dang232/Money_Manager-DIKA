@@ -8,6 +8,9 @@ import {
   TransactionRepository,
   TransactionFilters,
   MonthlySummary,
+  CategoryBreakdownItem,
+  MonthlyTrendItem,
+  PeriodStats,
 } from '../../domain/repositories/transaction.repository.port';
 import { TransactionEntity } from './transaction.entity';
 import { TransactionMapper } from './transaction.mapper';
@@ -110,5 +113,108 @@ export class TransactionRepositoryImpl implements TransactionRepository {
       net: totalIncome - totalExpense,
       transactionCount,
     };
+  }
+
+  async getCategoryBreakdown(userId: string, year: number, month: number): Promise<CategoryBreakdownItem[]> {
+    const conn = this.em.getConnection();
+    const result = await conn.execute<Array<{ category_id: string; total: string; count: string }>>(
+      `SELECT category_id, SUM(amount) AS total, COUNT(*) AS count
+       FROM transactions
+       WHERE user_id = ?
+         AND type = 'EXPENSE'
+         AND EXTRACT(YEAR FROM transaction_date) = ?
+         AND EXTRACT(MONTH FROM transaction_date) = ?
+       GROUP BY category_id
+       ORDER BY total DESC`,
+      [userId, year, month],
+    );
+
+    return result.map((row) => ({
+      categoryId: row.category_id,
+      total: Number(row.total) || 0,
+      count: Number(row.count) || 0,
+    }));
+  }
+
+  async getMonthlyTrend(userId: string, months: number): Promise<MonthlyTrendItem[]> {
+    const conn = this.em.getConnection();
+    const result = await conn.execute<Array<{ year: string; month: string; type: string; total: string }>>(
+      `SELECT EXTRACT(YEAR FROM transaction_date) AS year,
+              EXTRACT(MONTH FROM transaction_date) AS month,
+              type,
+              SUM(amount) AS total
+       FROM transactions
+       WHERE user_id = ?
+         AND transaction_date >= (CURRENT_DATE - INTERVAL '${months} months')
+       GROUP BY year, month, type
+       ORDER BY year, month`,
+      [userId],
+    );
+
+    const map = new Map<string, MonthlyTrendItem>();
+    for (const row of result) {
+      const key = `${row.year}-${row.month}`;
+      if (!map.has(key)) {
+        map.set(key, { year: Number(row.year), month: Number(row.month), totalIncome: 0, totalExpense: 0 });
+      }
+      const item = map.get(key)!;
+      if (row.type === TransactionType.INCOME) {
+        item.totalIncome = Number(row.total) || 0;
+      } else {
+        item.totalExpense = Number(row.total) || 0;
+      }
+    }
+
+    return Array.from(map.values());
+  }
+
+  async getPeriodStats(userId: string, dateFrom: Date, dateTo: Date): Promise<PeriodStats> {
+    const conn = this.em.getConnection();
+
+    // Average daily spend
+    const avgResult = await conn.execute<Array<{ avg_daily: string }>>(
+      `SELECT COALESCE(SUM(amount) / NULLIF(COUNT(DISTINCT DATE(transaction_date)), 0), 0) AS avg_daily
+       FROM transactions
+       WHERE user_id = ?
+         AND type = 'EXPENSE'
+         AND transaction_date >= ?
+         AND transaction_date <= ?`,
+      [userId, dateFrom, dateTo],
+    );
+    const avgDailySpend = Number(avgResult[0]?.avg_daily) || 0;
+
+    // Largest single expense
+    const largestResult = await conn.execute<Array<{ amount: string; description: string; category_id: string }>>(
+      `SELECT amount, description, category_id
+       FROM transactions
+       WHERE user_id = ?
+         AND type = 'EXPENSE'
+         AND transaction_date >= ?
+         AND transaction_date <= ?
+       ORDER BY amount DESC
+       LIMIT 1`,
+      [userId, dateFrom, dateTo],
+    );
+    const largestExpense = largestResult.length > 0
+      ? { amount: Number(largestResult[0].amount), description: largestResult[0].description, categoryId: largestResult[0].category_id }
+      : null;
+
+    // Most active day of week
+    const dowResult = await conn.execute<Array<{ dow: string; count: string }>>(
+      `SELECT EXTRACT(DOW FROM transaction_date) AS dow, COUNT(*) AS count
+       FROM transactions
+       WHERE user_id = ?
+         AND transaction_date >= ?
+         AND transaction_date <= ?
+       GROUP BY dow
+       ORDER BY count DESC
+       LIMIT 1`,
+      [userId, dateFrom, dateTo],
+    );
+    const mostActiveDay = dowResult.length > 0
+      ? { dayOfWeek: Number(dowResult[0].dow), count: Number(dowResult[0].count) }
+      : null;
+
+    return { avgDailySpend, largestExpense, mostActiveDay };
   }
 }
