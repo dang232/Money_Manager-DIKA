@@ -110,16 +110,21 @@ export function useDraggableList<T extends { id: string }>(initialItems: T[] = [
 
   // Watch shared layout and reorder items when layout changes
   watch(() => sharedLayout.value, (newLayout) => {
-    if (newLayout && newLayout[type]?.length > 0) {
-      const orderedIds = newLayout[type];
-      const currentItems = items.value;
-      const ordered = orderedIds
-        .map(id => currentItems.find(item => item.id === id))
-        .filter((item): item is T => item !== undefined);
+    if (!newLayout) return;
 
-      if (ordered.length === currentItems.length && ordered.length > 0) {
-        items.value = ordered as T[];
-      }
+    const orderedIds = newLayout[type];
+    if (!orderedIds || orderedIds.length === 0) return;
+
+    const currentItems = items.value;
+    if (currentItems.length === 0) return;
+
+    // Only reorder if we have all items in the order list
+    const ordered = orderedIds
+      .map(id => currentItems.find(item => item.id === id))
+      .filter((item): item is T => item !== undefined);
+
+    if (ordered.length === orderedIds.length) {
+      items.value = ordered as T[];
     }
   }, { immediate: true });
 
