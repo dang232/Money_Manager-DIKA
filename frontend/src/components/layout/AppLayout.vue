@@ -44,7 +44,7 @@ const mobileNav = [
 </script>
 
 <template>
-  <div class="flex h-screen bg-background">
+  <div class="flex h-screen bg-background overflow-hidden">
     <!-- Desktop Sidebar -->
     <AppSidebar v-if="!ui.isMobile" />
 
@@ -72,8 +72,8 @@ const mobileNav = [
       </header>
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-auto pb-24 md:pb-0">
-        <div class="px-4 md:px-10 max-w-[1400px] w-full">
+      <main class="flex-1 overflow-auto pb-24 md:pb-0 app-content">
+        <div class="px-4 md:px-10 max-w-[1400px] mx-auto">
           <slot />
         </div>
       </main>

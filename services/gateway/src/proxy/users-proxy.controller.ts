@@ -42,3 +42,24 @@ export class UsersProxyController {
     return this.proxy.request('user', 'POST', '/layout/beacon', req, body);
   }
 }
+
+// Direct layout routes at /api/layout
+@Controller('api/layout')
+export class LayoutProxyController {
+  constructor(private readonly proxy: HttpProxyService) {}
+
+  @Get()
+  getLayout(@Req() req: Request) {
+    return this.proxy.request('user', 'GET', '/layout', req);
+  }
+
+  @Patch()
+  updateLayout(@Body() body: unknown, @Req() req: Request) {
+    return this.proxy.request('user', 'PATCH', '/layout', req, body);
+  }
+
+  @Post('beacon')
+  beaconLayout(@Body() body: unknown, @Req() req: Request) {
+    return this.proxy.request('user', 'POST', '/layout/beacon', req, body);
+  }
+}

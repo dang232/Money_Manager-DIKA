@@ -81,7 +81,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-hidden;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
@@ -149,17 +149,17 @@
   border-radius: 0.5rem;
 }
 
-/* Smooth scrollbar */
-::-webkit-scrollbar {
+/* Smooth scrollbar - scoped to main content only */
+.app-content::-webkit-scrollbar {
   width: 6px;
 }
-::-webkit-scrollbar-track {
+.app-content::-webkit-scrollbar-track {
   background: transparent;
 }
-::-webkit-scrollbar-thumb {
+.app-content::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
   border-radius: 3px;
 }
-::-webkit-scrollbar-thumb:hover {
+.app-content::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.3);
 }

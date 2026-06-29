@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1782631968838,
+  "lastScanned": 1782729099937,
   "projectRoot": "C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA",
   "techStack": {
     "languages": [
@@ -18,8 +18,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "pnpm build 2>&1 | tail -5",
-    "testCommand": "pnpm test",
+    "buildCommand": "cd C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/frontend && npx vue-tsc --noEmit 2>&1 | grep -E \"(useDraggableList|CategoriesView|BudgetView)\" || echo \"No errors in modified files\"",
+    "testCommand": "cd C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/services/user-service && npm test 2>&1",
     "lintCommand": "pnpm lint",
     "devCommand": null,
     "scripts": {
@@ -55,7 +55,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 1,
-      "lastAccessed": 1782631968746,
+      "lastAccessed": 1782729099827,
       "keyFiles": [
         "PROJECT.md"
       ]
@@ -63,21 +63,21 @@
     "frontend": {
       "path": "frontend",
       "purpose": null,
-      "fileCount": 11,
-      "lastAccessed": 1782631968771,
+      "fileCount": 13,
+      "lastAccessed": 1782729099829,
       "keyFiles": [
+        "components.json",
         "Dockerfile",
         "env.d.ts",
         "index.html",
-        "index.md",
-        "package.json"
+        "index.md"
       ]
     },
     "infra": {
       "path": "infra",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1782631968775,
+      "lastAccessed": 1782729099838,
       "keyFiles": [
         "loki-config.yml"
       ]
@@ -86,14 +86,27 @@
       "path": "packages",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1782631968781,
+      "lastAccessed": 1782729099839,
       "keyFiles": []
+    },
+    "screenshots": {
+      "path": "screenshots",
+      "purpose": null,
+      "fileCount": 13,
+      "lastAccessed": 1782729099840,
+      "keyFiles": [
+        "01-dashboard.png",
+        "02-after-logout.png",
+        "03-re-login.png",
+        "04-transactions.png",
+        "05-budget.png"
+      ]
     },
     "scripts": {
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1782631968783,
+      "lastAccessed": 1782729099841,
       "keyFiles": [
         "gen-certs.cmd",
         "gen-certs.sh"
@@ -103,14 +116,14 @@
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 0,
-      "lastAccessed": 1782631968785,
+      "lastAccessed": 1782729099842,
       "keyFiles": []
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 2,
-      "lastAccessed": 1782631968787,
+      "lastAccessed": 1782729099842,
       "keyFiles": [
         "package.json",
         "tsconfig.json"
@@ -120,23 +133,16 @@
       "path": "frontend\\dist",
       "purpose": "Distribution/build output",
       "fileCount": 1,
-      "lastAccessed": 1782631968792,
+      "lastAccessed": 1782729099844,
       "keyFiles": [
         "index.html"
       ]
-    },
-    "frontend\\node_modules": {
-      "path": "frontend\\node_modules",
-      "purpose": "Dependencies",
-      "fileCount": 0,
-      "lastAccessed": 1782631968796,
-      "keyFiles": []
     },
     "tests\\helpers": {
       "path": "tests\\helpers",
       "purpose": "Helper functions",
       "fileCount": 4,
-      "lastAccessed": 1782631968801,
+      "lastAccessed": 1782729099863,
       "keyFiles": [
         "http.ts",
         "reset-db.ts",
@@ -147,15 +153,27 @@
       "path": "tests\\node_modules",
       "purpose": "Dependencies",
       "fileCount": 0,
-      "lastAccessed": 1782631968803,
+      "lastAccessed": 1782729099864,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
+      "path": "frontend\\src\\components\\layout\\AppLayout.vue",
+      "accessCount": 12,
+      "lastAccessed": 1782734000237,
+      "type": "file"
+    },
+    {
       "path": "frontend\\package.json",
-      "accessCount": 9,
-      "lastAccessed": 1782706350169,
+      "accessCount": 10,
+      "lastAccessed": 1782734417212,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\assets\\styles\\globals.css",
+      "accessCount": 8,
+      "lastAccessed": 1782734047064,
       "type": "file"
     },
     {
@@ -177,9 +195,27 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\components\\layout\\AppLayout.vue",
+      "path": "frontend\\src\\App.vue",
       "accessCount": 4,
-      "lastAccessed": 1782706558070,
+      "lastAccessed": 1782730636253,
+      "type": "file"
+    },
+    {
+      "path": "services\\user-service\\src",
+      "accessCount": 4,
+      "lastAccessed": 1782738919922,
+      "type": "directory"
+    },
+    {
+      "path": "frontend",
+      "accessCount": 4,
+      "lastAccessed": 1782742657802,
+      "type": "directory"
+    },
+    {
+      "path": "services\\gateway\\src\\app.module.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782744264545,
       "type": "file"
     },
     {
@@ -201,27 +237,27 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\App.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782699658197,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\assets\\styles\\globals.css",
-      "accessCount": 3,
-      "lastAccessed": 1782702680774,
-      "type": "file"
-    },
-    {
       "path": "frontend\\src\\stores\\auth.store.ts",
       "accessCount": 3,
       "lastAccessed": 1782706375051,
       "type": "file"
     },
     {
+      "path": "frontend\\src\\api\\http-client.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782739527532,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\e2e\\categories.spec.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782742674571,
+      "type": "file"
+    },
+    {
       "path": "frontend\\e2e\\budgets.spec.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782632290392,
+      "accessCount": 3,
+      "lastAccessed": 1782742684054,
       "type": "file"
     },
     {
@@ -234,12 +270,6 @@
       "path": "frontend\\e2e\\transactions.spec.ts",
       "accessCount": 2,
       "lastAccessed": 1782632290566,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\e2e\\categories.spec.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782632290638,
       "type": "file"
     },
     {
@@ -273,15 +303,21 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\http-client.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782706374698,
-      "type": "file"
-    },
-    {
       "path": "frontend\\src\\router\\index.ts",
       "accessCount": 2,
       "lastAccessed": 1782706375283,
+      "type": "file"
+    },
+    {
+      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782739311490,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\playwright.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782742674774,
       "type": "file"
     },
     {
@@ -294,12 +330,6 @@
       "path": "frontend\\e2e\\helpers\\auth.ts",
       "accessCount": 1,
       "lastAccessed": 1782632275347,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\playwright.config.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782632275396,
       "type": "file"
     },
     {
@@ -324,12 +354,6 @@
       "path": "frontend/src",
       "accessCount": 1,
       "lastAccessed": 1782632395216,
-      "type": "directory"
-    },
-    {
-      "path": "frontend",
-      "accessCount": 1,
-      "lastAccessed": 1782632409162,
       "type": "directory"
     },
     {
@@ -381,21 +405,9 @@
       "type": "file"
     },
     {
-      "path": "services\\user-service\\src",
-      "accessCount": 1,
-      "lastAccessed": 1782696868989,
-      "type": "directory"
-    },
-    {
       "path": "services\\user-service\\src\\main.ts",
       "accessCount": 1,
       "lastAccessed": 1782696878318,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782696884305,
       "type": "file"
     },
     {
@@ -444,12 +456,6 @@
       "path": "services\\gateway\\src\\middleware\\jwt-auth.middleware.ts",
       "accessCount": 1,
       "lastAccessed": 1782697759025,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src\\app.module.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782697759049,
       "type": "file"
     }
   ],
