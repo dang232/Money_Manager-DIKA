@@ -1,21 +1,35 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useCategoryStore } from '@/stores/category.store'
 import type { CreateCategoryDto, Category } from '@/api/category.api'
+import { VueDraggable } from 'vue-draggable-plus'
+import { useDraggableList } from '@/composables/useDraggableList'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogTitle } from '@/components/ui/dialog'
-import { Plus, Trash2, ArrowUpRight, ArrowDownRight } from '@lucide/vue'
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, GripVertical } from '@lucide/vue'
 
 const categoryStore = useCategoryStore()
+
+// DRY: Using composable for draggable list state
+const { items: localCategories, sync, refresh, onDragEnd } = useDraggableList<Category>(categoryStore.categories, 'categories')
 
 const showForm = ref(false)
 const editingId = ref<string | null>(null)
 const form = ref<CreateCategoryDto>({ name: '', type: 'expense', icon: '', color: '' })
 
-onMounted(() => { categoryStore.fetchAll() })
+onMounted(async () => {
+  await categoryStore.fetchAll()
+  sync(categoryStore.categories)
+})
+
+watch(() => categoryStore.categories, (newCategories) => {
+  if (newCategories.length > 0 && localCategories.value.length === 0) {
+    sync(newCategories)
+  }
+})
 
 function openCreate() {
   editingId.value = null
@@ -37,10 +51,16 @@ async function handleSubmit() {
     await categoryStore.create(form.value)
   }
   showForm.value = false
+  refresh(categoryStore.categories)
 }
 
 async function handleDelete(id: string) {
   await categoryStore.remove(id)
+  localCategories.value = localCategories.value.filter(c => c.id !== id)
+}
+
+function handleReorder() {
+  onDragEnd(localCategories.value.map(c => c.id))
 }
 </script>
 
@@ -73,23 +93,31 @@ async function handleDelete(id: string) {
     </div>
 
     <template v-else>
-      <!-- Category Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
+      <!-- DRY: Single draggable grid with reusable pattern -->
+      <VueDraggable
+        v-model="localCategories"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger"
+        ghost-class="opacity-30"
+        @end="handleReorder"
+      >
         <div
-          v-for="cat in categoryStore.categories"
+          v-for="cat in localCategories"
           :key="cat.id"
-          class="bg-card rounded-2xl border border-border p-5 card-interactive cursor-pointer group"
-          @click="openEdit(cat)"
+          class="bg-card rounded-2xl border border-border p-5 card-interactive cursor-grab active:cursor-grabbing group"
         >
-          <div class="flex items-center gap-4 mb-4">
+          <!-- Card Header -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="text-muted-foreground hover:text-foreground">
+              <GripVertical :size="18" />
+            </div>
             <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center"
+              class="w-10 h-10 rounded-xl flex items-center justify-center"
               :style="{ background: (cat.color || (cat.type === 'income' ? '#d1fae5' : '#fee2e2')) + '30' }"
             >
-              <ArrowUpRight v-if="cat.type === 'income'" :size="22" class="text-income" />
-              <ArrowDownRight v-else :size="22" class="text-expense" />
+              <ArrowUpRight v-if="cat.type === 'income'" :size="20" class="text-income" />
+              <ArrowDownRight v-else :size="20" class="text-expense" />
             </div>
-            <div class="flex-1">
+            <div class="flex-1" @click="openEdit(cat)">
               <h3 class="font-display font-bold text-[15px] text-foreground">{{ cat.name }}</h3>
               <Badge :variant="cat.type === 'income' ? 'success' : 'destructive'" class="mt-1">
                 {{ cat.type }}
@@ -116,9 +144,9 @@ async function handleDelete(id: string) {
             </div>
           </div>
         </div>
-      </div>
+      </VueDraggable>
 
-      <p v-if="categoryStore.categories.length === 0" class="text-sm text-muted-foreground text-center py-8">
+      <p v-if="localCategories.length === 0" class="text-sm text-muted-foreground text-center py-8">
         No categories yet. Create one to start organizing.
       </p>
     </template>

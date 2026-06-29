@@ -2,22 +2,28 @@
 import { onMounted, ref } from 'vue'
 import { useBudgetStore } from '@/stores/budget.store'
 import { useCategoryStore } from '@/stores/category.store'
+import { VueDraggable } from 'vue-draggable-plus'
+import { useDraggableList } from '@/composables/useDraggableList'
 import { formatVND } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogTitle } from '@/components/ui/dialog'
-import { Plus, PiggyBank } from '@lucide/vue'
+import { Plus, PiggyBank, GripVertical } from '@lucide/vue'
 
 const budgetStore = useBudgetStore()
 const categoryStore = useCategoryStore()
+
+// DRY: Using composable for draggable list state
+const { items: localBudgets, sync, refresh, onDragEnd } = useDraggableList<any>(budgetStore.budgets, 'budgets')
 
 const showSetBudget = ref(false)
 const budgetForm = ref({ categoryId: '', amount: 0 })
 
 onMounted(async () => {
   await Promise.all([budgetStore.fetchStatus(), budgetStore.fetchProjections(), categoryStore.fetchAll()])
+  sync(budgetStore.budgets)
 })
 
 function openSetBudget(categoryId?: string) {
@@ -36,12 +42,17 @@ async function handleSetBudget() {
     month: now.getMonth() + 1,
   })
   showSetBudget.value = false
+  refresh(budgetStore.budgets)
 }
 
-function getBarGradient(pct: number) {
+function getBarGradient(pct: number): string {
   if (pct > 100) return 'background: linear-gradient(90deg, #ef4444, #f87171)'
   if (pct > 70) return 'background: linear-gradient(90deg, #f59e0b, #fb923c)'
   return 'background: linear-gradient(90deg, #10b981, #34d399)'
+}
+
+function handleReorder() {
+  onDragEnd(localBudgets.value.map(b => b.categoryId))
 }
 </script>
 
@@ -51,7 +62,7 @@ function getBarGradient(pct: number) {
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
         <h1 class="font-display text-[28px] font-extrabold tracking-tight text-foreground">Monthly Budgets</h1>
-        <p class="text-sm text-muted-foreground mt-1">{{ budgetStore.budgets.length }} active budgets</p>
+        <p class="text-sm text-muted-foreground mt-1">{{ localBudgets.length }} active budgets</p>
       </div>
       <Button @click="openSetBudget()">
         <Plus :size="16" :stroke-width="2.5" />
@@ -74,17 +85,25 @@ function getBarGradient(pct: number) {
     </div>
 
     <template v-else>
-      <!-- Budget Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- DRY: Single draggable grid with reusable pattern -->
+      <VueDraggable
+        v-model="localBudgets"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        ghost-class="opacity-30"
+        @end="handleReorder"
+      >
         <div
-          v-for="b in budgetStore.budgets"
+          v-for="b in localBudgets"
           :key="b.categoryId"
-          class="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:-translate-y-0.5 transition-all"
+          class="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-grab active:cursor-grabbing"
         >
-          <!-- Header -->
+          <!-- Card Header -->
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
-              <PiggyBank :size="22" class="text-muted-foreground" />
+            <div class="text-muted-foreground hover:text-foreground">
+              <GripVertical :size="18" />
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+              <PiggyBank :size="20" class="text-muted-foreground" />
             </div>
             <div class="flex-1">
               <h3 class="font-display font-bold text-[15px] text-foreground">{{ categoryStore.byId[b.categoryId]?.name || 'Uncategorized' }}</h3>
@@ -111,17 +130,14 @@ function getBarGradient(pct: number) {
 
           <!-- Status Badge -->
           <Badge
-            :variant="
-              b.usagePercentage > 100 ? 'destructive' :
-              b.usagePercentage > 70 ? 'warning' : 'success'
-            "
+            :variant="b.usagePercentage > 100 ? 'destructive' : b.usagePercentage > 70 ? 'warning' : 'success'"
           >
             {{ b.usagePercentage > 100 ? `Over by ${formatVND(b.runningTotal - b.monthlyLimit)}` :
                b.usagePercentage > 70 ? `${b.usagePercentage}% used` : 'On track' }}
           </Badge>
         </div>
 
-        <!-- Create New Card -->
+        <!-- Create New Card (not draggable) -->
         <button
           type="button"
           class="border-2 border-dashed border-border rounded-2xl bg-transparent flex items-center justify-center min-h-[200px] cursor-pointer hover:border-primary/40 hover:bg-accent/30 transition-all w-full text-left"
@@ -135,9 +151,9 @@ function getBarGradient(pct: number) {
             <p class="text-xs mt-1">Set a spending limit by category</p>
           </div>
         </button>
-      </div>
+      </VueDraggable>
 
-      <p v-if="budgetStore.budgets.length === 0" class="text-sm text-muted-foreground text-center py-8">
+      <p v-if="localBudgets.length === 0" class="text-sm text-muted-foreground text-center py-8">
         No budgets configured. Set a budget to start tracking spending.
       </p>
     </template>
@@ -162,9 +178,8 @@ function getBarGradient(pct: number) {
             <Label for="budget-amount">Amount (VND)</Label>
             <Input
               id="budget-amount"
-              :model-value="budgetForm.amount"
+              v-model="budgetForm.amount"
               type="number"
-              @update:model-value="budgetForm.amount = Number($event)"
             />
           </div>
           <div class="flex gap-3 pt-3">
