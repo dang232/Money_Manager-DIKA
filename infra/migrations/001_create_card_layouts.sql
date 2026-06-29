@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS card_layouts (
     user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     layout JSONB NOT NULL DEFAULT '{"categories": [], "budgets": []}',
-    version BIGSERIAL NOT NULL DEFAULT 1,
+    version BIGSERIAL NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
