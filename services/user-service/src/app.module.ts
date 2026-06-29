@@ -12,6 +12,8 @@ import { GetMyProfileHandler } from './application/handlers/get-my-profile.handl
 import { GetPublicProfileHandler } from './application/handlers/get-public-profile.handler';
 import { UpdateProfileHandler } from './application/handlers/update-profile.handler';
 import { UpdatePreferencesHandler } from './application/handlers/update-preferences.handler';
+import { GetCardLayoutHandler } from './application/handlers/get-card-layout.handler';
+import { UpdateCardLayoutHandler } from './application/handlers/update-card-layout.handler';
 import { UsersController } from './presentation/controllers/users.controller';
 import { HealthController } from './presentation/controllers/health.controller';
 
@@ -38,6 +40,8 @@ import { HealthController } from './presentation/controllers/health.controller';
     GetPublicProfileHandler,
     UpdateProfileHandler,
     UpdatePreferencesHandler,
+    GetCardLayoutHandler,
+    UpdateCardLayoutHandler,
   ],
 })
 export class AppModule {}
