@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useCategoryStore } from '@/stores/category.store'
 import type { CreateCategoryDto, Category } from '@/api/category.api'
 import { VueDraggable } from 'vue-draggable-plus'
@@ -14,7 +14,7 @@ import { Plus, Trash2, ArrowUpRight, ArrowDownRight, GripVertical } from '@lucid
 const categoryStore = useCategoryStore()
 
 // DRY: Using composable for draggable list state
-const { items: localCategories, sync, refresh, onDragEnd } = useDraggableList<Category>(categoryStore.categories, 'categories')
+const { items: localCategories, onDragEnd } = useDraggableList<Category>(categoryStore.categories, 'categories')
 
 const showForm = ref(false)
 const editingId = ref<string | null>(null)
@@ -22,13 +22,6 @@ const form = ref<CreateCategoryDto>({ name: '', type: 'expense', icon: '', color
 
 onMounted(async () => {
   await categoryStore.fetchAll()
-  sync(categoryStore.categories)
-})
-
-watch(() => categoryStore.categories, (newCategories) => {
-  if (newCategories.length > 0 && localCategories.value.length === 0) {
-    sync(newCategories)
-  }
 })
 
 function openCreate() {
@@ -51,12 +44,10 @@ async function handleSubmit() {
     await categoryStore.create(form.value)
   }
   showForm.value = false
-  refresh(categoryStore.categories)
 }
 
 async function handleDelete(id: string) {
   await categoryStore.remove(id)
-  localCategories.value = localCategories.value.filter(c => c.id !== id)
 }
 
 function handleReorder() {

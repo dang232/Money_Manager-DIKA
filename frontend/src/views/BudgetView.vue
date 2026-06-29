@@ -16,14 +16,13 @@ const budgetStore = useBudgetStore()
 const categoryStore = useCategoryStore()
 
 // DRY: Using composable for draggable list state
-const { items: localBudgets, sync, refresh, onDragEnd } = useDraggableList<any>(budgetStore.budgets, 'budgets')
+const { items: localBudgets, onDragEnd } = useDraggableList<any>(budgetStore.budgets, 'budgets')
 
 const showSetBudget = ref(false)
 const budgetForm = ref({ categoryId: '', amount: 0 })
 
 onMounted(async () => {
   await Promise.all([budgetStore.fetchStatus(), budgetStore.fetchProjections(), categoryStore.fetchAll()])
-  sync(budgetStore.budgets)
 })
 
 function openSetBudget(categoryId?: string) {
@@ -42,7 +41,6 @@ async function handleSetBudget() {
     month: now.getMonth() + 1,
   })
   showSetBudget.value = false
-  refresh(budgetStore.budgets)
 }
 
 function getBarGradient(pct: number): string {
