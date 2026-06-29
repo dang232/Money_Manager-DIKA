@@ -1,6 +1,7 @@
 -- Card layouts table for persisting user card order preferences
+-- Note: user_id references users table in auth_db (handled at application level)
 CREATE TABLE IF NOT EXISTS card_layouts (
-    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY,
     layout JSONB NOT NULL DEFAULT '{"categories": [], "budgets": []}',
     version BIGSERIAL NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
