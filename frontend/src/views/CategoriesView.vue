@@ -103,6 +103,8 @@ function handleReorder() {
         <div
           v-for="cat in localCategories"
           :key="cat.id"
+          :data-testid="`category-card`"
+          :data-category-id="cat.id"
           class="bg-card rounded-2xl border border-border p-5 card-interactive cursor-grab active:cursor-grabbing group"
         >
           <!-- Card Header -->

@@ -95,6 +95,8 @@ function handleReorder() {
         <div
           v-for="b in localBudgets"
           :key="b.categoryId"
+          :data-testid="`budget-card`"
+          :data-budget-id="b.categoryId"
           class="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-grab active:cursor-grabbing"
         >
           <!-- Card Header -->
