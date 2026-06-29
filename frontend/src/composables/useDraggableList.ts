@@ -1,4 +1,4 @@
-import { ref, watch, type Ref } from 'vue';
+import { ref, watch, type Ref, computed } from 'vue';
 import { layoutApi, type LayoutData } from '@/api/layout.api';
 
 const STORAGE_KEY = 'card_layout';
@@ -78,7 +78,6 @@ function flushIfDirty() {
 }
 
 async function initialize() {
-  // If already initializing, wait for it
   if (initPromise) {
     await initPromise;
     return;
@@ -99,14 +98,8 @@ async function initialize() {
       let finalLayout: LayoutData;
       let finalMeta: LayoutMeta;
 
-      // CONFLICT RESOLUTION:
-      // 1. No local data → server wins
-      // 2. Local is synced → server wins (if server has newer data)
-      // 3. Local is unsynced AND local is newer → local wins (push to server)
-      // 4. Local is unsynced AND server is newer → server wins
-
+      // Conflict resolution
       if (!localLayout || !localMeta) {
-        // Case 1: No local data, use server
         finalLayout = serverData.layout;
         finalMeta = {
           version: serverData.version,
@@ -114,7 +107,6 @@ async function initialize() {
           synced: true,
         };
       } else if (localMeta.synced) {
-        // Case 2: Local is synced, check versions
         if (serverData.version > localMeta.version) {
           finalLayout = serverData.layout;
           finalMeta = {
@@ -127,14 +119,11 @@ async function initialize() {
           finalMeta = localMeta;
         }
       } else {
-        // Case 3 & 4: Local has unsynced changes
         if (localMeta.timestamp > serverTimestamp) {
-          // Case 3: Local is newer, push to server
           await syncToServer(localLayout, localMeta);
           finalLayout = localLayout;
           finalMeta = localMeta;
         } else {
-          // Case 4: Server is newer, use server
           finalLayout = serverData.layout;
           finalMeta = {
             version: serverData.version,
@@ -149,7 +138,6 @@ async function initialize() {
       saveToLocal(finalLayout, finalMeta);
     } catch (err) {
       console.error('Failed to fetch layout:', err);
-      // Fall back to local if server fails
       if (localLayout) {
         sharedLayout.value = localLayout;
         sharedMeta.value = localMeta;
@@ -180,88 +168,57 @@ function registerVisibilityListener() {
 }
 
 export function useDraggableList<T extends { id: string }>(
-  storeItems: T[] | Map<string, T>,
+  storeItems: T[],
   type: 'categories' | 'budgets'
 ) {
-  const items = ref<T[]>([]) as Ref<T[]>;
-  const initialized = ref(false);
-
-  // Register visibility listener once
-  registerVisibilityListener();
-
-  // Convert to Map for fast lookups
-  const itemMap = new Map<string, T>();
-  watch(() => storeItems, (newItems) => {
-    if (Array.isArray(newItems)) {
-      itemMap.clear();
-      newItems.forEach(item => itemMap.set(item.id, item));
-    }
-  }, { immediate: true });
-
-  // Initialize on first use
-  initialize().then(() => {
-    initialized.value = true;
+  // Create reactive refs that sync with store
+  const storeMap = computed(() => {
+    const map = new Map<string, T>();
+    storeItems.forEach(item => map.set(item.id, item));
+    return map;
   });
 
-  // Watch shared layout and reorder items
-  watch(() => sharedLayout.value, (newLayout) => {
-    if (!newLayout) return;
+  const items = ref<T[]>([...storeItems]) as Ref<T[]>;
 
-    const orderedIds = newLayout[type];
-    if (!orderedIds || orderedIds.length === 0) {
-      // No order saved, use store items as-is
-      if (itemMap.size > 0) {
-        items.value = Array.from(itemMap.values());
+  // Register visibility listener
+  registerVisibilityListener();
+
+  // Initialize shared layout
+  initialize();
+
+  // Watch store items and apply layout order
+  watch(storeMap, (newMap) => {
+    if (newMap.size === 0) return;
+
+    const orderedIds = sharedLayout.value[type];
+    let ordered: T[];
+
+    if (orderedIds && orderedIds.length > 0) {
+      // Apply saved order, filter out deleted items
+      ordered = orderedIds
+        .map(id => newMap.get(id))
+        .filter((item): item is T => item !== undefined);
+
+      // Append new items not in saved order
+      for (const [id, item] of newMap) {
+        if (!orderedIds.includes(id)) {
+          ordered.push(item);
+        }
       }
-      return;
-    }
-
-    // Apply saved order, filter out deleted items
-    const ordered = orderedIds
-      .map(id => itemMap.get(id))
-      .filter((item): item is T => item !== undefined);
-
-    // Append any new items not in order yet
-    for (const [id, item] of itemMap) {
-      if (!orderedIds.includes(id)) {
-        ordered.push(item);
-      }
+    } else {
+      // No saved order, use store order
+      ordered = Array.from(newMap.values());
     }
 
     items.value = ordered;
-  }, { immediate: true });
-
-  function sync(source: T[]) {
-    if (source.length === 0) return;
-
-    // Update item map
-    source.forEach(item => itemMap.set(item.id, item));
-
-    // If no saved order yet, use source order
-    if (sharedLayout.value[type].length === 0) {
-      items.value = [...source];
-    }
-  }
-
-  function refresh(source: T[]) {
-    source.forEach(item => itemMap.set(item.id, item));
-    items.value = [...source];
-  }
+  }, { immediate: true, deep: true });
 
   function onDragEnd(newOrder: string[]) {
     const ordered = newOrder
-      .map(id => itemMap.get(id))
+      .map(id => storeMap.value.get(id))
       .filter((item): item is T => item !== undefined);
 
     items.value = ordered;
-
-    // Clean stale IDs and append any new items
-    const validIds = newOrder.filter(id => itemMap.has(id));
-    for (const [id] of itemMap) {
-      if (type === 'categories' && !validIds.includes(id)) {
-        // New category not in order - handled in watch above
-      }
-    }
 
     const newMeta: LayoutMeta = {
       version: sharedMeta.value?.version || 0,
@@ -271,7 +228,7 @@ export function useDraggableList<T extends { id: string }>(
 
     sharedLayout.value = {
       ...sharedLayout.value,
-      [type]: validIds,
+      [type]: newOrder,
     };
     sharedMeta.value = newMeta;
     saveToLocal(sharedLayout.value, newMeta);
@@ -281,8 +238,6 @@ export function useDraggableList<T extends { id: string }>(
   return {
     items,
     loading: sharedLoading,
-    sync,
-    refresh,
     onDragEnd,
   };
 }
