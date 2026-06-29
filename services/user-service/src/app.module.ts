@@ -1,6 +1,6 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
-import { DatabaseModule, LoggerModule } from '@money-manager/infrastructure';
+import { CacheModule, DatabaseModule, LoggerModule } from '@money-manager/infrastructure';
 import { UserProfileEntity } from './infrastructure/persistence/user-profile.entity';
 import { UserProfileRepositoryImpl } from './infrastructure/persistence/user-profile.repository.impl';
 import { USER_PROFILE_REPOSITORY } from './domain/repositories/user-profile.repository.port';
@@ -20,6 +20,11 @@ import { CardLayoutController } from './presentation/controllers/card-layout.con
 
 @Module({
   imports: [
+    CacheModule.forRoot({
+      host: process.env['REDIS_HOST'] ?? 'localhost',
+      port: Number(process.env['REDIS_PORT'] ?? 6379),
+      password: process.env['REDIS_PASSWORD'],
+    }),
     DatabaseModule.forRoot({
       host: process.env['USER_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['USER_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
