@@ -50,6 +50,21 @@ async function mockApis(page: import('@playwright/test').Page) {
   await page.route('**/api/budgets/projections**', (route) =>
     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) }),
   )
+
+  // Layout API mock
+  await page.route('**/api/layout**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          layout: { categories: [], budgets: [] },
+          version: 1,
+          updatedAt: new Date().toISOString()
+        }
+      }),
+    }),
+  )
 }
 
 test.describe('Card Layout Persistence', () => {

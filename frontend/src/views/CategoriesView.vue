@@ -14,7 +14,7 @@ import { Plus, Trash2, ArrowUpRight, ArrowDownRight, GripVertical } from '@lucid
 const categoryStore = useCategoryStore()
 
 // DRY: Using composable for draggable list state
-const { items: localCategories, onDragEnd } = useDraggableList<Category>(categoryStore.categories, 'categories')
+const { items: localCategories, onDragEnd } = useDraggableList<Category>(() => categoryStore.categories, 'categories')
 
 const showForm = ref(false)
 const editingId = ref<string | null>(null)

@@ -183,6 +183,12 @@
       "type": "file"
     },
     {
+      "path": "frontend\\e2e\\categories.spec.ts",
+      "accessCount": 6,
+      "lastAccessed": 1782750675787,
+      "type": "file"
+    },
+    {
       "path": "frontend\\src\\views\\DashboardView.vue",
       "accessCount": 5,
       "lastAccessed": 1782706537238,
@@ -246,12 +252,6 @@
       "path": "frontend\\src\\api\\http-client.ts",
       "accessCount": 3,
       "lastAccessed": 1782739527532,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\e2e\\categories.spec.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782742674571,
       "type": "file"
     },
     {

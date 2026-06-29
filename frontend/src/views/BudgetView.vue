@@ -16,7 +16,7 @@ const budgetStore = useBudgetStore()
 const categoryStore = useCategoryStore()
 
 // DRY: Using composable for draggable list state
-const { items: localBudgets, onDragEnd } = useDraggableList<any>(budgetStore.budgets, 'budgets')
+const { items: localBudgets, onDragEnd } = useDraggableList<any>(() => budgetStore.budgets, 'budgets')
 
 const showSetBudget = ref(false)
 const budgetForm = ref({ categoryId: '', amount: 0 })

@@ -1,4 +1,4 @@
-import { ref, watch, type Ref, computed } from 'vue';
+import { ref, watch, type Ref } from 'vue';
 import { layoutApi, type LayoutData } from '@/api/layout.api';
 
 const STORAGE_KEY = 'card_layout';
@@ -16,7 +16,6 @@ const sharedMeta = ref<LayoutMeta | null>(null);
 const sharedLoading = ref(true);
 let syncTimeout: ReturnType<typeof setTimeout> | null = null;
 let initialized = false;
-let initPromise: Promise<void> | null = null;
 
 function saveToLocal(data: LayoutData, m: LayoutMeta) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -58,7 +57,6 @@ function debouncedSync(data: LayoutData, m: LayoutMeta) {
   syncTimeout = setTimeout(() => syncToServer(data, m), 1500);
 }
 
-// SendBeacon: fire-and-forget for when tab is closing
 function flushIfDirty() {
   if (!sharedMeta.value || sharedMeta.value.synced) return;
 
@@ -72,150 +70,143 @@ function flushIfDirty() {
   })], { type: 'application/json' });
   navigator.sendBeacon('/api/layout', blob);
 
-  // Mark as synced locally (best effort)
   meta.synced = true;
   saveToLocal(layout, meta);
 }
 
-async function initialize() {
-  if (initPromise) {
-    await initPromise;
-    return;
-  }
-
+async function initializeLayout() {
   if (initialized) return;
-
   initialized = true;
   sharedLoading.value = true;
 
-  initPromise = (async () => {
-    const { layout: localLayout, meta: localMeta } = loadFromLocal();
+  const { layout: localLayout, meta: localMeta } = loadFromLocal();
 
-    try {
-      const serverData = await layoutApi.get();
-      const serverTimestamp = new Date(serverData.updatedAt).getTime();
+  try {
+    const serverData = await layoutApi.get();
+    const serverTimestamp = new Date(serverData.updatedAt).getTime();
 
-      let finalLayout: LayoutData;
-      let finalMeta: LayoutMeta;
+    let finalLayout: LayoutData;
+    let finalMeta: LayoutMeta;
 
-      // Conflict resolution
-      if (!localLayout || !localMeta) {
+    if (!localLayout || !localMeta) {
+      finalLayout = serverData.layout;
+      finalMeta = { version: serverData.version, timestamp: serverTimestamp, synced: true };
+    } else if (localMeta.synced) {
+      if (serverData.version > localMeta.version) {
         finalLayout = serverData.layout;
-        finalMeta = {
-          version: serverData.version,
-          timestamp: serverTimestamp,
-          synced: true,
-        };
-      } else if (localMeta.synced) {
-        if (serverData.version > localMeta.version) {
-          finalLayout = serverData.layout;
-          finalMeta = {
-            version: serverData.version,
-            timestamp: serverTimestamp,
-            synced: true,
-          };
-        } else {
-          finalLayout = localLayout;
-          finalMeta = localMeta;
-        }
+        finalMeta = { version: serverData.version, timestamp: serverTimestamp, synced: true };
       } else {
-        if (localMeta.timestamp > serverTimestamp) {
-          await syncToServer(localLayout, localMeta);
-          finalLayout = localLayout;
-          finalMeta = localMeta;
-        } else {
-          finalLayout = serverData.layout;
-          finalMeta = {
-            version: serverData.version,
-            timestamp: serverTimestamp,
-            synced: true,
-          };
-        }
+        finalLayout = localLayout;
+        finalMeta = localMeta;
       }
-
-      sharedLayout.value = finalLayout;
-      sharedMeta.value = finalMeta;
-      saveToLocal(finalLayout, finalMeta);
-    } catch (err) {
-      console.error('Failed to fetch layout:', err);
-      if (localLayout) {
-        sharedLayout.value = localLayout;
-        sharedMeta.value = localMeta;
+    } else {
+      if (localMeta.timestamp > serverTimestamp) {
+        await syncToServer(localLayout, localMeta);
+        finalLayout = localLayout;
+        finalMeta = localMeta;
+      } else {
+        finalLayout = serverData.layout;
+        finalMeta = { version: serverData.version, timestamp: serverTimestamp, synced: true };
       }
-    } finally {
-      sharedLoading.value = false;
     }
-  })();
 
-  await initPromise;
+    sharedLayout.value = finalLayout;
+    sharedMeta.value = finalMeta;
+    saveToLocal(finalLayout, finalMeta);
+  } catch (err) {
+    console.error('Failed to fetch layout:', err);
+    if (localLayout) {
+      sharedLayout.value = localLayout;
+      sharedMeta.value = localMeta;
+    }
+  } finally {
+    sharedLoading.value = false;
+  }
 }
 
-// Register visibility change listener once
+// Register visibility listener once
 let visibilityListenerRegistered = false;
 function registerVisibilityListener() {
   if (visibilityListenerRegistered) return;
   visibilityListenerRegistered = true;
 
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
-      flushIfDirty();
-    }
+    if (document.visibilityState === 'hidden') flushIfDirty();
   });
-
-  window.addEventListener('beforeunload', () => {
-    flushIfDirty();
-  });
+  window.addEventListener('beforeunload', flushIfDirty);
 }
 
 export function useDraggableList<T extends { id: string }>(
-  storeItems: T[],
+  getItems: () => T[],
   type: 'categories' | 'budgets'
 ) {
-  // Create reactive refs that sync with store
-  const storeMap = computed(() => {
-    const map = new Map<string, T>();
-    storeItems.forEach(item => map.set(item.id, item));
-    return map;
-  });
+  // items starts empty, will be populated by watch
+  const items = ref<T[]>([]) as Ref<T[]>;
 
-  const items = ref<T[]>([...storeItems]) as Ref<T[]>;
-
-  // Register visibility listener
   registerVisibilityListener();
+  initializeLayout();
 
-  // Initialize shared layout
-  initialize();
+  // Watch layout changes and reorder items
+  watch(sharedLayout, (layout) => {
+    const orderedIds = layout[type];
+    const currentItems = getItems();
 
-  // Watch store items and apply layout order
-  watch(storeMap, (newMap) => {
-    if (newMap.size === 0) return;
+    if (currentItems.length === 0) {
+      items.value = [];
+      return;
+    }
 
-    const orderedIds = sharedLayout.value[type];
-    let ordered: T[];
-
-    if (orderedIds && orderedIds.length > 0) {
-      // Apply saved order, filter out deleted items
-      ordered = orderedIds
-        .map(id => newMap.get(id))
-        .filter((item): item is T => item !== undefined);
-
-      // Append new items not in saved order
-      for (const [id, item] of newMap) {
-        if (!orderedIds.includes(id)) {
-          ordered.push(item);
-        }
-      }
-    } else {
+    if (orderedIds.length === 0) {
       // No saved order, use store order
-      ordered = Array.from(newMap.values());
+      items.value = [...currentItems];
+      return;
+    }
+
+    // Apply saved order
+    const ordered = orderedIds
+      .map(id => currentItems.find(item => item.id === id))
+      .filter((item): item is T => item !== undefined);
+
+    // Append new items not in saved order
+    for (const item of currentItems) {
+      if (!orderedIds.includes(item.id)) {
+        ordered.push(item);
+      }
     }
 
     items.value = ordered;
-  }, { immediate: true, deep: true });
+  }, { immediate: true });
+
+  // Also watch when getItems changes (store updated)
+  watch(
+    () => getItems(),
+    (newItems) => {
+      if (newItems.length === 0) {
+        items.value = [];
+        return;
+      }
+      const orderedIds = sharedLayout.value[type];
+      if (orderedIds.length === 0) {
+        items.value = [...newItems];
+        return;
+      }
+      const ordered = orderedIds
+        .map(id => newItems.find(item => item.id === id))
+        .filter((item): item is T => item !== undefined);
+      for (const item of newItems) {
+        if (!orderedIds.includes(item.id)) {
+          ordered.push(item);
+        }
+      }
+      items.value = ordered;
+    },
+    { immediate: true }
+  );
 
   function onDragEnd(newOrder: string[]) {
+    const currentItems = getItems();
     const ordered = newOrder
-      .map(id => storeMap.value.get(id))
+      .map(id => currentItems.find(item => item.id === id))
       .filter((item): item is T => item !== undefined);
 
     items.value = ordered;
@@ -226,18 +217,11 @@ export function useDraggableList<T extends { id: string }>(
       synced: false,
     };
 
-    sharedLayout.value = {
-      ...sharedLayout.value,
-      [type]: newOrder,
-    };
+    sharedLayout.value = { ...sharedLayout.value, [type]: newOrder };
     sharedMeta.value = newMeta;
     saveToLocal(sharedLayout.value, newMeta);
     debouncedSync(sharedLayout.value, newMeta);
   }
 
-  return {
-    items,
-    loading: sharedLoading,
-    onDragEnd,
-  };
+  return { items, loading: sharedLoading, onDragEnd };
 }

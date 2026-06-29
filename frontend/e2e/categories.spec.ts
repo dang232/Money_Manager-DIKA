@@ -14,7 +14,7 @@ async function mockCategoryApis(
 
   await page.route('**/api/categories', async (route) => {
     if (route.request().method() === 'GET') {
-      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(catList) })
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: catList }) })
     } else if (route.request().method() === 'POST') {
       const body = JSON.parse(route.request().postData() ?? '{}')
       await route.fulfill({
@@ -37,6 +37,21 @@ async function mockCategoryApis(
       await route.continue()
     }
   })
+
+  // Layout API mock (must be before catch-all)
+  await page.route('**/api/layout**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        data: {
+          layout: { categories: [], budgets: [] },
+          version: 1,
+          updatedAt: new Date().toISOString()
+        }
+      }),
+    }),
+  )
 
   // ponytail: catch-all for unhandled API calls — only intercept fetch/xhr, NOT vite module loads
   await page.route('**/api/**', (route) => {
