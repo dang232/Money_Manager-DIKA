@@ -4,6 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { EventBusModule, CacheModule, LoggerModule } from '@money-manager/infrastructure';
 import { appConfig } from './config/app.config';
 import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware';
+import { JwtAuthMiddleware } from './middleware/jwt-auth.middleware';
+import { CsrfMiddleware } from './middleware/csrf.middleware';
 import { CircuitBreakerService } from './circuit-breaker/circuit-breaker.service';
 import { HttpProxyService } from './proxy/http-proxy.service';
 import { TransactionProxyController } from './proxy/transaction-proxy.controller';
@@ -47,6 +49,9 @@ import { EventRelayService } from './websocket/event-relay.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
+    // ponytail: middleware order matters — correlation-id first, then JWT (sets x-user-id), then CSRF check
     consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+    consumer.apply(JwtAuthMiddleware).forRoutes('*');
+    consumer.apply(CsrfMiddleware).forRoutes('*');
   }
 }

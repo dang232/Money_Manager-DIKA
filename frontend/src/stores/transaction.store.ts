@@ -37,8 +37,10 @@ export const useTransactionStore = defineStore('transaction', () => {
         limit: pagination.value.limit,
         ...filters,
       })
-      transactions.value = res.data.data
-      pagination.value.total = res.data.total
+      // ponytail: interceptor unwraps ApiResponse — res.data is either the array or {data, total}
+      const payload = res.data as any
+      transactions.value = Array.isArray(payload) ? payload : (payload?.data ?? [])
+      pagination.value.total = Array.isArray(payload) ? payload.length : (payload?.total ?? 0)
     })
   }
 

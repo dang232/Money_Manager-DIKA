@@ -72,16 +72,16 @@ const mobileNav = [
       </header>
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-auto pb-20 md:pb-0">
-        <div class="px-6 md:px-10 max-w-[1400px] w-full">
+      <main class="flex-1 overflow-auto pb-24 md:pb-0">
+        <div class="px-4 md:px-10 max-w-[1400px] w-full">
           <slot />
         </div>
       </main>
     </div>
 
-    <!-- FAB -->
+    <!-- FAB — hidden on mobile since Add Transaction is in page headers -->
     <button
-      class="fixed bottom-24 md:bottom-8 right-6 md:right-8 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_12px_24px_rgba(16,185,129,0.4)] hover:scale-105 hover:bg-primary/90 transition-all z-40"
+      class="hidden md:flex fixed bottom-8 right-8 w-14 h-14 rounded-full bg-primary text-primary-foreground items-center justify-center shadow-[0_12px_24px_rgba(16,185,129,0.4)] hover:scale-105 hover:bg-primary/90 transition-all z-40"
       title="Add Transaction"
       @click="router.push({ path: '/transactions', query: { add: '1' } })"
     >
@@ -91,13 +91,13 @@ const mobileNav = [
     <!-- Mobile Bottom Nav -->
     <nav
       v-if="ui.isMobile"
-      class="fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around py-2.5 z-50"
+      class="fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around py-2 pb-[env(safe-area-inset-bottom,8px)] z-50"
     >
       <router-link
         v-for="item in mobileNav"
         :key="item.path"
         :to="item.path"
-        class="flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors"
+        class="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-colors min-w-[56px]"
         :class="route.path === item.path ? 'text-primary' : 'text-muted-foreground'"
       >
         <component :is="item.icon" :size="20" />

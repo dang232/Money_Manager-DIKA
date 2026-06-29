@@ -1,0 +1,215 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: onboarding.spec.ts >> Onboarding >> Continue is disabled when no category is selected
+- Location: e2e\onboarding.spec.ts:83:3
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: locator.click: Test timeout of 30000ms exceeded.
+Call log:
+  - waiting for getByRole('button', { name: /Salary/ })
+
+```
+
+# Test source
+
+```ts
+  1   | import { test, expect } from '@playwright/test'
+  2   | import { seedAuth } from './helpers/auth'
+  3   | 
+  4   | // Shared mock API helper for onboarding tests
+  5   | async function mockOnboardingApis(page: import('@playwright/test').Page) {
+  6   |   let categoryIdCounter = 1
+  7   | 
+  8   |   await page.route('**/api/categories', async (route) => {
+  9   |     if (route.request().method() === 'POST') {
+  10  |       const body = JSON.parse(route.request().postData() ?? '{}')
+  11  |       await route.fulfill({
+  12  |         status: 201,
+  13  |         contentType: 'application/json',
+  14  |         body: JSON.stringify({
+  15  |           id: `cat-${categoryIdCounter++}`,
+  16  |           ...body,
+  17  |         }),
+  18  |       })
+  19  |     } else {
+  20  |       await route.fulfill({
+  21  |         status: 200,
+  22  |         contentType: 'application/json',
+  23  |         body: JSON.stringify([
+  24  |           { id: 'cat-1', name: 'Salary', type: 'income' },
+  25  |           { id: 'cat-2', name: 'Food & Dining', type: 'expense' },
+  26  |           { id: 'cat-3', name: 'Transportation', type: 'expense' },
+  27  |           { id: 'cat-4', name: 'Shopping', type: 'expense' },
+  28  |           { id: 'cat-5', name: 'Bills & Utilities', type: 'expense' },
+  29  |         ]),
+  30  |       })
+  31  |     }
+  32  |   })
+  33  | 
+  34  |   await page.route('**/api/budgets', async (route) => {
+  35  |     if (route.request().method() === 'POST') {
+  36  |       await route.fulfill({ status: 201, contentType: 'application/json', body: '{}' })
+  37  |     } else {
+  38  |       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([]) })
+  39  |     }
+  40  |   })
+  41  | 
+  42  |   await page.route('**/api/transactions', async (route) => {
+  43  |     if (route.request().method() === 'POST') {
+  44  |       await route.fulfill({
+  45  |         status: 201,
+  46  |         contentType: 'application/json',
+  47  |         body: JSON.stringify({ id: 'tx-1', amount: 100000, type: 'expense', categoryId: 'cat-2', description: 'Test', date: new Date().toISOString() }),
+  48  |       })
+  49  |     } else {
+  50  |       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [], total: 0 }) })
+  51  |     }
+  52  |   })
+  53  | 
+  54  |   // Catch-all for dashboard redirect
+  55  |   await page.route('**/api/**', (route) =>
+  56  |     route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ data: [] }) }),
+  57  |   )
+  58  | }
+  59  | 
+  60  | test.describe('Onboarding', () => {
+  61  |   test.beforeEach(async ({ page }) => {
+  62  |     await seedAuth(page)
+  63  |     // Clear onboarded flag so the flow is fresh
+  64  |     await page.evaluate(() => localStorage.removeItem('mm-onboarded'))
+  65  |     await mockOnboardingApis(page)
+  66  |     await page.goto('/onboarding')
+  67  |   })
+  68  | 
+  69  |   // -------------------------------------------------------------------------
+  70  |   // Step 1 — Categories
+  71  |   // -------------------------------------------------------------------------
+  72  |   test('renders step 1 with default category options', async ({ page }) => {
+  73  |     await expect(page.getByRole('heading', { name: 'Choose your categories' })).toBeVisible()
+  74  |     await expect(page.getByRole('button', { name: /Salary/ })).toBeVisible()
+  75  |     await expect(page.getByRole('button', { name: /Food & Dining/ })).toBeVisible()
+  76  |     await expect(page.getByRole('button', { name: /Transportation/ })).toBeVisible()
+  77  |     await expect(page.getByRole('button', { name: /Shopping/ })).toBeVisible()
+  78  |     await expect(page.getByRole('button', { name: /Bills & Utilities/ })).toBeVisible()
+  79  |     await expect(page.getByRole('button', { name: /Entertainment/ })).toBeVisible()
+  80  |     await expect(page.getByRole('button', { name: /Healthcare/ })).toBeVisible()
+  81  |   })
+  82  | 
+  83  |   test('Continue is disabled when no category is selected', async ({ page }) => {
+  84  |     // Deselect all pre-selected defaults
+  85  |     for (const name of ['Salary', 'Food & Dining', 'Transportation', 'Shopping', 'Bills & Utilities']) {
+> 86  |       await page.getByRole('button', { name: new RegExp(name) }).click()
+      |                                                                  ^ Error: locator.click: Test timeout of 30000ms exceeded.
+  87  |     }
+  88  |     await expect(page.getByRole('button', { name: 'Continue' })).toBeDisabled()
+  89  |   })
+  90  | 
+  91  |   test('can add a custom category and proceed', async ({ page }) => {
+  92  |     await page.getByPlaceholder('Add custom category...').fill('Gym')
+  93  |     await page.getByRole('button', { name: 'Add' }).click()
+  94  |     await expect(page.getByText('Gym')).toBeVisible()
+  95  |   })
+  96  | 
+  97  |   test('custom category can be added with Enter key', async ({ page }) => {
+  98  |     await page.getByPlaceholder('Add custom category...').fill('Books')
+  99  |     await page.getByPlaceholder('Add custom category...').press('Enter')
+  100 |     await expect(page.getByText('Books')).toBeVisible()
+  101 |   })
+  102 | 
+  103 |   test('step 1 Continue calls POST /categories and advances to step 2', async ({ page }) => {
+  104 |     const requests: string[] = []
+  105 |     page.on('request', (req) => {
+  106 |       if (req.url().includes('/api/categories') && req.method() === 'POST') {
+  107 |         requests.push(req.postData() ?? '')
+  108 |       }
+  109 |     })
+  110 | 
+  111 |     await page.getByRole('button', { name: 'Continue' }).click()
+  112 |     // Wait for step 2 heading
+  113 |     await expect(page.getByRole('heading', { name: 'Set monthly budgets' })).toBeVisible()
+  114 |     // At least one POST should have fired for the pre-selected categories
+  115 |     expect(requests.length).toBeGreaterThan(0)
+  116 |   })
+  117 | 
+  118 |   // -------------------------------------------------------------------------
+  119 |   // Step 2 — Budgets
+  120 |   // -------------------------------------------------------------------------
+  121 |   test('step 2 shows expense categories with amount inputs', async ({ page }) => {
+  122 |     await page.getByRole('button', { name: 'Continue' }).click()
+  123 |     await expect(page.getByRole('heading', { name: 'Set monthly budgets' })).toBeVisible()
+  124 |     // Expense category inputs should be present
+  125 |     await expect(page.getByPlaceholder('0').first()).toBeVisible()
+  126 |   })
+  127 | 
+  128 |   test('Skip on step 2 advances to step 3 without calling POST /budgets', async ({ page }) => {
+  129 |     await page.getByRole('button', { name: 'Continue' }).click()
+  130 |     await expect(page.getByRole('heading', { name: 'Set monthly budgets' })).toBeVisible()
+  131 | 
+  132 |     let budgetPostCalled = false
+  133 |     page.on('request', (req) => {
+  134 |       if (req.url().includes('/api/budgets') && req.method() === 'POST') budgetPostCalled = true
+  135 |     })
+  136 | 
+  137 |     await page.getByRole('button', { name: 'Skip' }).click()
+  138 |     await expect(page.getByRole('heading', { name: 'Your first transaction' })).toBeVisible()
+  139 |     expect(budgetPostCalled).toBe(false)
+  140 |   })
+  141 | 
+  142 |   test('step 2 Continue with budget amounts calls POST /budgets', async ({ page }) => {
+  143 |     await page.getByRole('button', { name: 'Continue' }).click()
+  144 |     await expect(page.getByRole('heading', { name: 'Set monthly budgets' })).toBeVisible()
+  145 | 
+  146 |     // Fill the first budget input
+  147 |     const firstInput = page.getByPlaceholder('0').first()
+  148 |     await firstInput.fill('500000')
+  149 | 
+  150 |     const budgetResponse = page.waitForResponse('**/api/budgets')
+  151 |     await page.getByRole('button', { name: 'Continue' }).click()
+  152 |     await budgetResponse
+  153 | 
+  154 |     await expect(page.getByRole('heading', { name: 'Your first transaction' })).toBeVisible()
+  155 |   })
+  156 | 
+  157 |   // -------------------------------------------------------------------------
+  158 |   // Step 3 — First Transaction
+  159 |   // -------------------------------------------------------------------------
+  160 |   test('step 3 shows the first transaction form', async ({ page }) => {
+  161 |     await page.getByRole('button', { name: 'Continue' }).click()
+  162 |     await page.getByRole('button', { name: 'Skip' }).click()
+  163 |     await expect(page.getByRole('heading', { name: 'Your first transaction' })).toBeVisible()
+  164 |     await expect(page.getByRole('button', { name: 'Expense' })).toBeVisible()
+  165 |     await expect(page.getByRole('button', { name: 'Income' })).toBeVisible()
+  166 |     await expect(page.getByPlaceholder('Amount')).toBeVisible()
+  167 |     await expect(page.getByPlaceholder('Description')).toBeVisible()
+  168 |   })
+  169 | 
+  170 |   test('Skip on step 3 navigates to /dashboard without POST /transactions', async ({ page }) => {
+  171 |     await page.getByRole('button', { name: 'Continue' }).click()
+  172 |     await page.getByRole('button', { name: 'Skip' }).click()
+  173 |     await expect(page.getByRole('heading', { name: 'Your first transaction' })).toBeVisible()
+  174 | 
+  175 |     let txPostCalled = false
+  176 |     page.on('request', (req) => {
+  177 |       if (req.url().includes('/api/transactions') && req.method() === 'POST') txPostCalled = true
+  178 |     })
+  179 | 
+  180 |     await page.getByRole('button', { name: 'Skip' }).click()
+  181 |     await expect(page).toHaveURL('/dashboard')
+  182 |     expect(txPostCalled).toBe(false)
+  183 | 
+  184 |     const onboarded = await page.evaluate(() => localStorage.getItem('mm-onboarded'))
+  185 |     expect(onboarded).toBe('true')
+  186 |   })
+```

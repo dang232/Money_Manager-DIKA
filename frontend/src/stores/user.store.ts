@@ -12,7 +12,8 @@ export const useUserStore = defineStore('user', () => {
     error.value = null
     try {
       const { data } = await userApi.getMe()
-      profile.value = data.data
+      // ponytail: interceptor unwraps ApiResponse envelope
+      profile.value = data
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to load profile'
     } finally {
@@ -25,7 +26,7 @@ export const useUserStore = defineStore('user', () => {
     error.value = null
     try {
       const { data } = await userApi.updateMe(dto)
-      profile.value = data.data
+      profile.value = data
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to update profile'
       throw e
@@ -39,7 +40,7 @@ export const useUserStore = defineStore('user', () => {
     error.value = null
     try {
       const { data } = await userApi.updatePreferences(prefs)
-      profile.value = data.data
+      profile.value = data
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to update preferences'
       throw e

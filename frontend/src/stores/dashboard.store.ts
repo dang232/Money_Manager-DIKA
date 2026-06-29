@@ -17,7 +17,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     try {
       const now = new Date()
       const res = await transactionApi.getCategoryBreakdown(now.getFullYear(), now.getMonth() + 1)
-      categoryBreakdown.value = res.data
+      categoryBreakdown.value = res.data ?? []
     } catch {
       // Analytics endpoint may not be available yet
     }
@@ -26,7 +26,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   async function fetchMonthlyTrend() {
     try {
       const res = await transactionApi.getMonthlyTrend(6)
-      monthlyTrend.value = res.data
+      monthlyTrend.value = res.data ?? []
     } catch {
       // Analytics endpoint may not be available yet
     }

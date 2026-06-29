@@ -7,13 +7,9 @@ export interface AuthUser {
   createdAt: string
 }
 
-export interface AuthTokens {
+// ponytail: tokens no longer returned in the response body — they live in HttpOnly cookies
+export interface AuthLoginResponse {
   user: AuthUser
-  accessToken: string
-  accessTokenExpiresAt: string
-  refreshToken: string
-  refreshTokenExpiresAt: string
-  tokenType: 'Bearer'
 }
 
 export interface RegisterDto {
@@ -29,18 +25,20 @@ export interface LoginDto {
 
 export const authApi = {
   register(dto: RegisterDto) {
-    return httpClient.post<{ data: AuthTokens }>('/auth/register', dto)
+    return httpClient.post<AuthLoginResponse>('/auth/register', dto)
   },
   login(dto: LoginDto) {
-    return httpClient.post<{ data: AuthTokens }>('/auth/login', dto)
+    return httpClient.post<AuthLoginResponse>('/auth/login', dto)
   },
-  refresh(refreshToken: string) {
-    return httpClient.post<{ data: Omit<AuthTokens, 'user'> }>('/auth/refresh', { refreshToken })
+  // ponytail: refresh token comes from mm-rt HttpOnly cookie — no body needed
+  refresh() {
+    return httpClient.post<Record<string, never>>('/auth/refresh', {})
   },
-  logout(refreshToken: string) {
-    return httpClient.post('/auth/logout', { refreshToken })
+  // ponytail: refresh token comes from mm-rt HttpOnly cookie — no body needed
+  logout() {
+    return httpClient.post('/auth/logout', {})
   },
   me() {
-    return httpClient.get<{ data: AuthUser }>('/auth/me')
+    return httpClient.get<AuthUser>('/auth/me')
   },
 }

@@ -1,61 +1,54 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { authApi, type AuthUser, type AuthTokens } from '@/api/auth.api'
-
-const TOKEN_KEY = 'mm-access-token'
-const REFRESH_KEY = 'mm-refresh-token'
+import { authApi, type AuthUser } from '@/api/auth.api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
-  const accessToken = ref<string | null>(localStorage.getItem(TOKEN_KEY))
-  const refreshToken = ref<string | null>(localStorage.getItem(REFRESH_KEY))
-
-  const isAuthenticated = computed(() => !!accessToken.value)
-
-  function setTokens(tokens: Pick<AuthTokens, 'accessToken' | 'refreshToken'>) {
-    accessToken.value = tokens.accessToken
-    refreshToken.value = tokens.refreshToken
-    localStorage.setItem(TOKEN_KEY, tokens.accessToken)
-    localStorage.setItem(REFRESH_KEY, tokens.refreshToken)
-  }
+  // ponytail: tokens live in HttpOnly cookies — isAuthenticated is derived from whether we have a user object
+  const isAuthenticated = computed(() => !!user.value)
+  // ponytail: store accessTokenExpiresAt for proactive refresh scheduling
+  const accessTokenExpiresAt = ref<string | null>(null)
 
   function clearAuth() {
     user.value = null
-    accessToken.value = null
-    refreshToken.value = null
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(REFRESH_KEY)
+    accessTokenExpiresAt.value = null
   }
 
   async function register(email: string, password: string, displayName: string) {
     const { data } = await authApi.register({ email, password, displayName })
-    user.value = data.data.user
-    setTokens(data.data)
+    user.value = data.user
   }
 
   async function login(email: string, password: string) {
     const { data } = await authApi.login({ email, password })
-    user.value = data.data.user
-    setTokens(data.data)
+    user.value = data.user
   }
 
   async function logout() {
-    if (refreshToken.value) {
-      await authApi.logout(refreshToken.value).catch(() => {})
-    }
+    await authApi.logout().catch(() => {})
     clearAuth()
   }
 
   async function refresh() {
-    if (!refreshToken.value) throw new Error('No refresh token')
-    const { data } = await authApi.refresh(refreshToken.value)
-    setTokens(data.data)
+    // ponytail: cookies are sent automatically via withCredentials — no token in body
+    await authApi.refresh()
   }
 
   async function fetchMe() {
     const { data } = await authApi.me()
-    user.value = data.data
+    // ponytail: interceptor unwraps ApiResponse, so data is the user object directly
+    user.value = data
   }
 
-  return { user, accessToken, refreshToken, isAuthenticated, register, login, logout, refresh, fetchMe, clearAuth }
+  return {
+    user,
+    isAuthenticated,
+    accessTokenExpiresAt,
+    register,
+    login,
+    logout,
+    refresh,
+    fetchMe,
+    clearAuth,
+  }
 })

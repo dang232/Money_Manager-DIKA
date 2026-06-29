@@ -5,6 +5,8 @@ import { useCategoryStore } from '@/stores/category.store'
 import { useTransactionStore } from '@/stores/transaction.store'
 import { useBudgetStore } from '@/stores/budget.store'
 import type { CreateTransactionDto } from '@/api/transaction.api'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const router = useRouter()
 const categoryStore = useCategoryStore()
@@ -38,6 +40,10 @@ function addCustom() {
   if (!customCategory.value.trim()) return
   customCategories.value.push({ name: customCategory.value.trim(), type: 'expense' })
   customCategory.value = ''
+}
+
+function removeCustom(idx: number) {
+  customCategories.value.splice(idx, 1)
 }
 
 // Step 2: Budgets
@@ -126,41 +132,49 @@ onMounted(() => { categoryStore.fetchAll() })
         </div>
 
         <div class="grid grid-cols-2 gap-2">
-          <button
+          <Button
             v-for="(cat, idx) in defaultCategories"
             :key="idx"
-            class="px-4 py-3 rounded-lg border text-sm text-left transition-colors"
-            :class="selectedCategories.includes(idx) ? 'border-primary bg-primary/10 text-primary' : 'border-border text-foreground hover:bg-accent'"
+            type="button"
+            variant="outline"
+            class="justify-start h-auto py-3 px-4"
+            :class="selectedCategories.includes(idx) ? 'border-primary bg-primary/10 text-primary' : ''"
             @click="toggleCategory(idx)"
           >
             <span class="text-xs text-muted-foreground block">{{ cat.type }}</span>
             {{ cat.name }}
-          </button>
+          </Button>
         </div>
 
         <!-- Custom -->
         <div class="flex gap-2">
-          <input
+          <Input
             v-model="customCategory"
             placeholder="Add custom category..."
-            class="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            class="flex-1"
             @keyup.enter="addCustom"
           />
-          <button class="px-4 py-2 rounded-lg bg-secondary text-secondary-foreground text-sm" @click="addCustom">Add</button>
+          <Button type="button" variant="secondary" @click="addCustom">Add</Button>
         </div>
         <div v-if="customCategories.length" class="flex flex-wrap gap-2">
-          <span v-for="(cc, i) in customCategories" :key="i" class="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm">
+          <div v-for="(cc, i) in customCategories" :key="i" class="px-3 py-1 rounded-full bg-primary/10 text-primary text-sm flex items-center gap-2">
             {{ cc.name }}
-          </span>
+            <button type="button" class="hover:text-primary/70" @click="removeCustom(i)">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <button
+        <Button
+          type="button"
+          class="w-full"
           :disabled="loading || (selectedCategories.length === 0 && customCategories.length === 0)"
-          class="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50"
           @click="finishStep1"
         >
           {{ loading ? 'Creating...' : 'Continue' }}
-        </button>
+        </Button>
       </div>
 
       <!-- Step 2: Budgets -->
@@ -177,26 +191,22 @@ onMounted(() => { categoryStore.fetchAll() })
             class="flex items-center gap-3"
           >
             <span class="text-sm text-foreground flex-1">{{ cat.name }}</span>
-            <input
+            <Input
               v-model.number="budgets[cat.id]"
               type="number"
               min="0"
               step="100000"
               placeholder="0"
-              class="w-40 rounded-lg border border-border bg-background px-3 py-2 text-sm text-right"
+              class="w-40 text-right"
             />
           </div>
         </div>
 
         <div class="flex gap-3">
-          <button class="flex-1 py-3 rounded-lg border border-border text-sm text-muted-foreground" @click="skipStep2">Skip</button>
-          <button
-            :disabled="loading"
-            class="flex-1 py-3 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50"
-            @click="finishStep2"
-          >
+          <Button type="button" variant="outline" class="flex-1" @click="skipStep2">Skip</Button>
+          <Button type="button" class="flex-1" :disabled="loading" @click="finishStep2">
             {{ loading ? 'Saving...' : 'Continue' }}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -208,22 +218,39 @@ onMounted(() => { categoryStore.fetchAll() })
         </div>
 
         <form class="space-y-4" @submit.prevent="finishStep3">
-          <div class="flex gap-2">
-            <button type="button" class="flex-1 py-2 rounded-lg text-sm font-medium" :class="txForm.type === 'expense' ? 'bg-red-500 text-white' : 'bg-muted text-muted-foreground'" @click="txForm.type = 'expense'">Expense</button>
-            <button type="button" class="flex-1 py-2 rounded-lg text-sm font-medium" :class="txForm.type === 'income' ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'" @click="txForm.type = 'income'">Income</button>
+          <!-- Type Toggle -->
+          <div class="grid grid-cols-2 gap-2 bg-muted p-1 rounded-xl">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              :class="txForm.type === 'expense' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
+              @click="txForm.type = 'expense'"
+            >
+              Expense
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              :class="txForm.type === 'income' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
+              @click="txForm.type = 'income'"
+            >
+              Income
+            </Button>
           </div>
-          <input v-model.number="txForm.amount" type="number" min="0" step="1000" placeholder="Amount" class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <select v-model="txForm.categoryId" class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+          <Input v-model.number="txForm.amount" type="number" min="0" step="1000" placeholder="Amount" />
+          <select v-model="txForm.categoryId" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <option value="" disabled>Select category</option>
             <option v-for="cat in createdCategoryIds.filter(c => c.type === txForm.type)" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
-          <input v-model="txForm.description" type="text" placeholder="Description" class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          <input v-model="txForm.date" type="date" class="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <Input v-model="txForm.description" type="text" placeholder="Description" />
+          <Input v-model="txForm.date" type="date" />
           <div class="flex gap-3">
-            <button type="button" class="flex-1 py-3 rounded-lg border border-border text-sm text-muted-foreground" @click="skipStep3">Skip</button>
-            <button type="submit" :disabled="loading" class="flex-1 py-3 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">
+            <Button type="button" variant="outline" class="flex-1" @click="skipStep3">Skip</Button>
+            <Button type="submit" class="flex-1" :disabled="loading">
               {{ loading ? 'Saving...' : 'Get Started' }}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
