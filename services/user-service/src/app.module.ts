@@ -16,6 +16,7 @@ import { GetCardLayoutHandler } from './application/handlers/get-card-layout.han
 import { UpdateCardLayoutHandler } from './application/handlers/update-card-layout.handler';
 import { UsersController } from './presentation/controllers/users.controller';
 import { HealthController } from './presentation/controllers/health.controller';
+import { CardLayoutController } from './presentation/controllers/card-layout.controller';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { HealthController } from './presentation/controllers/health.controller';
     DatabaseModule.forFeature([UserProfileEntity, CardLayoutEntity]),
     LoggerModule,
   ],
-  controllers: [UsersController, HealthController],
+  controllers: [UsersController, HealthController, CardLayoutController],
   providers: [
     { provide: USER_PROFILE_REPOSITORY, useClass: UserProfileRepositoryImpl },
     { provide: CARD_LAYOUT_REPOSITORY, useClass: CardLayoutRepositoryImpl },
