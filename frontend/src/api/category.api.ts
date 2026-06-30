@@ -1,16 +1,19 @@
 import httpClient from './http-client'
 
+export type CategoryType = 'INCOME' | 'EXPENSE'
+
 export interface Category {
   id: string
   name: string
-  type: 'INCOME' | 'EXPENSE' | 'income' | 'expense'
+  type: CategoryType
   icon?: string
   color?: string
+  createdAt?: string
 }
 
 export interface CreateCategoryDto {
   name: string
-  type: 'INCOME' | 'EXPENSE'
+  type: CategoryType
   icon?: string
   color?: string
 }

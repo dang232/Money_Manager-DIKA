@@ -1,6 +1,16 @@
 // ponytail: DTOs for category endpoints
-import { IsString, IsNotEmpty, MaxLength, IsEnum, IsOptional, Matches } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsEnum, IsOptional, Matches, ValidateIf } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { TransactionType } from '@money-manager/shared-kernel';
+
+// ponytail: normalize type to uppercase (frontend sends lowercase)
+function normalizeType(v: unknown): TransactionType {
+  if (typeof v === 'string') {
+    const upper = v.toUpperCase();
+    if (upper === 'INCOME' || upper === 'EXPENSE') return upper as TransactionType;
+  }
+  return v as TransactionType;
+}
 
 export class CreateCategoryDto {
   @IsString()
@@ -8,6 +18,7 @@ export class CreateCategoryDto {
   @MaxLength(100)
   name!: string;
 
+  @Transform(({ value }) => normalizeType(value))
   @IsEnum(TransactionType)
   type!: TransactionType;
 
@@ -16,7 +27,7 @@ export class CreateCategoryDto {
   @MaxLength(50)
   icon?: string;
 
-  @IsOptional()
+  @ValidateIf((o) => o.color !== undefined)
   @IsString()
   @Matches(/^#[0-9a-fA-F]{6}$/)
   color?: string;

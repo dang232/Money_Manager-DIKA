@@ -1,7 +1,7 @@
 {
-  "tool_name": "mcp__Claude_Preview__preview_screenshot",
-  "tool_input_preview": "{\"serverId\":\"296b4cd4-b7f5-4178-8756-55b2d5f47a60\"}",
-  "error": "preview_screenshot timed out after 30s. The preview window may be stuck (modal dialog, navigation hang, or unresponsive renderer). Check preview_console_logs for errors.",
-  "timestamp": "2026-06-30T07:37:26.135Z",
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"C:\\\\Users\\\\dangq\\\\OneDrive\\\\Documents\\\\GitHub\\\\Money_Manager-DIKA\\\\frontend\\\" && npx playwright test multi-user-isolation.spec.ts --project=chromium 2>&1\",\"timeout\":300000,\"descriptio...",
+  "error": "Exit code 1\n\nRunning 10 tests using 6 workers\n\n[1/10] [chromium] › e2e\\multi-user-isolation.spec.ts:87:3 › Multi-User API Isolation › User can only see their own categories\n[2/10] [chromium] › e2e\\multi-user-isolation.spec.ts:57:3 › Multi-User API Isolation › Dashboard returns user-specific data\n[3/10] [chromium] › e2e\\multi-user-isolation.spec.ts:161:3 › Real User Flow - Multiple Sessions › User can login and view their dashboard\n[4/10] [chromium] › e2e\\multi-user-isolation.spec.ts:75:3 › Multi...",
+  "timestamp": "2026-06-30T14:01:39.981Z",
   "retry_count": 1
 }

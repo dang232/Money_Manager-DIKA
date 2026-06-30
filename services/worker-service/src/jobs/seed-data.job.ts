@@ -1,10 +1,11 @@
-// ponytail: SeedDataJob — generates 3 months of realistic Vietnamese transaction data
+// SeedDataJob — generates 3 months of realistic Vietnamese transaction data
+// FIXED: Removed DEFAULT fallback — userId is required
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { InjectEntityManager } from '@mikro-orm/nestjs';
 import { TransactionEntity } from '../infrastructure/persistence/transaction.entity';
 import { CategoryEntity } from '../infrastructure/persistence/category.entity';
-import { UserId, TransactionType } from '@money-manager/shared-kernel';
+import { TransactionType } from '@money-manager/shared-kernel';
 import { v4 as uuid } from 'uuid';
 
 interface SeedCategory {
@@ -43,8 +44,9 @@ export class SeedDataJob {
     @InjectEntityManager('budget') private readonly budgetEm: EntityManager,
   ) {}
 
-  async execute(userId?: string): Promise<void> {
-    const uid = userId ?? UserId.DEFAULT.value;
+  async execute(userId: string): Promise<void> {
+    // FIXED: userId is required, no DEFAULT fallback
+    const uid = userId;
 
     // Seed categories into budget_db
     const categoryIds: Record<string, string> = {};

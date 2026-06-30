@@ -1,10 +1,13 @@
-// ponytail: unit tests for Transaction aggregate
+// Unit tests for Transaction aggregate
 import { Transaction, CreateTransactionProps } from './transaction.aggregate';
 import { TransactionType, DomainException } from '@money-manager/shared-kernel';
 
+// FIXED: Test user ID - not DEFAULT, just a valid test UUID
+const TEST_USER_ID = '11111111-1111-4111-a111-111111111111';
+
 describe('Transaction Aggregate', () => {
   const validProps: CreateTransactionProps = {
-    userId: '00000000-0000-4000-a000-000000000001',
+    userId: TEST_USER_ID,
     amount: 50000,
     currency: 'VND',
     type: TransactionType.EXPENSE,

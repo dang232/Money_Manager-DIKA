@@ -3,12 +3,14 @@ import { z } from 'zod';
 export const TransactionSchema = z.object({
   id: z.string(),
   amount: z.number(),
-  type: z.enum(['income', 'expense']),
+  type: z.enum(['income', 'expense', 'INCOME', 'EXPENSE']),
   categoryId: z.string(),
   categoryName: z.string().optional(),
   description: z.string(),
   date: z.string(),
   createdAt: z.string(),
+  updatedAt: z.string().optional(),
+  currency: z.string().optional(),
 });
 
 export type Transaction = z.infer<typeof TransactionSchema>;

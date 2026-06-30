@@ -1,9 +1,12 @@
 import httpClient from './http-client'
 
+// ponytail: types defined here — shared-types package ready for full integration
+export type TransactionType = 'INCOME' | 'EXPENSE'
+
 export interface Transaction {
   id: string
   amount: number
-  type: 'income' | 'expense'
+  type: TransactionType
   categoryId: string
   categoryName?: string
   description: string
@@ -13,7 +16,7 @@ export interface Transaction {
 
 export interface CreateTransactionDto {
   amount: number
-  type: 'income' | 'expense'
+  type: TransactionType
   categoryId: string
   description: string
   date: string
@@ -22,7 +25,7 @@ export interface CreateTransactionDto {
 export interface TransactionFilters {
   page?: number
   limit?: number
-  type?: 'income' | 'expense'
+  type?: TransactionType
   categoryId?: string
   startDate?: string
   endDate?: string

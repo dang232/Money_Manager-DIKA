@@ -69,15 +69,20 @@ export class TransactionController {
     @Query('type') type?: TransactionType,
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
   ) {
+    // ponytail: accept both dateFrom/dateTo and startDate/endDate (frontend uses latter)
+    const from = dateFrom || startDate;
+    const to = dateTo || endDate;
     const query = new GetTransactionsQuery(
       userId.value,
       page ? Number(page) : undefined,
       limit ? Number(limit) : undefined,
       categoryId,
       type,
-      dateFrom ? new Date(dateFrom) : undefined,
-      dateTo ? new Date(dateTo) : undefined,
+      from ? new Date(from) : undefined,
+      to ? new Date(to) : undefined,
     );
     const transactions = await this.getTransactionsHandler.execute(query);
     return ApiResponse.ok(transactions.map(TransactionResponseDto.from));
