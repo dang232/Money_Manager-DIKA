@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd frontend && node -e \\\"\\nconst { chromium } = require('@playwright/test');\\n(async () => {\\n  const browser = await chromium.launch();\\n  const ctx = await browser.newContext({ viewport:...",
+  "error": "Exit code 1\n/usr/bin/bash: line 1: cd: frontend: No such file or directory",
+  "timestamp": "2026-06-29T05:31:03.829Z",
+  "retry_count": 1
+}

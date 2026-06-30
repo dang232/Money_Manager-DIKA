@@ -1,41 +1,99 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useCategoryStore } from '@/stores/category.store'
 import type { CreateCategoryDto, Category } from '@/api/category.api'
-import { Plus, X } from '@lucide/vue'
+import { VueDraggable } from 'vue-draggable-plus'
+import { useDraggableList } from '@/composables/useDraggableList'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogTitle, DialogDescription } from '@/components/ui/dialog'
+import { Plus, Trash2, ArrowUpRight, ArrowDownRight, GripVertical } from '@lucide/vue'
 
 const categoryStore = useCategoryStore()
 
+// ponytail: small fixed palette per type beats letting users pick pure black or unreadable mid-tones
+const EXPENSE_PRESETS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#6366f1']
+const INCOME_PRESETS = ['#22c55e', '#10b981', '#14b8a6', '#06b6d4', '#84cc16', '#a3e635']
+
+// DRY: Using composable for draggable list state
+const { items: localCategories, onDragEnd } = useDraggableList<Category>(() => categoryStore.categories, 'categories')
+
 const showForm = ref(false)
 const editingId = ref<string | null>(null)
-const form = ref<CreateCategoryDto>({ name: '', type: 'expense', icon: '', color: '' })
+// ponytail: backend expects uppercase enum values; default color is type-aware so the form is valid out of the box
+type FormType = 'INCOME' | 'EXPENSE'
+const defaultColor = (type: FormType) => (type === 'INCOME' ? '#22c55e' : '#ef4444')
+const form = ref<CreateCategoryDto>({ name: '', type: 'EXPENSE', icon: '', color: defaultColor('EXPENSE') })
+const submitting = ref(false)
+const formError = ref('')
+const nameTouched = ref(false)
+const nameInvalid = computed(() => nameTouched.value && !form.value.name.trim())
 
-onMounted(() => { categoryStore.fetchAll() })
+// ponytail: backend sends uppercase, customer sees Title Case
+const displayType = (t: Category['type']) => (typeof t === 'string' ? t.charAt(0) + t.slice(1).toLowerCase() : t)
+const isIncome = (t: Category['type']) => String(t).toLowerCase() === 'income'
+
+onMounted(async () => {
+  await categoryStore.fetchAll()
+})
 
 function openCreate() {
   editingId.value = null
-  form.value = { name: '', type: 'expense', icon: '', color: '' }
+  form.value = { name: '', type: 'EXPENSE', icon: '', color: defaultColor('EXPENSE') }
+  formError.value = ''
+  nameTouched.value = false
   showForm.value = true
 }
 
 function openEdit(cat: Category) {
   editingId.value = cat.id
-  form.value = { name: cat.name, type: cat.type, icon: cat.icon || '', color: cat.color || '' }
+  const t: FormType = String(cat.type).toUpperCase() === 'INCOME' ? 'INCOME' : 'EXPENSE'
+  form.value = { name: cat.name, type: t, icon: cat.icon || '', color: cat.color || defaultColor(t) }
+  formError.value = ''
+  nameTouched.value = false
   showForm.value = true
 }
 
-async function handleSubmit() {
-  if (!form.value.name) return
-  if (editingId.value) {
-    await categoryStore.update(editingId.value, form.value)
-  } else {
-    await categoryStore.create(form.value)
+function setType(type: FormType) {
+  form.value.type = type
+  const otherType: FormType = type === 'INCOME' ? 'EXPENSE' : 'INCOME'
+  if (!form.value.color || form.value.color === defaultColor(otherType)) {
+    form.value.color = defaultColor(type)
   }
-  showForm.value = false
+}
+
+async function handleSubmit() {
+  nameTouched.value = true
+  if (!form.value.name.trim()) {
+    formError.value = 'Name is required'
+    return
+  }
+  submitting.value = true
+  formError.value = ''
+  try {
+    if (editingId.value) {
+      await categoryStore.update(editingId.value, form.value)
+    } else {
+      await categoryStore.create(form.value)
+    }
+    showForm.value = false
+  } catch (err: unknown) {
+    formError.value = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      || 'Could not save category. Please try again.'
+  } finally {
+    submitting.value = false
+  }
 }
 
 async function handleDelete(id: string) {
+  if (!confirm('Delete this category? Existing transactions will keep their data.')) return
   await categoryStore.remove(id)
+}
+
+function handleReorder() {
+  onDragEnd(localCategories.value.map(c => c.id))
 }
 </script>
 
@@ -47,110 +105,185 @@ async function handleDelete(id: string) {
         <h1 class="font-display text-[28px] font-extrabold tracking-tight text-foreground">Categories</h1>
         <p class="text-sm text-muted-foreground mt-1">Organize your transactions by category</p>
       </div>
-      <button
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
-        @click="openCreate"
-      >
+      <Button @click="openCreate">
         <Plus :size="16" :stroke-width="2.5" />
         New Category
-      </button>
+      </Button>
     </div>
 
-    <div v-if="categoryStore.loading" class="text-center py-12 text-muted-foreground">Loading...</div>
+    <!-- Loading skeleton -->
+    <div v-if="categoryStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-for="i in 6" :key="i" class="bg-card rounded-2xl border border-border p-5">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 rounded-xl skeleton" />
+          <div class="flex-1 space-y-2">
+            <div class="h-4 w-24 skeleton" />
+            <div class="h-3 w-16 skeleton" />
+          </div>
+        </div>
+        <div class="h-3 w-full skeleton" />
+      </div>
+    </div>
 
     <template v-else>
-      <!-- Category Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- DRY: Single draggable grid with reusable pattern -->
+      <VueDraggable
+        v-model="localCategories"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger"
+        ghost-class="opacity-30"
+        @end="handleReorder"
+      >
         <div
-          v-for="cat in categoryStore.categories"
+          v-for="cat in localCategories"
           :key="cat.id"
-          class="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer group"
-          @click="openEdit(cat)"
+          :data-testid="`category-card`"
+          :data-category-id="cat.id"
+          class="bg-card rounded-2xl border border-border p-5 card-interactive cursor-grab active:cursor-grabbing group"
         >
-          <div class="flex items-center gap-4 mb-4">
-            <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center text-xl"
-              :style="{ background: (cat.color || (cat.type === 'income' ? '#d1fae5' : '#fee2e2')) + '30' }"
-            >
-              {{ cat.icon || (cat.type === 'income' ? '💰' : '💸') }}
+          <!-- Card Header -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="text-muted-foreground hover:text-foreground" aria-hidden="true">
+              <GripVertical :size="18" />
             </div>
-            <div class="flex-1">
-              <h3 class="font-display font-bold text-[15px] text-foreground">{{ cat.name }}</h3>
-              <p class="text-xs text-muted-foreground capitalize">{{ cat.type }}</p>
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center"
+              :style="{ background: (cat.color || (isIncome(cat.type) ? '#d1fae5' : '#fee2e2')) + '30' }"
+            >
+              <ArrowUpRight v-if="isIncome(cat.type)" :size="20" class="text-income" />
+              <ArrowDownRight v-else :size="20" class="text-expense" />
             </div>
             <button
-              class="opacity-0 group-hover:opacity-100 text-xs text-destructive hover:text-destructive/80 transition-opacity px-2 py-1 rounded"
+              type="button"
+              class="flex-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
+              :aria-label="`Edit ${cat.name}`"
+              @click="openEdit(cat)"
+            >
+              <h3 class="font-display font-bold text-[15px] text-foreground">{{ cat.name }}</h3>
+              <Badge :variant="isIncome(cat.type) ? 'success' : 'destructive'" class="mt-1">
+                {{ displayType(cat.type) }}
+              </Badge>
+            </button>
+            <Button
+              variant="ghost"
+              size="icon"
+              class="h-8 w-8 text-destructive hover:text-destructive focus-visible:opacity-100"
+              :class="localCategories.length === 1 ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+              :aria-label="`Delete ${cat.name}`"
               @click.stop="handleDelete(cat.id)"
             >
-              Delete
-            </button>
+              <Trash2 :size="14" />
+            </Button>
           </div>
           <div class="flex justify-between pt-3 border-t border-border/50 text-[13px]">
             <span class="text-muted-foreground">Color</span>
             <div class="flex items-center gap-2">
               <span
                 class="w-3 h-3 rounded-full"
-                :style="{ backgroundColor: cat.color || (cat.type === 'income' ? '#22c55e' : '#ef4444') }"
+                :style="{ backgroundColor: cat.color || (isIncome(cat.type) ? '#22c55e' : '#ef4444') }"
               />
               <span class="text-foreground font-medium">{{ cat.color || 'Default' }}</span>
             </div>
           </div>
         </div>
-      </div>
+      </VueDraggable>
 
-      <p v-if="categoryStore.categories.length === 0" class="text-sm text-muted-foreground text-center py-8">
-        No categories yet. Create one to start organizing.
-      </p>
+      <div
+        v-if="localCategories.length === 0"
+        class="text-center py-12 px-6 rounded-2xl border border-dashed border-border bg-card/40"
+      >
+        <p class="text-sm text-muted-foreground mb-4">No categories yet. Create one to start organizing transactions.</p>
+        <Button @click="openCreate">
+          <Plus :size="16" :stroke-width="2.5" />
+          New Category
+        </Button>
+      </div>
     </template>
 
     <!-- Form Dialog -->
-    <div v-if="showForm" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.self="showForm = false">
-      <div class="bg-card rounded-3xl border border-border p-6 w-full max-w-md shadow-xl">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="font-display text-xl font-bold text-foreground">
+    <Dialog :open="showForm" @update:open="showForm = $event">
+      <div class="space-y-5">
+        <div>
+          <DialogTitle class="font-display text-xl font-bold text-foreground">
             {{ editingId ? 'Edit Category' : 'New Category' }}
-          </h2>
-          <button class="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors" @click="showForm = false">
-            <X :size="20" />
-          </button>
+          </DialogTitle>
+          <DialogDescription class="text-sm text-muted-foreground mt-1">
+            Group your transactions. Color helps you spot them faster.
+          </DialogDescription>
         </div>
         <form class="space-y-4" @submit.prevent="handleSubmit">
-          <div>
-            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Name</label>
-            <input
+          <div class="space-y-1.5">
+            <Label for="cat-name">Name</Label>
+            <Input
+              id="cat-name"
               v-model="form.name"
-              type="text"
-              class="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-              placeholder="Category name"
+              placeholder="e.g. Groceries"
+              :aria-invalid="nameInvalid"
+              aria-describedby="cat-name-error"
+              @blur="nameTouched = true"
             />
+            <p v-if="nameInvalid" id="cat-name-error" class="text-xs text-destructive">
+              Name is required.
+            </p>
           </div>
-          <div>
-            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Type</label>
+          <div class="space-y-1.5">
+            <Label>Type</Label>
             <div class="grid grid-cols-2 gap-2 bg-muted p-1 rounded-xl">
-              <button
+              <Button
                 type="button"
-                class="py-2.5 rounded-lg text-[13px] font-semibold transition-all"
-                :class="form.type === 'expense' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
-                @click="form.type = 'expense'"
-              >💸 Expense</button>
-              <button
+                variant="ghost"
+                size="sm"
+                :class="form.type === 'EXPENSE' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
+                @click="setType('EXPENSE')"
+              >
+                Expense
+              </Button>
+              <Button
                 type="button"
-                class="py-2.5 rounded-lg text-[13px] font-semibold transition-all"
-                :class="form.type === 'income' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
-                @click="form.type = 'income'"
-              >💰 Income</button>
+                variant="ghost"
+                size="sm"
+                :class="form.type === 'INCOME' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
+                @click="setType('INCOME')"
+              >
+                Income
+              </Button>
             </div>
           </div>
-          <div>
-            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Color</label>
-            <input v-model="form.color" type="color" class="w-full h-10 rounded-xl border border-border cursor-pointer" />
+          <div class="space-y-1.5">
+            <Label for="cat-color">Color</Label>
+            <div class="flex items-center gap-3">
+              <input
+                id="cat-color"
+                v-model="form.color"
+                type="color"
+                class="h-10 w-14 rounded-md border border-border cursor-pointer bg-transparent"
+                aria-label="Pick a custom color"
+              />
+              <div class="flex flex-wrap gap-2" role="listbox" aria-label="Color presets">
+                <button
+                  v-for="preset in (form.type === 'INCOME' ? INCOME_PRESETS : EXPENSE_PRESETS)"
+                  :key="preset"
+                  type="button"
+                  class="w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  :class="form.color === preset ? 'border-foreground' : 'border-transparent'"
+                  :style="{ background: preset }"
+                  :aria-label="`Use color ${preset}`"
+                  :aria-selected="form.color === preset"
+                  @click="form.color = preset"
+                />
+              </div>
+            </div>
           </div>
+          <p v-if="formError" class="text-sm text-destructive" role="alert">{{ formError }}</p>
           <div class="flex gap-3 pt-3">
-            <button type="button" class="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors" @click="showForm = false">Cancel</button>
-            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">Save</button>
+            <Button type="button" variant="outline" class="flex-1" @click="showForm = false" :disabled="submitting">
+              Cancel
+            </Button>
+            <Button type="submit" class="flex-1" :disabled="submitting">
+              {{ submitting ? 'Saving...' : 'Save' }}
+            </Button>
           </div>
         </form>
       </div>
-    </div>
+    </Dialog>
   </div>
 </template>

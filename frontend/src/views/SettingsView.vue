@@ -1,10 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import { useUserStore } from '@/stores/user.store'
+import { useAuthStore } from '@/stores/auth.store'
 import type { UpdateProfileDto } from '@/api/user.api'
-import { Check } from '@lucide/vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Check, Loader2, AlertCircle } from '@lucide/vue'
 
 const userStore = useUserStore()
+const authStore = useAuthStore()
 
 const form = ref<UpdateProfileDto>({
   displayName: '',
@@ -18,6 +23,8 @@ const success = ref(false)
 const saving = ref(false)
 const activeSection = ref('Profile')
 const sections = ['Profile', 'Accounts', 'Categories', 'Notifications', 'Security', 'Currency', 'Export Data']
+
+const userEmail = computed(() => authStore.user?.email ?? '')
 
 watch(
   () => userStore.profile,
@@ -64,15 +71,16 @@ async function handleSubmit() {
     <div class="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-8">
       <!-- Settings Sidebar -->
       <aside class="space-y-1">
-        <button
+        <Button
           v-for="section in sections"
           :key="section"
-          class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium w-full text-left transition-all duration-150"
-          :class="activeSection === section ? 'bg-accent text-accent-foreground font-semibold' : 'text-muted-foreground hover:bg-muted hover:text-foreground'"
+          variant="ghost"
+          class="w-full justify-start"
+          :class="activeSection === section ? 'bg-accent text-accent-foreground font-semibold' : 'text-muted-foreground'"
           @click="activeSection = section"
         >
           {{ section }}
-        </button>
+        </Button>
       </aside>
 
       <!-- Content -->
@@ -102,54 +110,45 @@ async function handleSubmit() {
 
             <!-- Avatar Row -->
             <div class="flex items-center gap-5 pb-6 border-b border-border/50 mb-6">
-              <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white font-bold text-[28px] shadow-sm shrink-0">
-                {{ form.displayName ? form.displayName.charAt(0).toUpperCase() : 'D' }}
+              <div class="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-amber-500 flex items-center justify-center text-white font-bold text-[28px] shadow-sm shrink-0 overflow-hidden">
+                <img v-if="userStore.profile?.avatarUrl" :src="userStore.profile.avatarUrl" alt="Avatar" class="w-full h-full object-cover" />
+                <span v-else>{{ form.displayName ? form.displayName.charAt(0).toUpperCase() : 'D' }}</span>
               </div>
               <div class="flex-1">
                 <h4 class="font-display text-base font-bold text-foreground">{{ form.displayName || 'User' }}</h4>
-                <p class="text-[13px] text-muted-foreground">user@email.com</p>
+                <p class="text-[13px] text-muted-foreground">{{ userEmail || 'user@email.com' }}</p>
               </div>
-              <button type="button" class="px-4 py-2 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors">
-                Change photo
-              </button>
             </div>
 
             <!-- Display Name -->
             <div class="space-y-1.5 mb-4">
-              <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider" for="displayName">Display Name</label>
-              <input
-                id="displayName"
-                v-model="form.displayName"
-                type="text"
-                class="w-full h-10 rounded-xl border border-border bg-background px-3.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-                placeholder="Your name"
-                autocomplete="name"
-              />
+              <Label for="displayName">Display Name</Label>
+              <Input id="displayName" v-model="form.displayName" placeholder="Your name" />
             </div>
 
             <!-- Regional fields -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider" for="defaultCurrency">Currency</label>
+                <Label for="defaultCurrency">Currency</Label>
                 <select
                   id="defaultCurrency"
                   v-model="form.defaultCurrency"
-                  class="w-full h-10 rounded-xl border border-border bg-background px-3.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                  class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary"
                 >
-                  <option value="VND">🇻🇳 Vietnamese Dong (₫)</option>
-                  <option value="USD">🇺🇸 US Dollar ($)</option>
-                  <option value="EUR">🇪🇺 Euro (€)</option>
-                  <option value="GBP">🇬🇧 British Pound (£)</option>
-                  <option value="JPY">🇯🇵 Japanese Yen (¥)</option>
-                  <option value="SGD">🇸🇬 Singapore Dollar (S$)</option>
+                  <option value="VND">Vietnamese Dong (₫)</option>
+                  <option value="USD">US Dollar ($)</option>
+                  <option value="EUR">Euro (€)</option>
+                  <option value="GBP">British Pound (£)</option>
+                  <option value="JPY">Japanese Yen (¥)</option>
+                  <option value="SGD">Singapore Dollar (S$)</option>
                 </select>
               </div>
               <div class="space-y-1.5">
-                <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider" for="locale">Language</label>
+                <Label for="locale">Language</Label>
                 <select
                   id="locale"
                   v-model="form.locale"
-                  class="w-full h-10 rounded-xl border border-border bg-background px-3.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                  class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary"
                 >
                   <option value="vi-VN">Tiếng Việt</option>
                   <option value="en-US">English</option>
@@ -162,11 +161,11 @@ async function handleSubmit() {
 
             <!-- Timezone -->
             <div class="space-y-1.5 mb-4">
-              <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider" for="timezone">Timezone</label>
+              <Label for="timezone">Timezone</Label>
               <select
                 id="timezone"
                 v-model="form.timezone"
-                class="w-full h-10 rounded-xl border border-border bg-background px-3.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary"
               >
                 <option value="Asia/Ho_Chi_Minh">Asia/Ho_Chi_Minh (ICT)</option>
                 <option value="UTC">UTC</option>
@@ -180,16 +179,12 @@ async function handleSubmit() {
 
             <!-- Budget Anchor Day -->
             <div class="space-y-1.5">
-              <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider" for="budgetAnchorDay">
-                Budget Anchor Day <span class="normal-case">(1–28)</span>
-              </label>
-              <input
+              <Label for="budgetAnchorDay">Budget Anchor Day (1–28)</Label>
+              <Input
                 id="budgetAnchorDay"
-                v-model.number="form.budgetAnchorDay"
+                :model-value="form.budgetAnchorDay"
                 type="number"
-                min="1"
-                max="28"
-                class="w-full h-10 rounded-xl border border-border bg-background px-3.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                @update:model-value="form.budgetAnchorDay = Number($event)"
               />
             </div>
           </div>
@@ -198,8 +193,9 @@ async function handleSubmit() {
           <div
             v-if="userStore.error"
             role="alert"
-            class="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            class="flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
+            <AlertCircle :size="16" class="mt-0.5 shrink-0" />
             {{ userStore.error }}
           </div>
 
@@ -208,7 +204,7 @@ async function handleSubmit() {
             v-if="success"
             role="status"
             aria-live="polite"
-            class="flex items-center gap-2 rounded-xl border border-income/30 bg-income-bg px-4 py-3 text-sm text-income"
+            class="flex items-center gap-2 rounded-xl border border-income/30 bg-income/10 px-4 py-3 text-sm text-income"
           >
             <Check :size="16" />
             Settings saved
@@ -216,30 +212,13 @@ async function handleSubmit() {
 
           <!-- Actions -->
           <div class="flex gap-3">
-            <button
-              type="submit"
-              :disabled="saving || userStore.loading"
-              class="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold text-sm disabled:opacity-50 shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:bg-primary/90 transition-all flex items-center gap-2"
-            >
-              <svg
-                v-if="saving"
-                class="h-4 w-4 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
+            <Button type="submit" :disabled="saving || userStore.loading">
+              <Loader2 v-if="saving" :size="16" class="animate-spin" />
               {{ saving ? 'Saving...' : 'Save Changes' }}
-            </button>
-            <button
-              type="button"
-              class="px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
-              @click="userStore.fetchProfile()"
-            >
+            </Button>
+            <Button type="button" variant="outline" @click="userStore.fetchProfile()">
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </div>

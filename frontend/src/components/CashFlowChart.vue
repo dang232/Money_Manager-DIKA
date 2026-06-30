@@ -12,6 +12,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js'
+import type { TooltipItem } from 'chart.js'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
@@ -76,7 +77,7 @@ const chartOptions = {
       titleFont: { family: 'Inter', weight: 'bold' as const },
       bodyFont: { family: 'Inter' },
       callbacks: {
-        label: (ctx: any) => ctx.dataset.label + ': ₫' + (ctx.parsed.y / 1000000).toFixed(1) + 'M',
+        label: (ctx: TooltipItem<'line'>) => ctx.dataset.label + ': ₫' + ((ctx.parsed.y ?? 0) / 1000000).toFixed(1) + 'M',
       },
     },
   },
@@ -90,7 +91,7 @@ const chartOptions = {
       ticks: {
         font: { family: 'Inter', size: 11 },
         color: '#94a3b8',
-        callback: (v: any) => '₫' + (v / 1000000).toFixed(0) + 'M',
+        callback: (v: number | string) => '₫' + (Number(v) / 1000000).toFixed(0) + 'M',
       },
     },
   },

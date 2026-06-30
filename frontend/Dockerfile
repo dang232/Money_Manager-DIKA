@@ -2,17 +2,17 @@
 FROM node:20-alpine AS dev
 RUN npm install -g pnpm@9
 WORKDIR /app
-COPY package.json ./
+COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --no-frozen-lockfile
 COPY . .
 EXPOSE 5173
-CMD ["pnpm", "dev", "--host"]
+CMD ["npx", "vite", "--host"]
 
 # ─── Build ────────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS build
 RUN npm install -g pnpm@9
 WORKDIR /app
-COPY package.json ./
+COPY package.json pnpm-lock.yaml* ./
 RUN pnpm install --no-frozen-lockfile
 COPY . .
 RUN pnpm build

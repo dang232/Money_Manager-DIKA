@@ -23,6 +23,17 @@ export class KafkaEventBusAdapter implements EventBusPort, OnApplicationBootstra
 
   async onApplicationBootstrap(): Promise<void> {
     await this.producer.connect();
+    // ponytail: ensure topics exist before subscribing — prevents crash on fresh Kafka
+    const admin = this.kafka.admin();
+    await admin.connect();
+    const allTopics = [...this.pendingByGroup.values()].flat().map((p) => p.topic);
+    const existing = await admin.listTopics();
+    const missing = allTopics.filter((t) => !existing.includes(t));
+    if (missing.length > 0) {
+      await admin.createTopics({ topics: missing.map((t) => ({ topic: t, numPartitions: 1, replicationFactor: 1 })) });
+    }
+    await admin.disconnect();
+
     for (const [group, pending] of this.pendingByGroup.entries()) {
       const consumer = this.kafka.consumer({ groupId: group });
       await consumer.connect();

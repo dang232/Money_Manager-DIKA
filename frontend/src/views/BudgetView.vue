@@ -1,12 +1,24 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useBudgetStore } from '@/stores/budget.store'
 import { useCategoryStore } from '@/stores/category.store'
+import { VueDraggable } from 'vue-draggable-plus'
 import { formatVND } from '@/lib/utils'
-import { Plus, X } from '@lucide/vue'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogTitle } from '@/components/ui/dialog'
+import { Plus, PiggyBank, GripVertical, AlertTriangle } from '@lucide/vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const budgetStore = useBudgetStore()
 const categoryStore = useCategoryStore()
+
+// ponytail: temp fix - use store directly until composable issue is resolved
+const localBudgets = computed(() => budgetStore.budgets)
 
 const showSetBudget = ref(false)
 const budgetForm = ref({ categoryId: '', amount: 0 })
@@ -21,22 +33,34 @@ function openSetBudget(categoryId?: string) {
 }
 
 async function handleSetBudget() {
-  if (!budgetForm.value.categoryId || budgetForm.value.amount <= 0) return
+  const amount = Number(budgetForm.value.amount)
+  if (!budgetForm.value.categoryId || !amount || amount <= 0) return
   const now = new Date()
-  await budgetStore.setBudget({
-    categoryId: budgetForm.value.categoryId,
-    monthlyLimit: budgetForm.value.amount,
-    currency: 'USD',
-    year: now.getFullYear(),
-    month: now.getMonth() + 1,
-  })
-  showSetBudget.value = false
+  console.log('Creating budget with:', { categoryId: budgetForm.value.categoryId, amount })
+  try {
+    await budgetStore.setBudget({
+      categoryId: budgetForm.value.categoryId,
+      monthlyLimit: amount,
+      currency: 'USD',
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+    })
+    showSetBudget.value = false
+  } catch (e) {
+    console.error('Budget creation failed:', e)
+    console.error('Store error:', budgetStore.error)
+    // error is displayed in the dialog
+  }
 }
 
-function getBarGradient(pct: number) {
+function getBarGradient(pct: number): string {
   if (pct > 100) return 'background: linear-gradient(90deg, #ef4444, #f87171)'
   if (pct > 70) return 'background: linear-gradient(90deg, #f59e0b, #fb923c)'
   return 'background: linear-gradient(90deg, #10b981, #34d399)'
+}
+
+function handleReorder() {
+  // ponytail: drag reorder disabled until composable is fixed
 }
 </script>
 
@@ -46,42 +70,58 @@ function getBarGradient(pct: number) {
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
         <h1 class="font-display text-[28px] font-extrabold tracking-tight text-foreground">Monthly Budgets</h1>
-        <p class="text-sm text-muted-foreground mt-1">June 2026 · {{ budgetStore.budgets.length }} active budgets</p>
+        <p class="text-sm text-muted-foreground mt-1">{{ localBudgets.length }} active budgets</p>
       </div>
-      <button
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
-        @click="openSetBudget()"
-      >
+      <Button @click="openSetBudget()">
         <Plus :size="16" :stroke-width="2.5" />
         New Budget
-      </button>
+      </Button>
     </div>
 
-    <div v-if="budgetStore.loading" class="text-center py-12 text-muted-foreground">Loading...</div>
+    <div v-if="budgetStore.loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div v-for="i in 3" :key="i" class="bg-card rounded-2xl border border-border p-5">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-xl skeleton" />
+          <div class="flex-1 space-y-2">
+            <div class="h-4 w-24 skeleton" />
+            <div class="h-3 w-16 skeleton" />
+          </div>
+        </div>
+        <div class="h-2 w-full skeleton mb-2" />
+        <div class="h-3 w-32 skeleton" />
+      </div>
+    </div>
 
     <template v-else>
-      <!-- Budget Cards Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- DRY: Single draggable grid with reusable pattern -->
+      <VueDraggable
+        v-model="localBudgets"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+        ghost-class="opacity-30"
+        @end="handleReorder"
+      >
         <div
-          v-for="b in budgetStore.budgets"
+          v-for="b in localBudgets"
           :key="b.categoryId"
-          class="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:-translate-y-0.5 transition-all"
+          :data-testid="`budget-card`"
+          :data-budget-id="b.categoryId"
+          class="bg-card rounded-2xl border border-border p-5 hover:shadow-md hover:-translate-y-0.5 transition-all cursor-grab active:cursor-grabbing"
         >
-          <!-- Header -->
+          <!-- Card Header -->
           <div class="flex items-center gap-3 mb-4">
-            <div class="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-xl">
-              💰
+            <div class="text-muted-foreground hover:text-foreground">
+              <GripVertical :size="18" />
+            </div>
+            <div class="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+              <PiggyBank :size="20" class="text-muted-foreground" />
             </div>
             <div class="flex-1">
-              <h3 class="font-display font-bold text-[15px] text-foreground">{{ b.categoryId }}</h3>
+              <h3 class="font-display font-bold text-[15px] text-foreground">{{ categoryStore.byId[b.categoryId]?.name || 'Uncategorized' }}</h3>
               <p class="text-xs text-muted-foreground">Resets next month</p>
             </div>
-            <button
-              class="text-xs text-primary hover:text-primary/80 font-medium"
-              @click="openSetBudget(b.categoryId)"
-            >
+            <Button variant="ghost" size="sm" @click="openSetBudget(b.categoryId)">
               Edit
-            </button>
+            </Button>
           </div>
 
           <!-- Progress Bar -->
@@ -99,23 +139,18 @@ function getBarGradient(pct: number) {
           </div>
 
           <!-- Status Badge -->
-          <span
-            class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full"
-            :class="
-              b.usagePercentage > 100 ? 'bg-expense-bg text-expense' :
-              b.usagePercentage > 70 ? 'bg-warning-bg text-warning' :
-              'bg-income-bg text-primary'
-            "
+          <Badge
+            :variant="b.usagePercentage > 100 ? 'destructive' : b.usagePercentage > 70 ? 'warning' : 'success'"
           >
-            {{ b.usagePercentage > 100 ? `⚠ Over by ${formatVND(b.runningTotal - b.monthlyLimit)}` :
-               b.usagePercentage > 70 ? `⚠ ${b.usagePercentage}% used` :
-               '✓ On track' }}
-          </span>
+            {{ b.usagePercentage > 100 ? `Over by ${formatVND(b.runningTotal - b.monthlyLimit)}` :
+               b.usagePercentage > 70 ? `${b.usagePercentage}% used` : 'On track' }}
+          </Badge>
         </div>
 
-        <!-- Create New Card -->
-        <div
-          class="border-2 border-dashed border-border rounded-2xl bg-transparent flex items-center justify-center min-h-[200px] cursor-pointer hover:border-primary/40 hover:bg-accent/30 transition-all"
+        <!-- Create New Card (not draggable) -->
+        <button
+          type="button"
+          class="border-2 border-dashed border-border rounded-2xl bg-transparent flex items-center justify-center min-h-[200px] cursor-pointer hover:border-primary/40 hover:bg-accent/30 transition-all w-full text-left"
           @click="openSetBudget()"
         >
           <div class="text-center text-muted-foreground">
@@ -125,50 +160,77 @@ function getBarGradient(pct: number) {
             <p class="font-semibold text-foreground text-sm">Create new budget</p>
             <p class="text-xs mt-1">Set a spending limit by category</p>
           </div>
-        </div>
-      </div>
+        </button>
+      </VueDraggable>
 
-      <p v-if="budgetStore.budgets.length === 0" class="text-sm text-muted-foreground text-center py-8">
+      <p v-if="localBudgets.length === 0" class="text-sm text-muted-foreground text-center py-8">
         No budgets configured. Set a budget to start tracking spending.
       </p>
     </template>
 
     <!-- Set Budget Dialog -->
-    <div v-if="showSetBudget" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.self="showSetBudget = false">
-      <div class="bg-card rounded-3xl border border-border p-6 w-full max-w-md shadow-xl animate-in fade-in slide-in-from-bottom-4">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="font-display text-xl font-bold text-foreground">Set Budget</h2>
-          <button class="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors" @click="showSetBudget = false">
-            <X :size="20" />
-          </button>
-        </div>
+    <Dialog :open="showSetBudget" @update:open="showSetBudget = $event">
+      <div class="space-y-5">
+        <DialogTitle class="font-display text-xl font-bold text-foreground">Set Budget</DialogTitle>
         <form class="space-y-4" @submit.prevent="handleSetBudget">
-          <div>
-            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Category</label>
+          <div
+            v-if="budgetStore.error"
+            class="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive"
+          >
+            <div class="flex items-start gap-2">
+              <AlertTriangle :size="18" class="mt-0.5 shrink-0" />
+              <div>
+                <p class="font-medium">Failed to create budget</p>
+                <p class="text-destructive/80 text-xs mt-0.5">{{ budgetStore.error }}</p>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="categoryStore.expenseCategories.length === 0"
+            class="rounded-lg bg-warning/10 border border-warning/20 p-3 text-sm text-warning"
+          >
+            <div class="flex items-start gap-2">
+              <AlertTriangle :size="18" class="mt-0.5 shrink-0" />
+              <div>
+                <p class="font-medium">No expense categories yet</p>
+                <p class="text-warning/80 text-xs mt-0.5">
+                  You need at least one category to create a budget.
+                </p>
+                <button
+                  type="button"
+                  class="mt-2 text-xs font-semibold underline underline-offset-2 hover:text-warning/90"
+                  @click="router.push('/categories'); showSetBudget = false"
+                >
+                  Go to Categories →
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <Label for="budget-category">Category</Label>
             <select
+              id="budget-category"
               v-model="budgetForm.categoryId"
-              class="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+              class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary"
             >
               <option value="" disabled>Select category</option>
               <option v-for="cat in categoryStore.expenseCategories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
           </div>
-          <div>
-            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount (VND)</label>
-            <input
-              v-model.number="budgetForm.amount"
+          <div class="space-y-1.5">
+            <Label for="budget-amount">Amount (VND)</Label>
+            <Input
+              id="budget-amount"
+              v-model="budgetForm.amount"
               type="number"
-              min="0"
-              step="10000"
-              class="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
             />
           </div>
           <div class="flex gap-3 pt-3">
-            <button type="button" class="flex-1 py-2.5 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors" @click="showSetBudget = false">Cancel</button>
-            <button type="submit" class="flex-1 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors">Save</button>
+            <Button type="button" variant="outline" class="flex-1" @click="showSetBudget = false">Cancel</Button>
+            <Button type="submit" class="flex-1" :disabled="categoryStore.expenseCategories.length === 0">Save</Button>
           </div>
         </form>
       </div>
-    </div>
+    </Dialog>
   </div>
 </template>

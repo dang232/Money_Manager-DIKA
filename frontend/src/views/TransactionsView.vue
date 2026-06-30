@@ -4,9 +4,10 @@ import { useRoute } from 'vue-router'
 import { useTransactionStore } from '@/stores/transaction.store'
 import { useCategoryStore } from '@/stores/category.store'
 import TransactionForm from '@/components/TransactionForm.vue'
+import { Button } from '@/components/ui/button'
 import { formatVND, formatDate } from '@/lib/utils'
 import type { CreateTransactionDto, TransactionFilters, Transaction } from '@/api/transaction.api'
-import { Plus, TrendingUp, TrendingDown } from '@lucide/vue'
+import { Plus, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Trash2 } from '@lucide/vue'
 
 const route = useRoute()
 const txStore = useTransactionStore()
@@ -75,58 +76,68 @@ function clearFilters() {
         <h1 class="font-display text-[28px] font-extrabold tracking-tight text-foreground">Transactions</h1>
         <p class="text-sm text-muted-foreground mt-1">{{ txStore.pagination.total }} transactions this month</p>
       </div>
-      <button
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
-        @click="openCreate"
-      >
+      <Button @click="openCreate">
         <Plus :size="16" :stroke-width="2.5" />
         Add Transaction
-      </button>
+      </Button>
     </div>
 
     <!-- Chip Filters -->
     <div class="flex flex-wrap gap-2 items-center">
-      <button
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[13px] font-medium transition-all cursor-pointer"
-        :class="activeFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:border-foreground/20'"
+      <Button
+        variant="outline"
+        size="sm"
+        :class="activeFilter === 'all' ? 'bg-primary text-primary-foreground border-primary' : ''"
         @click="setTypeFilter('all')"
-      >All</button>
-      <button
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[13px] font-medium transition-all cursor-pointer"
-        :class="activeFilter === 'income' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:border-foreground/20'"
+      >All</Button>
+      <Button
+        variant="outline"
+        size="sm"
+        :class="activeFilter === 'income' ? 'bg-primary text-primary-foreground border-primary' : ''"
         @click="setTypeFilter('income')"
       >
         <TrendingUp :size="14" />
         Income
-      </button>
-      <button
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[13px] font-medium transition-all cursor-pointer"
-        :class="activeFilter === 'expense' ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:border-foreground/20'"
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        :class="activeFilter === 'expense' ? 'bg-primary text-primary-foreground border-primary' : ''"
         @click="setTypeFilter('expense')"
       >
         <TrendingDown :size="14" />
         Expenses
-      </button>
+      </Button>
       <div class="w-px h-6 bg-border"></div>
       <select
         v-model="filters.categoryId"
-        class="px-3 py-1.5 rounded-full border border-border bg-card text-[13px] font-medium text-muted-foreground outline-none"
+        class="h-9 rounded-md border border-border bg-background px-3 text-sm text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
         @change="txStore.fetchAll(filters)"
       >
         <option :value="undefined">All categories</option>
         <option v-for="cat in categoryStore.categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
       </select>
-      <button
+      <Button
         v-if="activeFilter !== 'all' || filters.categoryId"
-        class="px-3 py-1.5 rounded-full border border-border bg-card text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+        variant="ghost"
+        size="sm"
         @click="clearFilters"
       >
         Clear
-      </button>
+      </Button>
     </div>
 
-    <!-- Loading -->
-    <div v-if="txStore.loading" class="text-center py-12 text-muted-foreground">Loading...</div>
+    <!-- Loading Skeleton -->
+    <div v-if="txStore.loading" class="bg-card rounded-2xl border border-border overflow-hidden">
+      <div v-for="i in 6" :key="i" class="grid grid-cols-[44px_1fr_auto] gap-4 px-5 py-4 items-center border-b border-border/50 last:border-b-0">
+        <div class="w-11 h-11 rounded-xl skeleton" />
+        <div class="space-y-2">
+          <div class="h-4 w-32 skeleton" />
+          <div class="h-3 w-20 skeleton" />
+        </div>
+        <div class="h-5 w-24 skeleton" />
+      </div>
+    </div>
 
     <!-- Transaction List -->
     <div v-else class="space-y-0">
@@ -146,18 +157,17 @@ function clearFilters() {
           >
             <!-- Icon -->
             <div
-              class="w-11 h-11 rounded-xl flex items-center justify-center text-lg"
-              :class="tx.type === 'income' ? 'bg-income-bg' : 'bg-muted'"
+              class="w-11 h-11 rounded-xl flex items-center justify-center"
+              :class="tx.type === 'income' ? 'bg-income/10' : 'bg-muted'"
             >
-              {{ tx.type === 'income' ? '💰' : '💸' }}
+              <ArrowUpRight v-if="tx.type === 'income'" :size="20" class="text-income" />
+              <ArrowDownRight v-else :size="20" class="text-expense" />
             </div>
 
             <!-- Title + Meta -->
             <div class="min-w-0">
               <p class="text-sm font-semibold text-foreground truncate">{{ tx.description || tx.categoryName || 'Transaction' }}</p>
-              <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-xs text-muted-foreground">{{ tx.categoryName }}</span>
-              </div>
+              <span class="text-xs text-muted-foreground">{{ tx.categoryName }}</span>
             </div>
 
             <!-- Amount -->
@@ -169,12 +179,15 @@ function clearFilters() {
             </p>
 
             <!-- Delete -->
-            <button
-              class="opacity-0 group-hover:opacity-100 text-xs text-destructive hover:text-destructive/80 transition-opacity px-2 py-1 rounded"
+            <Button
+              variant="ghost"
+              size="icon"
+              class="opacity-0 group-hover:opacity-100 h-8 w-8 text-destructive hover:text-destructive"
               @click.stop="handleDelete(tx.id)"
             >
-              Delete
-            </button>
+              <Trash2 :size="14" />
+              <span class="sr-only">Delete</span>
+            </Button>
           </div>
         </template>
 
@@ -186,7 +199,7 @@ function clearFilters() {
 
     <!-- Form Dialog -->
     <TransactionForm
-      v-if="showForm"
+      :open="showForm"
       :initial="editingInitial"
       @submit="handleSubmit"
       @close="showForm = false"

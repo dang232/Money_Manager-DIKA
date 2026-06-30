@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.store'
 import { useDashboardStore } from '@/stores/dashboard.store'
 import { useBudgetStore } from '@/stores/budget.store'
 import { useCategoryStore } from '@/stores/category.store'
 import { useUserStore } from '@/stores/user.store'
 import { formatVND } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import CashFlowChart from '@/components/CashFlowChart.vue'
 import CategoryDonutChart from '@/components/CategoryDonutChart.vue'
 import {
@@ -31,7 +34,9 @@ const income = computed(() => dashboard.summary?.totalIncome ?? 0)
 const expense = computed(() => dashboard.summary?.totalExpense ?? 0)
 const net = computed(() => dashboard.summary?.netAmount ?? 0)
 const savingsRate = computed(() => income.value > 0 ? ((income.value - expense.value) / income.value * 100).toFixed(1) : '0')
-const displayName = computed(() => userStore.profile?.displayName || 'there')
+// ponytail: user-service profile.displayName may be null — fall back to auth user
+const authStore = useAuthStore()
+const displayName = computed(() => userStore.profile?.displayName || authStore.user?.displayName || 'there')
 
 function budgetCategoryName(categoryId: string): string {
   return categoryStore.byId[categoryId]?.name ?? categoryId
@@ -54,50 +59,59 @@ const categoryColors = computed(() => dashboard.categoryBreakdown.map((_, i) => 
     <!-- Page Header -->
     <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
       <div>
-        <h1 class="font-display text-[28px] font-extrabold tracking-tight text-foreground">Hi, {{ displayName }} 👋</h1>
+        <h1 class="font-display text-[28px] font-extrabold tracking-tight text-foreground">Hi, {{ displayName }}</h1>
         <p class="text-sm text-muted-foreground mt-1">Here's your financial overview</p>
       </div>
-      <button
-        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-[0_4px_12px_rgba(16,185,129,0.25)] hover:bg-primary/90 hover:-translate-y-0.5 transition-all"
-        @click="router.push({ path: '/transactions', query: { add: '1' } })"
-      >
+      <Button @click="router.push({ path: '/transactions', query: { add: '1' } })">
         <Plus :size="16" :stroke-width="2.5" />
         Add Transaction
-      </button>
+      </Button>
     </div>
 
-    <!-- Loading -->
-    <div v-if="dashboard.loading" class="text-center py-12 text-muted-foreground">Loading...</div>
+    <!-- Loading Skeleton -->
+    <div v-if="dashboard.loading" class="space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="bg-card rounded-2xl border border-border p-5">
+          <div class="w-11 h-11 rounded-xl skeleton mb-3" />
+          <div class="h-3 w-20 skeleton mb-2" />
+          <div class="h-8 w-32 skeleton" />
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
+        <div class="bg-card rounded-2xl border border-border p-5 h-64 skeleton" />
+        <div class="bg-card rounded-2xl border border-border p-5 h-64 skeleton" />
+      </div>
+    </div>
 
     <template v-else>
       <!-- Stat Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-card rounded-2xl border border-border p-5">
-          <div class="w-11 h-11 rounded-xl bg-info-bg flex items-center justify-center mb-3">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 stagger">
+        <div class="bg-card rounded-2xl border border-border p-5 card-interactive shadow-sm">
+          <div class="w-11 h-11 rounded-xl bg-info/10 flex items-center justify-center mb-3">
             <Wallet :size="22" class="text-info" />
           </div>
           <p class="text-[13px] text-muted-foreground font-medium mb-1">Total Balance</p>
           <p class="font-display text-[26px] font-extrabold tracking-tight text-foreground">{{ formatVND(net) }}</p>
         </div>
 
-        <div class="bg-card rounded-2xl border border-border p-5">
-          <div class="w-11 h-11 rounded-xl bg-income-bg flex items-center justify-center mb-3">
+        <div class="bg-card rounded-2xl border border-border p-5 card-interactive shadow-sm">
+          <div class="w-11 h-11 rounded-xl bg-income/10 flex items-center justify-center mb-3">
             <TrendingUp :size="22" class="text-income" />
           </div>
           <p class="text-[13px] text-muted-foreground font-medium mb-1">Income</p>
           <p class="font-display text-[26px] font-extrabold tracking-tight text-foreground">{{ formatVND(income) }}</p>
         </div>
 
-        <div class="bg-card rounded-2xl border border-border p-5">
-          <div class="w-11 h-11 rounded-xl bg-expense-bg flex items-center justify-center mb-3">
+        <div class="bg-card rounded-2xl border border-border p-5 card-interactive shadow-sm">
+          <div class="w-11 h-11 rounded-xl bg-expense/10 flex items-center justify-center mb-3">
             <TrendingDown :size="22" class="text-expense" />
           </div>
           <p class="text-[13px] text-muted-foreground font-medium mb-1">Expenses</p>
           <p class="font-display text-[26px] font-extrabold tracking-tight text-foreground">{{ formatVND(expense) }}</p>
         </div>
 
-        <div class="bg-card rounded-2xl border border-border p-5">
-          <div class="w-11 h-11 rounded-xl bg-warning-bg flex items-center justify-center mb-3">
+        <div class="bg-card rounded-2xl border border-border p-5 card-interactive shadow-sm">
+          <div class="w-11 h-11 rounded-xl bg-warning/10 flex items-center justify-center mb-3">
             <Trophy :size="22" class="text-warning" />
           </div>
           <p class="text-[13px] text-muted-foreground font-medium mb-1">Savings Rate</p>
@@ -137,13 +151,10 @@ const categoryColors = computed(() => dashboard.categoryBreakdown.map((_, i) => 
             <h3 class="font-display text-base font-bold text-foreground">Active Budgets</h3>
             <p class="text-xs text-muted-foreground mt-0.5">Budget progress this month</p>
           </div>
-          <button
-            class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-            @click="router.push('/budget')"
-          >
+          <Button variant="ghost" size="sm" @click="router.push('/budget')">
             View all
             <ChevronRight :size="16" />
-          </button>
+          </Button>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div v-for="b in budget.budgets.slice(0, 3)" :key="b.categoryId">
@@ -158,12 +169,11 @@ const categoryColors = computed(() => dashboard.categoryBreakdown.map((_, i) => 
                 :style="{ width: `${Math.min(b.usagePercentage, 100)}%` }"
               />
             </div>
-            <p
-              class="text-xs font-semibold"
-              :class="b.usagePercentage > 100 ? 'text-destructive' : b.usagePercentage > 70 ? 'text-warning' : 'text-primary'"
+            <Badge
+              :variant="b.usagePercentage > 100 ? 'destructive' : b.usagePercentage > 70 ? 'warning' : 'success'"
             >
-              {{ b.usagePercentage > 100 ? '⚠ Over budget' : b.usagePercentage > 70 ? `⚠ ${b.usagePercentage}% used` : '✓ On track' }}
-            </p>
+              {{ b.usagePercentage > 100 ? 'Over budget' : b.usagePercentage > 70 ? `${b.usagePercentage}% used` : 'On track' }}
+            </Badge>
           </div>
         </div>
       </div>

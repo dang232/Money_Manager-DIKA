@@ -39,7 +39,7 @@ watch(
 </script>
 
 <template>
-  <div class="fixed bottom-4 right-4 z-50 flex flex-col items-end gap-3">
+  <div class="fixed bottom-20 md:bottom-24 right-4 z-40 flex flex-col items-end gap-3">
     <!-- Chat panel -->
     <Transition
       enter-active-class="transition duration-200 ease-out"

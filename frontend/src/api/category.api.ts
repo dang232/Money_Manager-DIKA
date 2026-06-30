@@ -3,14 +3,14 @@ import httpClient from './http-client'
 export interface Category {
   id: string
   name: string
-  type: 'income' | 'expense'
+  type: 'INCOME' | 'EXPENSE' | 'income' | 'expense'
   icon?: string
   color?: string
 }
 
 export interface CreateCategoryDto {
   name: string
-  type: 'income' | 'expense'
+  type: 'INCOME' | 'EXPENSE'
   icon?: string
   color?: string
 }

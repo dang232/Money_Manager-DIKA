@@ -34,8 +34,8 @@ const navAccount = [
   { path: '/settings', label: 'Settings', icon: Settings },
 ]
 
-function logout() {
-  auth.logout()
+async function logout() {
+  await auth.logout()
   router.push('/login')
 }
 </script>

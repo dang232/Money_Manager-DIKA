@@ -1,19 +1,34 @@
+import { watch } from 'vue'
 import { useSocket } from './useSocket'
+import { useAuthStore } from '@/stores/auth.store'
 
 /**
- * Call this in App.vue or main.ts after the app mounts.
- * When auth store exists (feat/fe-auth branch), wire:
- *   watch(() => authStore.user, (user) => user ? connect(user.id) : disconnect())
- *
- * For now, connect with userId from localStorage or 'default'.
+ * Wire WebSocket lifecycle to auth state.
+ * Call init() once in App.vue after the app mounts.
+ * The socket connects when the user is authenticated (user object present)
+ * and disconnects on logout.
  */
 export function useSocketInit() {
   const { connect, disconnect, on } = useSocket()
+  const authStore = useAuthStore()
 
   function init() {
-    // ponytail: will read userId from auth store once branches merge
-    const userId = localStorage.getItem('mm-user-id') || 'default'
-    connect(userId)
+    // ponytail: connect immediately if already authenticated (page refresh case)
+    if (authStore.user) {
+      connect(authStore.user.id)
+    }
+
+    // ponytail: watch for auth state changes — connect on login, disconnect on logout
+    watch(
+      () => authStore.user,
+      (user) => {
+        if (user) {
+          connect(user.id)
+        } else {
+          disconnect()
+        }
+      },
+    )
   }
 
   function teardown() {

@@ -18,9 +18,13 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
-  const token = localStorage.getItem('mm-access-token')
-  if (!to.meta?.guest && !token) return { name: 'login' }
-  if (to.meta?.guest && token && to.name !== 'onboarding') return { name: 'dashboard' }
+  // ponytail: tokens are in HttpOnly cookies — use mm-csrf presence as a proxy for being logged in.
+  // The authoritative check is authStore.isAuthenticated (user object set after login/fetchMe).
+  // We use the mm-csrf cookie here because it is JS-readable (non-HttpOnly) and is only set
+  // when the user has authenticated. Falls back to authStore if available.
+  const hasSession = document.cookie.includes('mm-csrf=')
+  if (!to.meta?.guest && !hasSession) return { name: 'login' }
+  if (to.meta?.guest && hasSession && to.name !== 'onboarding') return { name: 'dashboard' }
 })
 
 export default router

@@ -4,13 +4,15 @@ import { ConfigModule } from '@nestjs/config';
 import { EventBusModule, CacheModule, LoggerModule } from '@money-manager/infrastructure';
 import { appConfig } from './config/app.config';
 import { CorrelationIdMiddleware } from './middleware/correlation-id.middleware';
+import { JwtAuthMiddleware } from './middleware/jwt-auth.middleware';
+import { CsrfMiddleware } from './middleware/csrf.middleware';
 import { CircuitBreakerService } from './circuit-breaker/circuit-breaker.service';
 import { HttpProxyService } from './proxy/http-proxy.service';
 import { TransactionProxyController } from './proxy/transaction-proxy.controller';
 import { BudgetProxyController, CategoryProxyController } from './proxy/budget-proxy.controller';
 import { AiProxyController } from './proxy/ai-proxy.controller';
 import { AuthProxyController } from './proxy/auth-proxy.controller';
-import { UsersProxyController } from './proxy/users-proxy.controller';
+import { UsersProxyController, LayoutProxyController } from './proxy/users-proxy.controller';
 import { DashboardController } from './proxy/dashboard.controller';
 import { HealthController } from './health/health.controller';
 import { WsGateway } from './websocket/ws.gateway';
@@ -34,6 +36,7 @@ import { EventRelayService } from './websocket/event-relay.service';
     AiProxyController,
     AuthProxyController,
     UsersProxyController,
+    LayoutProxyController,
     DashboardController,
     HealthController,
   ],
@@ -47,6 +50,9 @@ import { EventRelayService } from './websocket/event-relay.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
+    // ponytail: middleware order matters — correlation-id first, then JWT (sets x-user-id), then CSRF check
     consumer.apply(CorrelationIdMiddleware).forRoutes('*');
+    consumer.apply(JwtAuthMiddleware).forRoutes('*');
+    consumer.apply(CsrfMiddleware).forRoutes('*');
   }
 }

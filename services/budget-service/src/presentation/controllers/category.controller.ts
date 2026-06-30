@@ -24,7 +24,7 @@ export class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   async create(@CurrentUser() userId: UserId, @Body() dto: CreateCategoryDto) {
     const category = await this.createHandler.execute(
-      new CreateCategoryCommand(userId.value, dto.name, dto.type, dto.icon, dto.color),
+      new CreateCategoryCommand(userId.value, dto.name, dto.type, dto.icon ?? '', dto.color ?? ''),
     );
     return ApiResponse.ok(this.toResponse(category));
   }

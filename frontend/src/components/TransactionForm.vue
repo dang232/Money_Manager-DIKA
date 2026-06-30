@@ -2,10 +2,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useCategoryStore } from '@/stores/category.store'
 import type { CreateTransactionDto } from '@/api/transaction.api'
-import { X } from '@lucide/vue'
+import { Dialog, DialogTitle } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 const emit = defineEmits<{ submit: [dto: CreateTransactionDto]; close: [] }>()
-const props = defineProps<{ initial?: Partial<CreateTransactionDto> }>()
+const props = defineProps<{ initial?: Partial<CreateTransactionDto>; open?: boolean }>()
 
 const categoryStore = useCategoryStore()
 onMounted(() => { categoryStore.fetchAll() })
@@ -42,110 +45,86 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <!-- Backdrop -->
-  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" @click.self="emit('close')">
-    <div class="bg-card rounded-3xl border border-border p-6 w-full max-w-[520px] shadow-xl max-h-[90vh] overflow-y-auto">
-      <!-- Header -->
-      <div class="flex items-center justify-between mb-5">
-        <h2 class="font-display text-xl font-bold text-foreground">
-          {{ props.initial ? 'Edit Transaction' : 'New Transaction' }}
-        </h2>
-        <button
-          class="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-          @click="emit('close')"
-        >
-          <X :size="20" />
-        </button>
-      </div>
+  <Dialog :open="props.open" @update:open="(val: boolean) => { if (!val) emit('close') }">
+    <div class="space-y-5">
+      <DialogTitle class="font-display text-xl font-bold text-foreground">
+        {{ props.initial ? 'Edit Transaction' : 'New Transaction' }}
+      </DialogTitle>
 
       <!-- Type Toggle -->
-      <div class="grid grid-cols-2 gap-2 bg-muted p-1 rounded-xl mb-5">
-        <button
-          type="button"
-          class="py-2.5 rounded-lg text-[13px] font-semibold transition-all"
+      <div class="grid grid-cols-2 gap-2 bg-muted p-1 rounded-xl">
+        <Button
+          variant="ghost"
+          size="sm"
           :class="form.type === 'expense' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
           @click="form.type = 'expense'"
-        >💸 Expense</button>
-        <button
-          type="button"
-          class="py-2.5 rounded-lg text-[13px] font-semibold transition-all"
+        >
+          Expense
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
           :class="form.type === 'income' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
           @click="form.type = 'income'"
-        >💰 Income</button>
+        >
+          Income
+        </Button>
       </div>
 
       <!-- Errors -->
-      <div v-if="errors.length" class="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+      <div v-if="errors.length" role="alert" class="p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
         <p v-for="err in errors" :key="err">{{ err }}</p>
       </div>
 
       <form class="space-y-4" @submit.prevent="handleSubmit">
-        <!-- Amount (Hero Input) -->
-        <div>
-          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Amount</label>
-          <input
-            v-model.number="form.amount"
+        <!-- Amount -->
+        <div class="space-y-1.5">
+          <Label for="tx-amount">Amount</Label>
+          <Input
+            id="tx-amount"
+            :model-value="form.amount"
             type="number"
-            min="0"
-            step="1000"
             placeholder="0"
-            class="w-full rounded-xl border border-border bg-background px-4 py-4 text-center font-display text-[32px] font-bold tracking-tight outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+            class="text-center font-display text-[28px] font-bold h-14"
+            @update:model-value="form.amount = Number($event)"
           />
         </div>
 
         <!-- Category -->
-        <div>
-          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Category</label>
+        <div class="space-y-1.5">
+          <Label for="tx-category">Category</Label>
           <select
+            id="tx-category"
             v-model="form.categoryId"
-            class="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+            class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:border-primary"
           >
             <option value="" disabled>Select category</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-              {{ cat.name }}
-            </option>
+            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
           </select>
         </div>
 
         <!-- Description -->
-        <div>
-          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Description</label>
-          <input
-            v-model="form.description"
-            type="text"
-            placeholder="What was this for?"
-            class="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-          />
+        <div class="space-y-1.5">
+          <Label for="tx-desc">Description</Label>
+          <Input id="tx-desc" v-model="form.description" placeholder="What was this for?" />
         </div>
 
         <!-- Date -->
-        <div>
-          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">Date</label>
-          <input
-            v-model="form.date"
-            type="date"
-            class="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
-          />
+        <div class="space-y-1.5">
+          <Label for="tx-date">Date</Label>
+          <Input id="tx-date" v-model="form.date" type="date" />
         </div>
 
         <!-- Actions -->
         <div class="flex gap-3 pt-3">
-          <button
-            type="button"
-            class="flex-1 py-3 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
-            @click="emit('close')"
-          >
+          <Button type="button" variant="outline" class="flex-1" @click="emit('close')">
             Cancel
-          </button>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="flex-1 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 shadow-[0_4px_12px_rgba(16,185,129,0.25)] disabled:opacity-50 transition-all"
-          >
+          </Button>
+          <Button type="submit" :disabled="loading" class="flex-1">
             {{ loading ? 'Saving...' : 'Save Transaction' }}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
-  </div>
+  </Dialog>
 </template>

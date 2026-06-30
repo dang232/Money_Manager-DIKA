@@ -24,12 +24,12 @@ export interface UpdateProfileDto {
 
 export const userApi = {
   getMe() {
-    return httpClient.get<{ data: UserProfile }>('/users/me')
+    return httpClient.get<UserProfile>('/users/me')
   },
   updateMe(dto: UpdateProfileDto) {
-    return httpClient.put<{ data: UserProfile }>('/users/me', dto)
+    return httpClient.put<UserProfile>('/users/me', dto)
   },
   updatePreferences(prefs: Record<string, unknown>) {
-    return httpClient.put<{ data: UserProfile }>('/users/me/preferences', prefs)
+    return httpClient.put<UserProfile>('/users/me/preferences', prefs)
   },
 }
