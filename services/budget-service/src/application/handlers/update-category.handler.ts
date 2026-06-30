@@ -1,6 +1,6 @@
-// ponytail: handler for UpdateCategoryCommand
+// FIXED: handler for UpdateCategoryCommand - validates userId ownership
 import { Injectable, Inject } from '@nestjs/common';
-import { NotFoundException } from '@money-manager/shared-kernel';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { UpdateCategoryCommand } from '../commands/update-category.command';
 import { Category } from '../../domain/aggregates/category.aggregate';
 import { CategoryRepository, CATEGORY_REPOSITORY } from '../../domain/repositories/category.repository.port';
@@ -15,6 +15,11 @@ export class UpdateCategoryHandler {
     const category = await this.categoryRepo.findById(command.id);
     if (!category) {
       throw new NotFoundException('Category', command.id);
+    }
+
+    // FIXED: Verify the category belongs to the requesting user
+    if (category.userId.value !== command.userId) {
+      throw new ForbiddenException('You do not have access to this category');
     }
 
     category.update({

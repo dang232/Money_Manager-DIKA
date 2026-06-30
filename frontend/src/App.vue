@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import AppLayout from './components/layout/AppLayout.vue'
+import ToastContainer from '@/components/ToastContainer.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -31,4 +32,5 @@ onMounted(async () => {
       <component :is="Component" />
     </transition>
   </router-view>
+  <ToastContainer />
 </template>

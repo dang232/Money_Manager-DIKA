@@ -15,7 +15,7 @@ onMounted(() => { categoryStore.fetchAll() })
 
 const form = ref<CreateTransactionDto>({
   amount: props.initial?.amount ?? 0,
-  type: props.initial?.type ?? 'expense',
+  type: (props.initial?.type ?? 'EXPENSE') as 'INCOME' | 'EXPENSE',
   categoryId: props.initial?.categoryId ?? '',
   description: props.initial?.description ?? '',
   date: props.initial?.date ?? new Date().toISOString().split('T')[0],
@@ -25,7 +25,7 @@ const loading = ref(false)
 const errors = ref<string[]>([])
 
 const categories = computed(() =>
-  form.value.type === 'income' ? categoryStore.incomeCategories : categoryStore.expenseCategories
+  form.value.type === 'INCOME' ? categoryStore.incomeCategories : categoryStore.expenseCategories
 )
 
 function validate(): boolean {
@@ -56,16 +56,16 @@ async function handleSubmit() {
         <Button
           variant="ghost"
           size="sm"
-          :class="form.type === 'expense' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
-          @click="form.type = 'expense'"
+          :class="form.type === 'EXPENSE' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
+          @click="form.type = 'EXPENSE'"
         >
           Expense
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          :class="form.type === 'income' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
-          @click="form.type = 'income'"
+          :class="form.type === 'INCOME' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
+          @click="form.type = 'INCOME'"
         >
           Income
         </Button>

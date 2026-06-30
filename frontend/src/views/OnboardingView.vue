@@ -52,7 +52,7 @@ const budgets = ref<Record<string, number>>({})
 // Step 3: First transaction
 const txForm = ref<CreateTransactionDto>({
   amount: 0,
-  type: 'expense',
+  type: 'EXPENSE',
   categoryId: '',
   description: '',
   date: new Date().toISOString().split('T')[0],
@@ -186,7 +186,7 @@ onMounted(() => { categoryStore.fetchAll() })
 
         <div class="space-y-3">
           <div
-            v-for="cat in createdCategoryIds.filter(c => c.type === 'expense')"
+            v-for="cat in createdCategoryIds.filter(c => c.type === 'EXPENSE')"
             :key="cat.id"
             class="flex items-center gap-3"
           >
@@ -224,8 +224,8 @@ onMounted(() => { categoryStore.fetchAll() })
               type="button"
               variant="ghost"
               size="sm"
-              :class="txForm.type === 'expense' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
-              @click="txForm.type = 'expense'"
+              :class="txForm.type === 'EXPENSE' ? 'bg-card text-expense shadow-sm' : 'text-muted-foreground'"
+              @click="txForm.type = 'EXPENSE'"
             >
               Expense
             </Button>
@@ -233,8 +233,8 @@ onMounted(() => { categoryStore.fetchAll() })
               type="button"
               variant="ghost"
               size="sm"
-              :class="txForm.type === 'income' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
-              @click="txForm.type = 'income'"
+              :class="txForm.type === 'INCOME' ? 'bg-card text-income shadow-sm' : 'text-muted-foreground'"
+              @click="txForm.type = 'INCOME'"
             >
               Income
             </Button>

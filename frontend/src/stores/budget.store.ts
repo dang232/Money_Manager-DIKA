@@ -10,8 +10,8 @@ export const useBudgetStore = defineStore('budget', () => {
   const { loading, error, run } = useAsync()
   const { on } = useSocket()
 
-  const exceededBudgets = computed(() => budgets.value.filter((b) => b.usagePercentage > 100))
-  const warningBudgets = computed(() => budgets.value.filter((b) => b.usagePercentage > 70 && b.usagePercentage <= 100))
+  const exceededBudgets = computed(() => budgets.value.filter((b: BudgetStatus) => b.usagePercentage > 100))
+  const warningBudgets = computed(() => budgets.value.filter((b: BudgetStatus) => b.usagePercentage > 70 && b.usagePercentage <= 100))
 
   function currentYearMonth(year?: number, month?: number) {
     const now = new Date()

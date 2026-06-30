@@ -2,6 +2,8 @@
 import { SeedDataJob } from './seed-data.job';
 import { TransactionType } from '@money-manager/shared-kernel';
 
+const TEST_USER_ID = '11111111-1111-4111-a111-111111111111';
+
 describe('SeedDataJob', () => {
   let job: SeedDataJob;
   let persistedEntities: any[];
@@ -20,7 +22,7 @@ describe('SeedDataJob', () => {
   });
 
   it('generates correct number of transactions (15-25 expenses per month * 3 + 3 salaries)', async () => {
-    await job.execute();
+    await job.execute(TEST_USER_ID);
 
     const { TransactionEntity } = require('../infrastructure/persistence/transaction.entity');
     const transactions = persistedEntities.filter(e => e instanceof TransactionEntity);
@@ -31,7 +33,7 @@ describe('SeedDataJob', () => {
   });
 
   it('seeds 6 categories', async () => {
-    await job.execute();
+    await job.execute(TEST_USER_ID);
 
     const { CategoryEntity } = require('../infrastructure/persistence/category.entity');
     const categories = persistedEntities.filter(e => e instanceof CategoryEntity);
@@ -39,7 +41,7 @@ describe('SeedDataJob', () => {
   });
 
   it('all expense amounts are within 10,000 - 500,000 range', async () => {
-    await job.execute();
+    await job.execute(TEST_USER_ID);
 
     const { TransactionEntity } = require('../infrastructure/persistence/transaction.entity');
     const expenses = persistedEntities
@@ -53,7 +55,7 @@ describe('SeedDataJob', () => {
   });
 
   it('salary is 15,000,000 VND', async () => {
-    await job.execute();
+    await job.execute(TEST_USER_ID);
 
     const { TransactionEntity } = require('../infrastructure/persistence/transaction.entity');
     const incomes = persistedEntities
@@ -67,7 +69,7 @@ describe('SeedDataJob', () => {
   });
 
   it('all dates are within past 3 months', async () => {
-    await job.execute();
+    await job.execute(TEST_USER_ID);
 
     const { TransactionEntity } = require('../infrastructure/persistence/transaction.entity');
     const transactions = persistedEntities.filter(e => e instanceof TransactionEntity);
@@ -84,7 +86,7 @@ describe('SeedDataJob', () => {
   });
 
   it('calls flush for batch insert', async () => {
-    await job.execute();
+    await job.execute(TEST_USER_ID);
     // ponytail: flushes both txnEm and budgetEm
     expect(mockEm.flush).toHaveBeenCalledTimes(2);
   });

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /c/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/frontend && pnpm exec tsc --noEmit 2>&1\",\"description\":\"TypeScript check after shared-types integration\"}",
+  "error": "Exit code 2\nsrc/api/budget.api.ts(6,27): error TS2304: Cannot find name 'BudgetStatus'.\r\nsrc/api/budget.api.ts(8,18): error TS2304: Cannot find name 'SetBudgetDto'.\r\nsrc/api/budget.api.ts(12,27): error TS2304: Cannot find name 'BudgetProjection'.\r\nsrc/api/category.api.ts(6,27): error TS2304: Cannot find name 'Category'.\r\nsrc/api/category.api.ts(8,15): error TS2304: Cannot find name 'CreateCategoryDto'.\r\nsrc/api/category.api.ts(9,28): error TS2304: Cannot find name 'Category'.\r\nsrc/api/category.a...",
+  "timestamp": "2026-06-30T13:00:36.473Z",
+  "retry_count": 1
+}

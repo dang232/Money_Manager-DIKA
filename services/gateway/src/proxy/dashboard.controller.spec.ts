@@ -1,5 +1,7 @@
-// ponytail: dashboard controller tests — aggregation + degraded mode
+// Dashboard controller tests — aggregation + degraded mode
+// FIXED: Updated to use UserId object for @CurrentUser parameter
 import { DashboardController } from './dashboard.controller';
+import { UserId } from '@money-manager/shared-kernel';
 import axios from 'axios';
 
 jest.mock('axios');
@@ -25,6 +27,9 @@ describe('DashboardController', () => {
     CORS_ORIGIN: 'http://localhost:5173',
   };
 
+  // Test user ID
+  const testUserId = new UserId('11111111-1111-4111-a111-111111111111');
+
   beforeEach(() => {
     jest.clearAllMocks();
     controller = new DashboardController(mockConfig as any, mockCache as any);
@@ -37,7 +42,8 @@ describe('DashboardController', () => {
       return Promise.resolve({ data: [{ id: '1', name: 'Food' }] });
     });
 
-    const result = await controller.getDashboard('2024', '6');
+    // FIXED: Pass UserId object instead of string
+    const result = await controller.getDashboard(testUserId, '2024', '6');
 
     expect(result.degraded).toBe(false);
     expect(result.summary).toEqual({ income: 5000, expense: 3000 });
@@ -53,7 +59,8 @@ describe('DashboardController', () => {
       return Promise.reject(new Error('service down'));
     });
 
-    const result = await controller.getDashboard('2024', '6');
+    // FIXED: Pass UserId object instead of string
+    const result = await controller.getDashboard(testUserId, '2024', '6');
 
     expect(result.degraded).toBe(true);
     expect(result.summary).toEqual({ income: 5000 });
@@ -66,7 +73,8 @@ describe('DashboardController', () => {
     const cached = { summary: {}, budgets: [], projections: {}, updatedAt: 'x', degraded: false };
     mockCache.get.mockResolvedValueOnce(cached);
 
-    const result = await controller.getDashboard('2024', '6');
+    // FIXED: Pass UserId object instead of string
+    const result = await controller.getDashboard(testUserId, '2024', '6');
 
     expect(result).toEqual(cached);
     expect(mockedAxios.get).not.toHaveBeenCalled();

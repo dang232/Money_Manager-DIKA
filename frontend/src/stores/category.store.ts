@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { categoryApi, type Category, type CreateCategoryDto } from '@/api/category.api'
-import { useAsync } from '@/composables/use-async'
+import { useMutateRefresh } from '@/composables/useMutateRefresh'
 
 export const useCategoryStore = defineStore('category', () => {
   const categories = ref<Category[]>([])
-  const { loading, error, run } = useAsync()
+  const { loading, error, mutate } = useMutateRefresh(fetchAll)
 
-  const incomeCategories = computed(() => categories.value.filter((c) => c.type.toLowerCase() === 'income'))
-  const expenseCategories = computed(() => categories.value.filter((c) => c.type.toLowerCase() === 'expense'))
+  const incomeCategories = computed(() => categories.value.filter((c: Category) => c.type === 'INCOME'))
+  const expenseCategories = computed(() => categories.value.filter((c: Category) => c.type === 'EXPENSE'))
   const byId = computed(() => {
     const map: Record<string, Category> = {}
     for (const c of categories.value) map[c.id] = c
@@ -16,22 +16,13 @@ export const useCategoryStore = defineStore('category', () => {
   })
 
   async function fetchAll() {
-    await run(async () => {
-      const res = await categoryApi.getAll()
-      categories.value = res.data
-    })
+    const res = await categoryApi.getAll()
+    categories.value = res.data
   }
 
-  async function mutateAndRefresh<T>(op: () => Promise<T>) {
-    await run(async () => {
-      await op()
-      await fetchAll()
-    })
-  }
-
-  const create = (dto: CreateCategoryDto) => mutateAndRefresh(() => categoryApi.create(dto))
-  const update = (id: string, dto: Partial<CreateCategoryDto>) => mutateAndRefresh(() => categoryApi.update(id, dto))
-  const remove = (id: string) => mutateAndRefresh(() => categoryApi.delete(id))
+  const create = (dto: CreateCategoryDto) => mutate(() => categoryApi.create(dto))
+  const update = (id: string, dto: Partial<CreateCategoryDto>) => mutate(() => categoryApi.update(id, dto))
+  const remove = (id: string) => mutate(() => categoryApi.delete(id))
 
   return { categories, loading, error, incomeCategories, expenseCategories, byId, fetchAll, create, update, remove }
 })

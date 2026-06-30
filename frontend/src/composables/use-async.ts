@@ -12,7 +12,6 @@ export function useAsync() {
     try {
       return await fn()
     } catch (e: unknown) {
-      console.error('useAsync error:', e)
       // Handle axios error with API envelope
       if (e instanceof AxiosError) {
         // Try to extract from axios error response

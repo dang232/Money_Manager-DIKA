@@ -1,13 +1,18 @@
-// ponytail: shared HTTP client — defaults to local gateway, override via GATEWAY_URL
+// Shared HTTP client for integration tests
 import axios, { AxiosInstance } from 'axios';
 
 const baseURL = process.env['GATEWAY_URL'] ?? 'http://localhost:3000';
 
-// ponytail: validateStatus: () => true so callers see every response code
+// validateStatus: () => true so callers see every response code
 export const http: AxiosInstance = axios.create({ baseURL, validateStatus: () => true });
 
-export const DEFAULT_USER_ID = '00000000-0000-4000-a000-000000000001';
+// FIXED: Test user ID - NOT the old DEFAULT. Tests should use explicit user IDs.
+export const TEST_USER_ID = '22222222-2222-4222-a222-222222222222';
 
-export function userHeaders(userId: string = DEFAULT_USER_ID): Record<string, string> {
+/**
+ * Generate user headers for API requests.
+ * Tests should pass explicit user IDs for proper multi-user testing.
+ */
+export function userHeaders(userId: string): Record<string, string> {
   return { 'x-user-id': userId };
 }

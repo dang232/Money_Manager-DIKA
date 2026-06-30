@@ -16,7 +16,7 @@ const categoryStore = useCategoryStore()
 const showForm = ref(false)
 const editingId = ref<string | null>(null)
 const editingInitial = ref<Partial<CreateTransactionDto> | undefined>()
-const activeFilter = ref<'all' | 'income' | 'expense'>('all')
+const activeFilter = ref<'all' | 'INCOME' | 'EXPENSE'>('all')
 
 const filters = ref<TransactionFilters>({
   type: undefined,
@@ -55,7 +55,7 @@ async function handleDelete(id: string) {
   await txStore.remove(id)
 }
 
-function setTypeFilter(type: 'all' | 'income' | 'expense') {
+function setTypeFilter(type: 'all' | 'INCOME' | 'EXPENSE') {
   activeFilter.value = type
   filters.value.type = type === 'all' ? undefined : type
   txStore.fetchAll(filters.value)
@@ -93,8 +93,8 @@ function clearFilters() {
       <Button
         variant="outline"
         size="sm"
-        :class="activeFilter === 'income' ? 'bg-primary text-primary-foreground border-primary' : ''"
-        @click="setTypeFilter('income')"
+        :class="activeFilter === 'INCOME' ? 'bg-primary text-primary-foreground border-primary' : ''"
+        @click="setTypeFilter('INCOME')"
       >
         <TrendingUp :size="14" />
         Income
@@ -102,8 +102,8 @@ function clearFilters() {
       <Button
         variant="outline"
         size="sm"
-        :class="activeFilter === 'expense' ? 'bg-primary text-primary-foreground border-primary' : ''"
-        @click="setTypeFilter('expense')"
+        :class="activeFilter === 'EXPENSE' ? 'bg-primary text-primary-foreground border-primary' : ''"
+        @click="setTypeFilter('EXPENSE')"
       >
         <TrendingDown :size="14" />
         Expenses
@@ -158,9 +158,9 @@ function clearFilters() {
             <!-- Icon -->
             <div
               class="w-11 h-11 rounded-xl flex items-center justify-center"
-              :class="tx.type === 'income' ? 'bg-income/10' : 'bg-muted'"
+              :class="tx.type === 'INCOME' ? 'bg-income/10' : 'bg-muted'"
             >
-              <ArrowUpRight v-if="tx.type === 'income'" :size="20" class="text-income" />
+              <ArrowUpRight v-if="tx.type === 'INCOME'" :size="20" class="text-income" />
               <ArrowDownRight v-else :size="20" class="text-expense" />
             </div>
 
@@ -173,9 +173,9 @@ function clearFilters() {
             <!-- Amount -->
             <p
               class="font-display text-[15px] font-bold text-right"
-              :class="tx.type === 'income' ? 'text-income' : 'text-foreground'"
+              :class="tx.type === 'INCOME' ? 'text-income' : 'text-foreground'"
             >
-              {{ tx.type === 'income' ? '+' : '-' }}{{ formatVND(tx.amount) }}
+              {{ tx.type === 'INCOME' ? '+' : '-' }}{{ formatVND(tx.amount) }}
             </p>
 
             <!-- Delete -->

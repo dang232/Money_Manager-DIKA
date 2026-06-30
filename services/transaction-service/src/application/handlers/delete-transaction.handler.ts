@@ -1,7 +1,7 @@
-// ponytail: handler for DeleteTransactionCommand
+// FIXED: handler for DeleteTransactionCommand - validates userId ownership
 import { Injectable, Inject } from '@nestjs/common';
-import { EventBusPort, NotFoundException } from '@money-manager/shared-kernel';
-import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
+import { NotFoundException, ForbiddenException } from '@nestjs/common';
+import { EventBusPort, EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { DeleteTransactionCommand } from '../commands/delete-transaction.command';
 import { TransactionRepository, TRANSACTION_REPOSITORY } from '../../domain/repositories/transaction.repository.port';
 import { TransactionDeletedEvent } from '../../domain/events/transaction-deleted.event';
@@ -16,7 +16,12 @@ export class DeleteTransactionHandler {
   async execute(cmd: DeleteTransactionCommand): Promise<void> {
     const transaction = await this.repo.findById(cmd.id);
     if (!transaction) {
-      throw new NotFoundException('Transaction', cmd.id);
+      throw new NotFoundException(`Transaction with id "${cmd.id}" not found`);
+    }
+
+    // FIXED: Verify the transaction belongs to the requesting user
+    if (transaction.userId !== cmd.userId) {
+      throw new ForbiddenException('You do not have access to this transaction');
     }
 
     await this.repo.delete(cmd.id);

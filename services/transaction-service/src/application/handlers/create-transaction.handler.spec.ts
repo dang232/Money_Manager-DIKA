@@ -1,8 +1,11 @@
-// ponytail: unit tests for CreateTransactionHandler
+// Unit tests for CreateTransactionHandler
 import { CreateTransactionHandler } from './create-transaction.handler';
 import { CreateTransactionCommand } from '../commands/create-transaction.command';
 import { TransactionType } from '@money-manager/shared-kernel';
 import { Transaction } from '../../domain/aggregates/transaction.aggregate';
+
+// Test user ID - valid UUID for testing
+const TEST_USER_ID = '11111111-1111-4111-a111-111111111111';
 
 describe('CreateTransactionHandler', () => {
   let handler: CreateTransactionHandler;
@@ -27,7 +30,7 @@ describe('CreateTransactionHandler', () => {
 
   it('should create a transaction and publish event', async () => {
     const cmd = new CreateTransactionCommand(
-      '00000000-0000-4000-a000-000000000001',
+      TEST_USER_ID,
       50000,
       'VND',
       TransactionType.EXPENSE,
@@ -51,7 +54,7 @@ describe('CreateTransactionHandler', () => {
 
   it('should propagate domain validation errors', async () => {
     const cmd = new CreateTransactionCommand(
-      '00000000-0000-4000-a000-000000000001',
+      TEST_USER_ID,
       0, // invalid amount
       'VND',
       TransactionType.EXPENSE,

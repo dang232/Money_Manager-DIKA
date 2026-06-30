@@ -1,4 +1,7 @@
 import axios from 'axios'
+import { useToast } from '@/composables/useToast'
+
+const { error: showError } = useToast()
 
 const httpClient = axios.create({
   baseURL: '/api',
@@ -18,15 +21,11 @@ function getCsrfToken(): string | null {
 }
 
 httpClient.interceptors.request.use((config) => {
-  console.log('HTTP Request:', config.method?.toUpperCase(), config.url, config.data)
   config.headers['X-Correlation-ID'] = crypto.randomUUID()
   const csrf = getCsrfToken()
-  console.log('CSRF Token:', csrf ? 'found' : 'NOT FOUND')
   if (csrf) {
     config.headers['X-CSRF-Token'] = csrf
   }
-  // Log all cookies
-  console.log('All cookies:', document.cookie)
   return config
 })
 
@@ -34,7 +33,6 @@ let refreshPromise: Promise<void> | null = null
 
 httpClient.interceptors.response.use(
   (response) => {
-    console.log('HTTP Response:', response.config.url, response.status, response.data)
     // ponytail: unwrap API envelope patterns:
     // - {success, data, error?, meta?} → standard envelope
     // - {data: {user}} → auth endpoints (no success field)
@@ -69,8 +67,14 @@ httpClient.interceptors.response.use(
       await refreshPromise
       return httpClient(original)
     }
-    if (error.response?.status === 503) {
-      console.warn('Service unavailable:', error.config?.url)
+    const status = error.response?.status
+    if (status && status >= 500) {
+      const msg = error.response?.data?.error?.message || error.message || 'Server error'
+      console.error(`[${status}]`, error.config?.url, msg)
+      showError(`Server error (${status}): ${msg}`)
+    }
+    if (status === 503) {
+      // ponytail: service unavailable — will retry via circuit breaker
     }
     // ponytail: extract API error message from envelope
     const apiError = error.response?.data?.error

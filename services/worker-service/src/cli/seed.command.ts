@@ -1,4 +1,4 @@
-// ponytail: CLI seed command — run with --seed or AUTO_SEED=true
+// ponytail: CLI seed command — run with --userId=<uuid>
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from '../app.module';
 import { SeedDataJob } from '../jobs/seed-data.job';
@@ -8,6 +8,9 @@ async function main() {
   const seedJob = app.get(SeedDataJob);
 
   const userId = process.argv.find(a => a.startsWith('--userId='))?.split('=')[1];
+  if (!userId) {
+    throw new Error('--userId=<uuid> is required');
+  }
   await seedJob.execute(userId);
 
   await app.close();
