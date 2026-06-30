@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useBudgetStore } from '@/stores/budget.store'
 import { useCategoryStore } from '@/stores/category.store'
 import { VueDraggable } from 'vue-draggable-plus'
-import { useDraggableList } from '@/composables/useDraggableList'
 import { formatVND } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogTitle } from '@/components/ui/dialog'
-import { Plus, PiggyBank, GripVertical } from '@lucide/vue'
+import { Plus, PiggyBank, GripVertical, AlertTriangle } from '@lucide/vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const budgetStore = useBudgetStore()
 const categoryStore = useCategoryStore()
 
-// DRY: Using composable for draggable list state
-const { items: localBudgets, onDragEnd } = useDraggableList<any>(() => budgetStore.budgets, 'budgets')
+// ponytail: temp fix - use store directly until composable issue is resolved
+const localBudgets = computed(() => budgetStore.budgets)
 
 const showSetBudget = ref(false)
 const budgetForm = ref({ categoryId: '', amount: 0 })
@@ -31,16 +33,24 @@ function openSetBudget(categoryId?: string) {
 }
 
 async function handleSetBudget() {
-  if (!budgetForm.value.categoryId || budgetForm.value.amount <= 0) return
+  const amount = Number(budgetForm.value.amount)
+  if (!budgetForm.value.categoryId || !amount || amount <= 0) return
   const now = new Date()
-  await budgetStore.setBudget({
-    categoryId: budgetForm.value.categoryId,
-    monthlyLimit: budgetForm.value.amount,
-    currency: 'USD',
-    year: now.getFullYear(),
-    month: now.getMonth() + 1,
-  })
-  showSetBudget.value = false
+  console.log('Creating budget with:', { categoryId: budgetForm.value.categoryId, amount })
+  try {
+    await budgetStore.setBudget({
+      categoryId: budgetForm.value.categoryId,
+      monthlyLimit: amount,
+      currency: 'USD',
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+    })
+    showSetBudget.value = false
+  } catch (e) {
+    console.error('Budget creation failed:', e)
+    console.error('Store error:', budgetStore.error)
+    // error is displayed in the dialog
+  }
 }
 
 function getBarGradient(pct: number): string {
@@ -50,7 +60,7 @@ function getBarGradient(pct: number): string {
 }
 
 function handleReorder() {
-  onDragEnd(localBudgets.value.map(b => b.categoryId))
+  // ponytail: drag reorder disabled until composable is fixed
 }
 </script>
 
@@ -163,6 +173,39 @@ function handleReorder() {
       <div class="space-y-5">
         <DialogTitle class="font-display text-xl font-bold text-foreground">Set Budget</DialogTitle>
         <form class="space-y-4" @submit.prevent="handleSetBudget">
+          <div
+            v-if="budgetStore.error"
+            class="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive"
+          >
+            <div class="flex items-start gap-2">
+              <AlertTriangle :size="18" class="mt-0.5 shrink-0" />
+              <div>
+                <p class="font-medium">Failed to create budget</p>
+                <p class="text-destructive/80 text-xs mt-0.5">{{ budgetStore.error }}</p>
+              </div>
+            </div>
+          </div>
+          <div
+            v-if="categoryStore.expenseCategories.length === 0"
+            class="rounded-lg bg-warning/10 border border-warning/20 p-3 text-sm text-warning"
+          >
+            <div class="flex items-start gap-2">
+              <AlertTriangle :size="18" class="mt-0.5 shrink-0" />
+              <div>
+                <p class="font-medium">No expense categories yet</p>
+                <p class="text-warning/80 text-xs mt-0.5">
+                  You need at least one category to create a budget.
+                </p>
+                <button
+                  type="button"
+                  class="mt-2 text-xs font-semibold underline underline-offset-2 hover:text-warning/90"
+                  @click="router.push('/categories'); showSetBudget = false"
+                >
+                  Go to Categories →
+                </button>
+              </div>
+            </div>
+          </div>
           <div class="space-y-1.5">
             <Label for="budget-category">Category</Label>
             <select
@@ -184,7 +227,7 @@ function handleReorder() {
           </div>
           <div class="flex gap-3 pt-3">
             <Button type="button" variant="outline" class="flex-1" @click="showSetBudget = false">Cancel</Button>
-            <Button type="submit" class="flex-1">Save</Button>
+            <Button type="submit" class="flex-1" :disabled="categoryStore.expenseCategories.length === 0">Save</Button>
           </div>
         </form>
       </div>

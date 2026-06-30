@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+import type { TooltipItem } from 'chart.js'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
 
@@ -35,7 +36,7 @@ const chartOptions = {
       padding: 10,
       cornerRadius: 8,
       callbacks: {
-        label: (ctx: any) => ' ' + ctx.label + ': ' + ctx.parsed + '%',
+        label: (ctx: TooltipItem<'doughnut'>) => ' ' + ctx.label + ': ' + ctx.parsed + '%',
       },
     },
   },

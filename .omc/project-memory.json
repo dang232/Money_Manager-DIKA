@@ -18,8 +18,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/frontend && npx vue-tsc --noEmit 2>&1 | grep -E \"(useDraggableList|CategoriesView|BudgetView)\" || echo \"No errors in modified files\"",
-    "testCommand": "cd C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/services/user-service && npm test 2>&1",
+    "buildCommand": "cd \"C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/frontend\" && pnpm run build 2>&1",
+    "testCommand": "cd C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA && npm test -- --testPathPattern=\"budget-flow\" 2>&1 | tail -50",
     "lintCommand": "pnpm lint",
     "devCommand": null,
     "scripts": {
@@ -166,8 +166,14 @@
     },
     {
       "path": "frontend\\package.json",
-      "accessCount": 10,
-      "lastAccessed": 1782734417212,
+      "accessCount": 11,
+      "lastAccessed": 1782805405494,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\api\\http-client.ts",
+      "accessCount": 11,
+      "lastAccessed": 1782805474386,
       "type": "file"
     },
     {
@@ -178,20 +184,44 @@
     },
     {
       "path": "docker-compose.yml",
-      "accessCount": 6,
-      "lastAccessed": 1782696552229,
+      "accessCount": 8,
+      "lastAccessed": 1782805228745,
       "type": "file"
     },
     {
       "path": "frontend\\e2e\\categories.spec.ts",
+      "accessCount": 7,
+      "lastAccessed": 1782782960549,
+      "type": "file"
+    },
+    {
+      "path": "frontend",
       "accessCount": 6,
-      "lastAccessed": 1782750675787,
+      "lastAccessed": 1782758565518,
+      "type": "directory"
+    },
+    {
+      "path": "services\\gateway\\src",
+      "accessCount": 6,
+      "lastAccessed": 1782786873623,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src\\views\\LoginView.vue",
+      "accessCount": 6,
+      "lastAccessed": 1782806599571,
       "type": "file"
     },
     {
       "path": "frontend\\src\\views\\DashboardView.vue",
       "accessCount": 5,
       "lastAccessed": 1782706537238,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\e2e\\budgets.spec.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782790361140,
       "type": "file"
     },
     {
@@ -213,15 +243,27 @@
       "type": "directory"
     },
     {
-      "path": "frontend",
-      "accessCount": 4,
-      "lastAccessed": 1782742657802,
-      "type": "directory"
-    },
-    {
       "path": "services\\gateway\\src\\app.module.ts",
       "accessCount": 4,
       "lastAccessed": 1782744264545,
+      "type": "file"
+    },
+    {
+      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782802853945,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\vite.config.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782804058153,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\views\\RegisterView.vue",
+      "accessCount": 4,
+      "lastAccessed": 1782806600371,
       "type": "file"
     },
     {
@@ -229,12 +271,6 @@
       "accessCount": 3,
       "lastAccessed": 1782635696706,
       "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src",
-      "accessCount": 3,
-      "lastAccessed": 1782696893292,
-      "type": "directory"
     },
     {
       "path": "services\\gateway\\src\\health\\health.controller.ts",
@@ -249,15 +285,21 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\http-client.ts",
+      "path": "frontend\\src\\router\\index.ts",
       "accessCount": 3,
-      "lastAccessed": 1782739527532,
+      "lastAccessed": 1782758641472,
       "type": "file"
     },
     {
-      "path": "frontend\\e2e\\budgets.spec.ts",
+      "path": "services\\gateway\\src\\proxy\\auth-proxy.controller.ts",
       "accessCount": 3,
-      "lastAccessed": 1782742684054,
+      "lastAccessed": 1782802792021,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\api\\auth.api.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782805474622,
       "type": "file"
     },
     {
@@ -285,52 +327,34 @@
       "type": "file"
     },
     {
-      "path": "frontend\\vite.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782696809979,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\api\\auth.api.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782697566177,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\views\\LoginView.vue",
-      "accessCount": 2,
-      "lastAccessed": 1782699638567,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\router\\index.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782706375283,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782739311490,
-      "type": "file"
-    },
-    {
       "path": "frontend\\playwright.config.ts",
       "accessCount": 2,
       "lastAccessed": 1782742674774,
       "type": "file"
     },
     {
-      "path": "frontend\\src\\views\\RegisterView.vue",
-      "accessCount": 1,
-      "lastAccessed": 1782632113382,
+      "path": "frontend\\e2e\\helpers\\auth.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782783216791,
       "type": "file"
     },
     {
-      "path": "frontend\\e2e\\helpers\\auth.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782632275347,
+      "path": "services\\gateway\\src\\middleware\\jwt-auth.middleware.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782786426565,
       "type": "file"
+    },
+    {
+      "path": "services\\gateway\\src\\proxy\\cookie-auth.helper.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782786915584,
+      "type": "file"
+    },
+    {
+      "path": "frontend/src",
+      "accessCount": 2,
+      "lastAccessed": 1782788707511,
+      "type": "directory"
     },
     {
       "path": "frontend\\e2e\\auth.spec.ts",
@@ -349,12 +373,6 @@
       "accessCount": 1,
       "lastAccessed": 1782632290519,
       "type": "file"
-    },
-    {
-      "path": "frontend/src",
-      "accessCount": 1,
-      "lastAccessed": 1782632395216,
-      "type": "directory"
     },
     {
       "path": "services/gateway/src",
@@ -435,27 +453,9 @@
       "type": "directory"
     },
     {
-      "path": "services\\gateway\\src\\proxy\\auth-proxy.controller.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782697710888,
-      "type": "file"
-    },
-    {
       "path": "services\\gateway\\src\\main.ts",
       "accessCount": 1,
       "lastAccessed": 1782697733751,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src\\proxy\\cookie-auth.helper.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782697733822,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src\\middleware\\jwt-auth.middleware.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782697759025,
       "type": "file"
     }
   ],

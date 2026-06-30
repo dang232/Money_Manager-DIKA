@@ -136,9 +136,10 @@ function registerVisibilityListener() {
   window.addEventListener('beforeunload', flushIfDirty);
 }
 
-export function useDraggableList<T extends { id: string }>(
+export function useDraggableList<T>(
   getItems: () => T[],
-  type: 'categories' | 'budgets'
+  type: 'categories' | 'budgets',
+  idKey: keyof T = 'id' as keyof T
 ) {
   // items starts empty, will be populated by watch
   const items = ref<T[]>([]) as Ref<T[]>;
@@ -146,59 +147,70 @@ export function useDraggableList<T extends { id: string }>(
   registerVisibilityListener();
   initializeLayout();
 
+  // Helper to get item id
+  const getItemId = (item: T): string => String(item[idKey]);
+
   // Watch layout changes and reorder items
   watch(sharedLayout, (layout) => {
-    const orderedIds = layout[type];
-    const currentItems = getItems();
+    try {
+      const orderedIds = layout[type];
+      const currentItems = getItems();
 
-    if (currentItems.length === 0) {
-      items.value = [];
-      return;
-    }
-
-    if (orderedIds.length === 0) {
-      // No saved order, use store order
-      items.value = [...currentItems];
-      return;
-    }
-
-    // Apply saved order
-    const ordered = orderedIds
-      .map(id => currentItems.find(item => item.id === id))
-      .filter((item): item is T => item !== undefined);
-
-    // Append new items not in saved order
-    for (const item of currentItems) {
-      if (!orderedIds.includes(item.id)) {
-        ordered.push(item);
+      if (currentItems.length === 0) {
+        items.value = [];
+        return;
       }
-    }
 
-    items.value = ordered;
+      if (orderedIds.length === 0) {
+        // No saved order, use store order
+        items.value = [...currentItems];
+        return;
+      }
+
+      // Apply saved order
+      const ordered = orderedIds
+        .map(id => currentItems.find(item => getItemId(item) === id))
+        .filter((item): item is T => item !== undefined);
+
+      // Append new items not in saved order
+      for (const item of currentItems) {
+        if (!orderedIds.includes(getItemId(item))) {
+          ordered.push(item);
+        }
+      }
+
+      items.value = ordered;
+    } catch (err) {
+      console.error('[useDraggableList] Error in sharedLayout watcher:', err);
+    }
   }, { immediate: true });
 
   // Also watch when getItems changes (store updated)
   watch(
     () => getItems(),
     (newItems) => {
-      if (newItems.length === 0) {
-        items.value = [];
-        return;
-      }
-      const orderedIds = sharedLayout.value[type];
-      if (orderedIds.length === 0) {
-        items.value = [...newItems];
-        return;
-      }
-      const ordered = orderedIds
-        .map(id => newItems.find(item => item.id === id))
-        .filter((item): item is T => item !== undefined);
-      for (const item of newItems) {
-        if (!orderedIds.includes(item.id)) {
-          ordered.push(item);
+      try {
+        if (newItems.length === 0) {
+          items.value = [];
+          return;
         }
+        const orderedIds = sharedLayout.value[type];
+        if (orderedIds.length === 0) {
+          items.value = [...newItems];
+          return;
+        }
+        const ordered = orderedIds
+          .map(id => newItems.find(item => getItemId(item) === id))
+          .filter((item): item is T => item !== undefined);
+        for (const item of newItems) {
+          if (!orderedIds.includes(getItemId(item))) {
+            ordered.push(item);
+          }
+        }
+        items.value = ordered;
+      } catch (err) {
+        console.error('[useDraggableList] Error in getItems watcher:', err);
       }
-      items.value = ordered;
     },
     { immediate: true }
   );
@@ -206,7 +218,7 @@ export function useDraggableList<T extends { id: string }>(
   function onDragEnd(newOrder: string[]) {
     const currentItems = getItems();
     const ordered = newOrder
-      .map(id => currentItems.find(item => item.id === id))
+      .map(id => currentItems.find(item => getItemId(item) === id))
       .filter((item): item is T => item !== undefined);
 
     items.value = ordered;

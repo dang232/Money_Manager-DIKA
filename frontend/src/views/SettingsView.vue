@@ -24,7 +24,7 @@ const saving = ref(false)
 const activeSection = ref('Profile')
 const sections = ['Profile', 'Accounts', 'Categories', 'Notifications', 'Security', 'Currency', 'Export Data']
 
-const userEmail = computed(() => authStore.user?.email ?? userStore.profile?.email ?? '')
+const userEmail = computed(() => authStore.user?.email ?? '')
 
 watch(
   () => userStore.profile,

@@ -11,13 +11,15 @@ export class CreateCategoryDto {
   @IsEnum(TransactionType)
   type!: TransactionType;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  icon!: string;
+  @MaxLength(50)
+  icon?: string;
 
+  @IsOptional()
   @IsString()
   @Matches(/^#[0-9a-fA-F]{6}$/)
-  color!: string;
+  color?: string;
 }
 
 export class UpdateCategoryDto {

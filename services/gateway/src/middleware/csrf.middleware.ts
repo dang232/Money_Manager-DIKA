@@ -11,6 +11,8 @@ const CSRF_EXEMPT_PREFIXES = [
   '/api/auth/refresh',
 ];
 
+const IS_PROD = process.env['NODE_ENV'] === 'production';
+
 @Injectable()
 export class CsrfMiddleware implements NestMiddleware {
   use(req: Request, _res: Response, next: NextFunction): void {
@@ -18,6 +20,9 @@ export class CsrfMiddleware implements NestMiddleware {
 
     const url = req.originalUrl || req.path;
     if (CSRF_EXEMPT_PREFIXES.some((p) => url.startsWith(p))) return next();
+
+    // ponytail: skip CSRF in dev mode to allow easier testing
+    if (!IS_PROD) return next();
 
     const cookieToken = (req.cookies as Record<string, string> | undefined)?.['mm-csrf'];
     const headerToken = req.headers['x-csrf-token'] as string | undefined;

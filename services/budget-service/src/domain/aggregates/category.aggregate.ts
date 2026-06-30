@@ -7,8 +7,8 @@ export interface CreateCategoryProps {
   userId: UserId;
   name: string;
   type: TransactionType;
-  icon: string;
-  color: string;
+  icon?: string;
+  color?: string;
 }
 
 export class Category {
@@ -32,8 +32,8 @@ export class Category {
 
   static create(props: CreateCategoryProps): Category {
     Category.validateName(props.name);
-    Category.validateColor(props.color);
-    return new Category(generateUuid(), props.userId, props.name.trim(), props.type, props.icon, props.color, new Date());
+    if (props.color) Category.validateColor(props.color);
+    return new Category(generateUuid(), props.userId, props.name.trim(), props.type, props.icon ?? '', props.color ?? '', new Date());
   }
 
   static reconstitute(id: string, userId: UserId, name: string, type: TransactionType, icon: string, color: string, createdAt: Date): Category {

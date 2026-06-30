@@ -26,8 +26,8 @@ async function handleRegister() {
   try {
     await authStore.register(email.value, password.value, displayName.value)
     router.push('/dashboard')
-  } catch (e: any) {
-    error.value = e?.response?.data?.message ?? 'Registration failed. Please try again.'
+  } catch (e: unknown) {
+    error.value = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Registration failed. Please try again.'
   } finally {
     loading.value = false
   }

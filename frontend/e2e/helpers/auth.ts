@@ -34,7 +34,7 @@ export async function loginAndGo(page: Page, path: string, options: { accessToke
   await seedAuth(page, options)
   // ponytail: App.vue calls /api/auth/me on mount — mock it so pages render
   await page.route('**/api/auth/me', (route) =>
-    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(MOCK_USER) }),
+    route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ user: MOCK_USER }) }),
   )
   await page.goto(path)
 }

@@ -7,8 +7,8 @@ export const useCategoryStore = defineStore('category', () => {
   const categories = ref<Category[]>([])
   const { loading, error, run } = useAsync()
 
-  const incomeCategories = computed(() => categories.value.filter((c) => c.type === 'income'))
-  const expenseCategories = computed(() => categories.value.filter((c) => c.type === 'expense'))
+  const incomeCategories = computed(() => categories.value.filter((c) => c.type.toLowerCase() === 'income'))
+  const expenseCategories = computed(() => categories.value.filter((c) => c.type.toLowerCase() === 'expense'))
   const byId = computed(() => {
     const map: Record<string, Category> = {}
     for (const c of categories.value) map[c.id] = c

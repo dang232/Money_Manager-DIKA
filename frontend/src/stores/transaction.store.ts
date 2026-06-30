@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { transactionApi, type Transaction, type CreateTransactionDto, type TransactionFilters } from '@/api/transaction.api'
+import { TransactionSchema } from '@/lib/schemas'
 import { useAsync } from '@/composables/use-async'
 import { useSocket } from '@/composables/useSocket'
 
@@ -38,9 +39,25 @@ export const useTransactionStore = defineStore('transaction', () => {
         ...filters,
       })
       // ponytail: interceptor unwraps ApiResponse — res.data is either the array or {data, total}
-      const payload = res.data as any
-      transactions.value = Array.isArray(payload) ? payload : (payload?.data ?? [])
-      pagination.value.total = Array.isArray(payload) ? payload.length : (payload?.total ?? 0)
+      const payload = res.data
+      if (Array.isArray(payload)) {
+        transactions.value = payload as Transaction[]
+        pagination.value.total = payload.length
+      } else if (payload && typeof payload === 'object' && 'data' in payload) {
+        const p = payload as { data?: Transaction[]; total?: number }
+        transactions.value = p.data ?? []
+        pagination.value.total = p.total ?? 0
+      } else {
+        transactions.value = []
+        pagination.value.total = 0
+      }
+
+      // Validate with Zod
+      const parsed = TransactionSchema.array().safeParse(transactions.value)
+      if (!parsed.success) {
+        console.warn('Invalid transaction data:', parsed.error)
+        transactions.value = []
+      }
     })
   }
 

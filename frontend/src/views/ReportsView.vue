@@ -11,6 +11,7 @@ import {
   Legend,
 } from 'chart.js'
 import { Calendar } from '@lucide/vue'
+import type { TooltipItem } from 'chart.js'
 import { Button } from '@/components/ui/button'
 import { useReportStore } from '@/stores/report.store'
 import { useCategoryStore } from '@/stores/category.store'
@@ -89,14 +90,14 @@ const trendOptions = {
       backgroundColor: '#0f172a',
       padding: 12,
       cornerRadius: 8,
-      callbacks: { label: (ctx: any) => ctx.dataset.label + ': ' + formatVND(ctx.parsed.y) },
+      callbacks: { label: (ctx: TooltipItem<'bar'>) => ctx.dataset.label + ': ' + formatVND(ctx.parsed.y ?? 0) },
     },
   },
   scales: {
     x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 12 }, color: '#64748b' } },
     y: {
       grid: { color: '#f1f5f9' },
-      ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', callback: (v: any) => '₫' + (v / 1000000).toFixed(0) + 'M' },
+      ticks: { font: { family: 'Inter', size: 11 }, color: '#94a3b8', callback: (v: number | string) => '₫' + (Number(v) / 1000000).toFixed(0) + 'M' },
     },
   },
 }

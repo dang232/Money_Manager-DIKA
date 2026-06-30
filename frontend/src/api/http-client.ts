@@ -18,11 +18,15 @@ function getCsrfToken(): string | null {
 }
 
 httpClient.interceptors.request.use((config) => {
+  console.log('HTTP Request:', config.method?.toUpperCase(), config.url, config.data)
   config.headers['X-Correlation-ID'] = crypto.randomUUID()
   const csrf = getCsrfToken()
+  console.log('CSRF Token:', csrf ? 'found' : 'NOT FOUND')
   if (csrf) {
     config.headers['X-CSRF-Token'] = csrf
   }
+  // Log all cookies
+  console.log('All cookies:', document.cookie)
   return config
 })
 
@@ -30,6 +34,7 @@ let refreshPromise: Promise<void> | null = null
 
 httpClient.interceptors.response.use(
   (response) => {
+    console.log('HTTP Response:', response.config.url, response.status, response.data)
     // ponytail: unwrap API envelope patterns:
     // - {success, data, error?, meta?} → standard envelope
     // - {data: {user}} → auth endpoints (no success field)
@@ -66,6 +71,11 @@ httpClient.interceptors.response.use(
     }
     if (error.response?.status === 503) {
       console.warn('Service unavailable:', error.config?.url)
+    }
+    // ponytail: extract API error message from envelope
+    const apiError = error.response?.data?.error
+    if (apiError?.message) {
+      error.message = apiError.message
     }
     return Promise.reject(error)
   },

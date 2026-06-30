@@ -17,18 +17,18 @@ const step = ref(1)
 
 // Step 1: Categories
 const defaultCategories = [
-  { name: 'Salary', type: 'income' as const },
-  { name: 'Freelance', type: 'income' as const },
-  { name: 'Food & Dining', type: 'expense' as const },
-  { name: 'Transportation', type: 'expense' as const },
-  { name: 'Shopping', type: 'expense' as const },
-  { name: 'Bills & Utilities', type: 'expense' as const },
-  { name: 'Entertainment', type: 'expense' as const },
-  { name: 'Healthcare', type: 'expense' as const },
+  { name: 'Salary', type: 'INCOME' as const },
+  { name: 'Freelance', type: 'INCOME' as const },
+  { name: 'Food & Dining', type: 'EXPENSE' as const },
+  { name: 'Transportation', type: 'EXPENSE' as const },
+  { name: 'Shopping', type: 'EXPENSE' as const },
+  { name: 'Bills & Utilities', type: 'EXPENSE' as const },
+  { name: 'Entertainment', type: 'EXPENSE' as const },
+  { name: 'Healthcare', type: 'EXPENSE' as const },
 ]
 const selectedCategories = ref<number[]>([0, 2, 3, 4, 5])
 const customCategory = ref('')
-const customCategories = ref<{ name: string; type: 'income' | 'expense' }[]>([])
+const customCategories = ref<{ name: string; type: 'INCOME' | 'EXPENSE' }[]>([])
 
 function toggleCategory(idx: number) {
   const i = selectedCategories.value.indexOf(idx)
@@ -38,7 +38,7 @@ function toggleCategory(idx: number) {
 
 function addCustom() {
   if (!customCategory.value.trim()) return
-  customCategories.value.push({ name: customCategory.value.trim(), type: 'expense' })
+  customCategories.value.push({ name: customCategory.value.trim(), type: 'EXPENSE' })
   customCategory.value = ''
 }
 

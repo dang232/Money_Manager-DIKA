@@ -25,8 +25,8 @@ async function handleLogin() {
   try {
     await authStore.login(email.value, password.value)
     router.push('/dashboard')
-  } catch (e: any) {
-    error.value = e?.response?.data?.message ?? 'Login failed. Please check your credentials.'
+  } catch (e: unknown) {
+    error.value = (e as { response?: { data?: { message?: string } } })?.response?.data?.message ?? 'Login failed. Please check your credentials.'
   } finally {
     loading.value = false
   }
