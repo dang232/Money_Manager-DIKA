@@ -18,7 +18,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "pnpm build 2>&1 | tail -15",
+    "buildCommand": "pnpm exec tsc --noEmit 2>&1 | head -10",
     "testCommand": "pnpm test --filter '!@money-manager/e2e-tests' 2>&1 | grep -E \"(Test Suites|Tests:|PASS|FAIL)\" | tail -20",
     "lintCommand": "pnpm lint",
     "devCommand": null,
@@ -180,16 +180,16 @@
       "type": "directory"
     },
     {
+      "path": "frontend\\src\\api\\http-client.ts",
+      "accessCount": 16,
+      "lastAccessed": 1782851276910,
+      "type": "file"
+    },
+    {
       "path": "services",
       "accessCount": 14,
       "lastAccessed": 1782825115646,
       "type": "directory"
-    },
-    {
-      "path": "frontend\\src\\api\\http-client.ts",
-      "accessCount": 13,
-      "lastAccessed": 1782824214628,
-      "type": "file"
     },
     {
       "path": "services\\gateway\\src\\proxy\\dashboard.controller.ts",
@@ -258,15 +258,15 @@
       "type": "file"
     },
     {
-      "path": "services\\transaction-service\\src\\presentation\\dtos\\update-transaction.dto.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782823454718,
+      "path": "frontend\\src\\api\\auth.api.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782851002209,
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\auth.api.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782823299056,
+      "path": "services\\transaction-service\\src\\presentation\\dtos\\update-transaction.dto.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782823454718,
       "type": "file"
     },
     {

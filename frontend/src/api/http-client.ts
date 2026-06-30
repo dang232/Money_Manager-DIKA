@@ -1,7 +1,4 @@
 import axios from 'axios'
-import { useToast } from '@/composables/useToast'
-
-const { error: showError } = useToast()
 
 const httpClient = axios.create({
   baseURL: '/api',
@@ -71,7 +68,7 @@ httpClient.interceptors.response.use(
     if (status && status >= 500) {
       const msg = error.response?.data?.error?.message || error.message || 'Server error'
       console.error(`[${status}]`, error.config?.url, msg)
-      showError(`Server error (${status}): ${msg}`)
+      // ponytail: toast shown via LoginView error state
     }
     if (status === 503) {
       // ponytail: service unavailable — will retry via circuit breaker

@@ -32,7 +32,7 @@ export const authApi = {
   },
   // ponytail: refresh token comes from mm-rt HttpOnly cookie — no body needed
   refresh() {
-    return httpClient.post<Record<string, never>>('/auth/refresh', {})
+    return httpClient.post('/auth/refresh', {})
   },
   // ponytail: refresh token comes from mm-rt HttpOnly cookie — no body needed
   logout() {
