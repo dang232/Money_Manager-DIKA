@@ -1,7 +1,8 @@
 // ponytail: unit tests for UpdateTransactionHandler
 import { UpdateTransactionHandler } from './update-transaction.handler';
 import { UpdateTransactionCommand } from '../commands/update-transaction.command';
-import { TransactionType, NotFoundException } from '@money-manager/shared-kernel';
+import { TransactionType } from '@money-manager/shared-kernel';
+import { NotFoundException } from '@nestjs/common';
 import { Transaction } from '../../domain/aggregates/transaction.aggregate';
 
 describe('UpdateTransactionHandler', () => {

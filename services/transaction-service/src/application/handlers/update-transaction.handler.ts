@@ -17,7 +17,7 @@ export class UpdateTransactionHandler {
   async execute(cmd: UpdateTransactionCommand): Promise<Transaction> {
     const transaction = await this.repo.findById(cmd.id);
     if (!transaction) {
-      throw new NotFoundException('Transaction', cmd.id);
+      throw new NotFoundException(`Transaction with id "${cmd.id}" not found`);
     }
 
     // FIXED: Verify the transaction belongs to the requesting user

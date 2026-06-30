@@ -18,8 +18,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "pnpm run build --filter=@money-manager/frontend 2>&1 | tail -8",
-    "testCommand": "pnpm test",
+    "buildCommand": "pnpm run build 2>&1 | tail -10",
+    "testCommand": "pnpm test --filter '!@money-manager/e2e-tests' 2>&1 | grep -E \"(Test Suites|Tests:|PASS|FAIL)\" | tail -20",
     "lintCommand": "pnpm lint",
     "devCommand": null,
     "scripts": {

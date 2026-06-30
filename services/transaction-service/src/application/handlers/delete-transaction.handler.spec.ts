@@ -1,7 +1,8 @@
 // ponytail: unit tests for DeleteTransactionHandler
 import { DeleteTransactionHandler } from './delete-transaction.handler';
 import { DeleteTransactionCommand } from '../commands/delete-transaction.command';
-import { TransactionType, NotFoundException } from '@money-manager/shared-kernel';
+import { TransactionType } from '@money-manager/shared-kernel';
+import { NotFoundException } from '@nestjs/common';
 import { Transaction } from '../../domain/aggregates/transaction.aggregate';
 
 describe('DeleteTransactionHandler', () => {
