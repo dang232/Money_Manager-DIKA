@@ -18,7 +18,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "pnpm run build 2>&1 | tail -10",
+    "buildCommand": "pnpm build 2>&1 | tail -15",
     "testCommand": "pnpm test --filter '!@money-manager/e2e-tests' 2>&1 | grep -E \"(Test Suites|Tests:|PASS|FAIL)\" | tail -20",
     "lintCommand": "pnpm lint",
     "devCommand": null,

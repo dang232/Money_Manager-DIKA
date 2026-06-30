@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc --noEmit",
-    "dev": "tsc --watch --noEmit"
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
