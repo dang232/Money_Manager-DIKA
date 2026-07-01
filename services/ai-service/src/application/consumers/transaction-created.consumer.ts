@@ -1,9 +1,11 @@
 // ponytail: listens for transaction.created events, triggers AI suggestion
 import { Injectable, Inject, OnModuleInit } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { EventBusPort, DomainEvent } from '@money-manager/shared-kernel';
 import { EVENT_BUS_PORT, LOGGER_TOKEN } from '@money-manager/shared-kernel';
 import { SuggestCategoryHandler } from '../handlers/suggest-category.handler';
 import { SuggestCategoryCommand } from '../commands/suggest-category.command';
+import { aiConfig, AI_CONFIG_KEY } from '../../config/ai.config';
 
 interface Logger { info(msg: string, meta?: any): void; error(msg: string, meta?: any): void; }
 
@@ -15,6 +17,7 @@ export class TransactionCreatedConsumer implements OnModuleInit {
   constructor(
     @Inject(EVENT_BUS_PORT) private readonly eventBus: EventBusPort,
     @Inject(LOGGER_TOKEN) private readonly logger: Logger,
+    @Inject(AI_CONFIG_KEY) private readonly config: ConfigType<typeof aiConfig>,
     private readonly suggestHandler: SuggestCategoryHandler,
   ) {}
 
@@ -29,7 +32,7 @@ export class TransactionCreatedConsumer implements OnModuleInit {
     const payload = event.payload as { description?: string; userId?: string; categoryId?: string } | undefined;
     if (!payload?.description) return;
 
-    // Fetch categories from budget-service
+    // Fetch categories from budget-service using config
     const categories = await this.fetchCategories(payload.userId ?? '');
     if (categories.length === 0) return;
 
@@ -48,9 +51,8 @@ export class TransactionCreatedConsumer implements OnModuleInit {
   }
 
   private async fetchCategories(userId: string): Promise<{ id: string; name: string; type: any }[]> {
-    const budgetServiceUrl = process.env['BUDGET_SERVICE_URL'] ?? 'http://localhost:3002';
     try {
-      const res = await fetch(`${budgetServiceUrl}/categories?userId=${userId}`);
+      const res = await fetch(`${this.config.budgetServiceUrl}/categories?userId=${userId}`);
       if (!res.ok) return [];
       return await res.json() as any[];
     } catch {
