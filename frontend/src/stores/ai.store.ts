@@ -11,7 +11,8 @@ export const useAiStore = defineStore('ai', () => {
     loading.value = true
     try {
       const { data } = await aiApi.getInsights()
-      insights.value = data.data.insights
+      // interceptor unwraps {data: {insights}} → {insights}
+      insights.value = data.insights
     } finally {
       loading.value = false
     }
@@ -21,7 +22,8 @@ export const useAiStore = defineStore('ai', () => {
     loading.value = true
     try {
       const { data } = await aiApi.generateInsights()
-      insights.value = data.data.insights
+      // interceptor unwraps {data: {insights}} → {insights}
+      insights.value = data.insights
     } finally {
       loading.value = false
     }
