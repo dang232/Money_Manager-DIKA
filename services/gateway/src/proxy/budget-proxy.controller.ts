@@ -1,5 +1,5 @@
 // ponytail: budget proxy — forwards /api/budgets and /api/categories to budget service
-import { Controller, Get, Post, Put, Delete, Param, Body, Req } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, Req, Query } from '@nestjs/common';
 import { Request } from 'express';
 import { HttpProxyService } from './http-proxy.service';
 
@@ -35,6 +35,12 @@ export class BudgetProxyController {
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: Request) {
     return this.proxy.request('budget', 'DELETE', `/budgets/${id}`, req);
+  }
+
+  // Handle DELETE with query params (categoryId, year, month)
+  @Delete()
+  removeByQuery(@Req() req: Request) {
+    return this.proxy.request('budget', 'DELETE', '/budgets', req);
   }
 }
 

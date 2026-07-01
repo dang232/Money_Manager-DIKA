@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogTitle } from '@/components/ui/dialog'
-import { Plus, PiggyBank, GripVertical, AlertTriangle } from '@lucide/vue'
+import { Plus, PiggyBank, GripVertical, AlertTriangle, Trash2 } from '@lucide/vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -61,6 +61,10 @@ function getBarGradient(pct: number): string {
 
 function handleReorder() {
   // ponytail: drag reorder disabled until composable is fixed
+}
+
+async function handleDeleteBudget(categoryId: string) {
+  await budgetStore.deleteBudget(categoryId)
 }
 </script>
 
@@ -121,6 +125,10 @@ function handleReorder() {
             </div>
             <Button variant="ghost" size="sm" @click="openSetBudget(b.categoryId)">
               Edit
+            </Button>
+            <Button variant="ghost" size="icon" class="h-8 w-8 text-destructive hover:text-destructive" @click="handleDeleteBudget(b.categoryId)">
+              <Trash2 :size="14" />
+              <span class="sr-only">Delete</span>
             </Button>
           </div>
 

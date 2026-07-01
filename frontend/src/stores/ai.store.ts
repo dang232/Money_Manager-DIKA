@@ -32,7 +32,7 @@ export const useAiStore = defineStore('ai', () => {
     loading.value = true
     try {
       const { data } = await aiApi.chat(chatMessages.value)
-      chatMessages.value.push({ role: 'assistant', content: data.data.reply })
+      chatMessages.value.push({ role: 'assistant', content: data.reply })
     } finally {
       loading.value = false
     }

@@ -1,7 +1,7 @@
 // ponytail: Anthropic adapter — calls Anthropic Messages API via proxy
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
-import { AiProviderPort, CategoryInfo, CategorySuggestion, AI_PROVIDER } from '../../domain/interfaces/ai-provider.port';
+import { AiProviderPort, CategoryInfo, CategorySuggestion, AI_PROVIDER, ChatMessage, ChatResponse, Insight } from '../../domain/interfaces/ai-provider.port';
 import { aiConfig } from '../../config/ai.config';
 
 @Injectable()
@@ -104,5 +104,82 @@ Categorize this transaction.`;
       confidence: 0.3,
       reasoning: 'fallback',
     };
+  }
+
+  async chat(messages: ChatMessage[]): Promise<ChatResponse> {
+    const systemPrompt = 'You are a helpful personal finance assistant. Keep responses concise and actionable. Never provide financial advice that could be considered investment advice.';
+    const allMessages = [
+      { role: 'system', content: systemPrompt },
+      ...messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
+    ];
+
+    const controller = new AbortController();
+    // Chat needs more time than category suggestions
+    const timeout = setTimeout(() => controller.abort(), 30000);
+
+    try {
+      // Use OpenAI-compatible endpoint for proxy with x-api-key auth
+      const res = await fetch(`${this.config.apiBaseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'x-api-key': this.config.apiKey,
+        },
+        body: JSON.stringify({
+          model: this.config.modelName,
+          messages: allMessages,
+          max_tokens: this.config.maxTokens,
+          temperature: 0.7,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error(`[AnthropicAdapter] Chat error ${res.status}:`, errorText);
+        return { reply: 'Sorry, I encountered an error. Please try again.' };
+      }
+
+      const data = await res.json() as any;
+      // Extract text from Anthropic response format
+      const textContent = data.content?.find((c: any) => c.type === 'text');
+      const reply = textContent?.text ?? data.choices?.[0]?.message?.content ?? 'I could not generate a response.';
+      return { reply };
+    } catch (err) {
+      clearTimeout(timeout);
+      console.error('[AnthropicAdapter] Chat fetch error:', err);
+      return { reply: 'Sorry, I encountered an error. Please try again.' };
+    }
+  }
+
+  async getInsights(userId: string): Promise<Insight[]> {
+    return this.mockInsights();
+  }
+
+  async generateInsights(userId: string): Promise<Insight[]> {
+    return this.mockInsights();
+  }
+
+  private mockInsights(): Insight[] {
+    return [
+      {
+        title: 'Track Your Spending',
+        body: 'Regular tracking helps identify spending patterns.',
+        type: 'tip',
+      },
+      {
+        title: 'Set Budget Goals',
+        body: 'Create monthly budgets for each category.',
+        type: 'tip',
+      },
+      {
+        title: 'Review Weekly',
+        body: 'Check your finances weekly to stay on track.',
+        type: 'tip',
+      },
+    ];
   }
 }
