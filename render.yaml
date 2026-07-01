@@ -2,7 +2,6 @@ services:
   - type: web
     name: mm-gateway
     env: node
-    plan: free
     buildCommand: pnpm install --frozen-lockfile && pnpm --filter gateway build
     startCommand: node services/gateway/dist/main.js
     envVars:
@@ -27,8 +26,7 @@ services:
   - type: web
     name: mm-transaction
     env: node
-    plan: free
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter transaction-service build
+        buildCommand: pnpm install --frozen-lockfile && pnpm --filter transaction-service build
     startCommand: node services/transaction-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -48,8 +46,7 @@ services:
   - type: web
     name: mm-budget
     env: node
-    plan: free
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter budget-service build
+        buildCommand: pnpm install --frozen-lockfile && pnpm --filter budget-service build
     startCommand: node services/budget-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -69,8 +66,7 @@ services:
   - type: web
     name: mm-ai
     env: node
-    plan: free
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter ai-service build
+        buildCommand: pnpm install --frozen-lockfile && pnpm --filter ai-service build
     startCommand: node services/ai-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -92,8 +88,7 @@ services:
   - type: worker
     name: mm-worker
     env: node
-    plan: free
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter worker-service build
+        buildCommand: pnpm install --frozen-lockfile && pnpm --filter worker-service build
     startCommand: node services/worker-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -113,8 +108,7 @@ services:
   - type: web
     name: mm-frontend
     env: static
-    plan: free
-    buildCommand: cd frontend && pnpm install && pnpm build
+        buildCommand: cd frontend && pnpm install && pnpm build
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
@@ -123,9 +117,8 @@ services:
 
 databases:
   - name: mm-postgres
-    plan: free
-    databaseName: money_manager
+        databaseName: money_manager
     user: mm_user
 
   - name: mm-redis
-    plan: free
+    
