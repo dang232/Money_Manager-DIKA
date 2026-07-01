@@ -33,6 +33,9 @@ export const budgetApi = {
   setBudget(dto: SetBudgetDto) {
     return httpClient.post('/budgets', dto)
   },
+  deleteBudget(categoryId: string, year: number, month: number) {
+    return httpClient.delete('/budgets', { params: { categoryId, year, month } })
+  },
   getProjections(year: number, month: number) {
     return httpClient.get<BudgetProjection[]>(`/budgets/projections`, { params: { year, month } })
   },

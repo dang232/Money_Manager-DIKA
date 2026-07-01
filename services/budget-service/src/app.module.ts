@@ -16,6 +16,7 @@ import { GetCategoriesHandler } from './application/handlers/get-categories.hand
 import { SetBudgetHandler } from './application/handlers/set-budget.handler';
 import { GetBudgetStatusHandler } from './application/handlers/get-budget-status.handler';
 import { GetBudgetProjectionsHandler } from './application/handlers/get-budget-projections.handler';
+import { DeleteBudgetHandler } from './application/handlers/delete-budget.handler';
 import { UpdateRunningTotalHandler } from './application/handlers/update-running-total.handler';
 import { TransactionCreatedConsumer } from './application/consumers/transaction-created.consumer';
 import { TransactionDeletedConsumer } from './application/consumers/transaction-deleted.consumer';
@@ -60,6 +61,7 @@ import { HealthController } from './presentation/controllers/health.controller';
     SetBudgetHandler,
     GetBudgetStatusHandler,
     GetBudgetProjectionsHandler,
+    DeleteBudgetHandler,
     UpdateRunningTotalHandler,
     // consumers
     TransactionCreatedConsumer,

@@ -182,7 +182,7 @@ function clearFilters() {
             <Button
               variant="ghost"
               size="icon"
-              class="opacity-0 group-hover:opacity-100 h-8 w-8 text-destructive hover:text-destructive"
+              class="h-8 w-8 text-destructive hover:text-destructive"
               @click.stop="handleDelete(tx.id)"
             >
               <Trash2 :size="14" />

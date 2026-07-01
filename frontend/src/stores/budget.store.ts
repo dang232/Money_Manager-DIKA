@@ -34,6 +34,14 @@ export const useBudgetStore = defineStore('budget', () => {
     })
   }
 
+  async function deleteBudget(categoryId: string, year?: number, month?: number) {
+    const { y, m } = currentYearMonth(year, month)
+    await run(async () => {
+      await budgetApi.deleteBudget(categoryId, y, m)
+      budgets.value = budgets.value.filter(b => b.categoryId !== categoryId)
+    })
+  }
+
   async function fetchProjections(year?: number, month?: number) {
     const { y, m } = currentYearMonth(year, month)
     await run(async () => {
@@ -71,5 +79,5 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   })
 
-  return { budgets, projections, loading, error, exceededBudgets, warningBudgets, fetchStatus, setBudget, fetchProjections, onBudgetUpdated }
+  return { budgets, projections, loading, error, exceededBudgets, warningBudgets, fetchStatus, setBudget, deleteBudget, fetchProjections, onBudgetUpdated }
 })

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1782821444636,
+  "lastScanned": 1782907928313,
   "projectRoot": "C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA",
   "techStack": {
     "languages": [
@@ -18,8 +18,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd \"C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA\\services\\ai-service\" && pnpm build 2>&1 && cd ../.. && node services/ai-service/dist/services/ai-service/src/main.js 2>&1",
-    "testCommand": "cd /c/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/services/ai-service && pnpm test",
+    "buildCommand": "pnpm build",
+    "testCommand": "pnpm test",
     "lintCommand": "pnpm lint",
     "devCommand": null,
     "scripts": {
@@ -54,9 +54,10 @@
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 1,
-      "lastAccessed": 1782821444406,
+      "fileCount": 2,
+      "lastAccessed": 1782907928268,
       "keyFiles": [
+        "BUGS-MULTI-USER-ISOLATION.md",
         "PROJECT.md"
       ]
     },
@@ -64,7 +65,7 @@
       "path": "frontend",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1782821444415,
+      "lastAccessed": 1782907928269,
       "keyFiles": [
         "components.json",
         "Dockerfile",
@@ -77,7 +78,7 @@
       "path": "infra",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1782821444443,
+      "lastAccessed": 1782907928279,
       "keyFiles": [
         "loki-config.yml"
       ]
@@ -86,14 +87,14 @@
       "path": "packages",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1782821444445,
+      "lastAccessed": 1782907928280,
       "keyFiles": []
     },
     "screenshots": {
       "path": "screenshots",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1782821444446,
+      "lastAccessed": 1782907928282,
       "keyFiles": [
         "01-dashboard.png",
         "02-after-logout.png",
@@ -106,7 +107,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1782821444447,
+      "lastAccessed": 1782907928283,
       "keyFiles": [
         "gen-certs.cmd",
         "gen-certs.sh"
@@ -116,14 +117,14 @@
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 0,
-      "lastAccessed": 1782821444448,
+      "lastAccessed": 1782907928283,
       "keyFiles": []
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 2,
-      "lastAccessed": 1782821444448,
+      "lastAccessed": 1782907928284,
       "keyFiles": [
         "package.json",
         "tsconfig.json"
@@ -133,7 +134,7 @@
       "path": "frontend\\dist",
       "purpose": "Distribution/build output",
       "fileCount": 1,
-      "lastAccessed": 1782821444450,
+      "lastAccessed": 1782907928285,
       "keyFiles": [
         "index.html"
       ]
@@ -142,7 +143,7 @@
       "path": "infra\\migrations",
       "purpose": "Database migrations",
       "fileCount": 1,
-      "lastAccessed": 1782821444451,
+      "lastAccessed": 1782907928286,
       "keyFiles": [
         "001_create_card_layouts.sql"
       ]
@@ -151,7 +152,7 @@
       "path": "tests\\helpers",
       "purpose": "Helper functions",
       "fileCount": 4,
-      "lastAccessed": 1782821444465,
+      "lastAccessed": 1782907928289,
       "keyFiles": [
         "http.ts",
         "reset-db.ts",
@@ -162,33 +163,33 @@
       "path": "tests\\node_modules",
       "purpose": "Dependencies",
       "fileCount": 0,
-      "lastAccessed": 1782821444474,
+      "lastAccessed": 1782907928290,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
       "path": "frontend\\src",
-      "accessCount": 34,
-      "lastAccessed": 1782895041702,
+      "accessCount": 38,
+      "lastAccessed": 1782912032466,
       "type": "directory"
     },
     {
       "path": "",
-      "accessCount": 31,
-      "lastAccessed": 1782894944326,
+      "accessCount": 33,
+      "lastAccessed": 1782908152515,
       "type": "directory"
     },
     {
       "path": "frontend\\src\\api\\http-client.ts",
-      "accessCount": 22,
-      "lastAccessed": 1782900257607,
+      "accessCount": 23,
+      "lastAccessed": 1782908513903,
       "type": "file"
     },
     {
       "path": "services",
-      "accessCount": 15,
-      "lastAccessed": 1782852348443,
+      "accessCount": 16,
+      "lastAccessed": 1782908162417,
       "type": "directory"
     },
     {
@@ -204,6 +205,18 @@
       "type": "file"
     },
     {
+      "path": "frontend\\src\\api\\budget.api.ts",
+      "accessCount": 9,
+      "lastAccessed": 1782911540103,
+      "type": "file"
+    },
+    {
+      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
+      "accessCount": 9,
+      "lastAccessed": 1782911843403,
+      "type": "file"
+    },
+    {
       "path": "services\\transaction-service\\src\\presentation\\controllers\\transaction.controller.ts",
       "accessCount": 7,
       "lastAccessed": 1782823813363,
@@ -216,27 +229,21 @@
       "type": "file"
     },
     {
-      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
+      "path": "frontend",
       "accessCount": 7,
-      "lastAccessed": 1782880395946,
+      "lastAccessed": 1782908481933,
+      "type": "directory"
+    },
+    {
+      "path": "frontend\\src\\api\\transaction.api.ts",
+      "accessCount": 7,
+      "lastAccessed": 1782909529937,
       "type": "file"
     },
     {
       "path": "frontend\\src\\api\\auth.api.ts",
       "accessCount": 6,
       "lastAccessed": 1782851561204,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\api\\budget.api.ts",
-      "accessCount": 6,
-      "lastAccessed": 1782892500376,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\api\\transaction.api.ts",
-      "accessCount": 6,
-      "lastAccessed": 1782895016611,
       "type": "file"
     },
     {
@@ -264,12 +271,6 @@
       "type": "file"
     },
     {
-      "path": "frontend",
-      "accessCount": 5,
-      "lastAccessed": 1782824522274,
-      "type": "directory"
-    },
-    {
       "path": "services\\transaction-service\\src\\infrastructure\\persistence\\transaction.repository.impl.ts",
       "accessCount": 5,
       "lastAccessed": 1782824673586,
@@ -282,16 +283,22 @@
       "type": "file"
     },
     {
-      "path": "services\\transaction-service\\src\\presentation\\dtos\\update-transaction.dto.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782823454718,
+      "path": "frontend\\src\\views\\TransactionsView.vue",
+      "accessCount": 5,
+      "lastAccessed": 1782909542427,
       "type": "file"
     },
     {
       "path": "services\\gateway\\src",
-      "accessCount": 4,
-      "lastAccessed": 1782892345166,
+      "accessCount": 5,
+      "lastAccessed": 1782911818995,
       "type": "directory"
+    },
+    {
+      "path": "services\\transaction-service\\src\\presentation\\dtos\\update-transaction.dto.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782823454718,
+      "type": "file"
     },
     {
       "path": "services\\budget-service\\src\\domain\\aggregates\\budget.aggregate.ts",
@@ -315,12 +322,6 @@
       "path": "services\\budget-service\\src\\presentation\\dtos\\budget.dto.ts",
       "accessCount": 3,
       "lastAccessed": 1782880845465,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\views\\TransactionsView.vue",
-      "accessCount": 3,
-      "lastAccessed": 1782880940339,
       "type": "file"
     },
     {
@@ -348,15 +349,15 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\user.api.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782822820878,
+      "path": "frontend\\src\\api\\ai.api.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782908502345,
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\ai.api.ts",
+      "path": "frontend\\src\\api\\user.api.ts",
       "accessCount": 2,
-      "lastAccessed": 1782822821931,
+      "lastAccessed": 1782822820878,
       "type": "file"
     },
     {

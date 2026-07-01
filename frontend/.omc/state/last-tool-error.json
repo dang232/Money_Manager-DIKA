@@ -1,7 +1,7 @@
 {
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"docker exec kafka ls /opt/ 2>&1\",\"description\":\"Check kafka container structure\"}",
-  "error": "Exit code 1\nls: C:/Program Files/Git/opt/: No such file or directory",
-  "timestamp": "2026-07-01T09:33:37.642Z",
+  "tool_name": "mcp__Claude_Preview__preview_screenshot",
+  "tool_input_preview": "{\"serverId\":\"e005986f-5f17-4ad0-b6ad-68f1a24f981a\"}",
+  "error": "preview_screenshot timed out after 30s. The preview window may be stuck (modal dialog, navigation hang, or unresponsive renderer). Check preview_console_logs for errors.",
+  "timestamp": "2026-07-01T12:46:04.580Z",
   "retry_count": 1
 }

@@ -60,7 +60,7 @@ export class HttpProxyService implements OnModuleInit {
       method,
       url: `${baseUrl}${path}`,
       data,
-      params: method === 'GET' ? req?.query : undefined,
+      params: ['GET', 'DELETE'].includes(method) ? req?.query : undefined,
       headers: {
         'Content-Type': 'application/json',
         ...(correlationId ? { [CORRELATION_ID_HEADER]: correlationId } : {}),

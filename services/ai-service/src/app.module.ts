@@ -6,6 +6,8 @@ import { aiConfig } from './config/ai.config';
 import { AiController } from './presentation/controllers/ai.controller';
 import { HealthController } from './presentation/controllers/health.controller';
 import { SuggestCategoryHandler } from './application/handlers/suggest-category.handler';
+import { ChatHandler } from './application/handlers/chat.handler';
+import { InsightsHandler } from './application/handlers/insights.handler';
 import { TransactionCreatedConsumer } from './application/consumers/transaction-created.consumer';
 import { aiProviderFactory } from './infrastructure/providers/ai-provider.factory';
 
@@ -19,6 +21,8 @@ import { aiProviderFactory } from './infrastructure/providers/ai-provider.factor
   providers: [
     aiProviderFactory,
     SuggestCategoryHandler,
+    ChatHandler,
+    InsightsHandler,
     TransactionCreatedConsumer,
   ],
 })

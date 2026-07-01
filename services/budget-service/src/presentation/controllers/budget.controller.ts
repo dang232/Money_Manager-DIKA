@@ -1,10 +1,12 @@
 // ponytail: budget REST controller
-import { Controller, Get, Post, Body, Query, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { UserId, ApiResponse, CurrentUser } from '@money-manager/shared-kernel';
 import { SetBudgetHandler } from '../../application/handlers/set-budget.handler';
 import { GetBudgetStatusHandler } from '../../application/handlers/get-budget-status.handler';
 import { GetBudgetProjectionsHandler } from '../../application/handlers/get-budget-projections.handler';
+import { DeleteBudgetHandler } from '../../application/handlers/delete-budget.handler';
 import { SetBudgetCommand } from '../../application/commands/set-budget.command';
+import { DeleteBudgetCommand } from '../../application/commands/delete-budget.command';
 import { GetBudgetStatusQuery } from '../../application/queries/get-budget-status.query';
 import { GetBudgetProjectionsQuery } from '../../application/queries/get-budget-projections.query';
 import { SetBudgetDto, BudgetStatusResponseDto, BudgetProjectionResponseDto } from '../dtos/budget.dto';
@@ -15,6 +17,7 @@ export class BudgetController {
     private readonly setHandler: SetBudgetHandler,
     private readonly statusHandler: GetBudgetStatusHandler,
     private readonly projectionsHandler: GetBudgetProjectionsHandler,
+    private readonly deleteHandler: DeleteBudgetHandler,
   ) {}
 
   @Post()
@@ -59,5 +62,19 @@ export class BudgetController {
     const month = monthStr ? parseInt(monthStr, 10) : now.getMonth() + 1;
     const projections = await this.projectionsHandler.execute(new GetBudgetProjectionsQuery(userId.value, year, month));
     return ApiResponse.ok(projections);
+  }
+
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete(
+    @CurrentUser() userId: UserId,
+    @Query('categoryId') categoryId: string,
+    @Query('year') yearStr?: string,
+    @Query('month') monthStr?: string,
+  ) {
+    const now = new Date();
+    const year = yearStr ? parseInt(yearStr, 10) : now.getFullYear();
+    const month = monthStr ? parseInt(monthStr, 10) : now.getMonth() + 1;
+    await this.deleteHandler.execute(new DeleteBudgetCommand(categoryId, userId.value, year, month));
   }
 }
