@@ -15,18 +15,35 @@ services:
           name: mm-redis
           property: connectionString
       - key: TRANSACTION_SERVICE_URL
-        value: https://mm-transaction.onrender.com
+        fromService:
+          type: web
+          name: mm-transaction
+          property: url
       - key: BUDGET_SERVICE_URL
-        value: https://mm-budget.onrender.com
+        fromService:
+          type: web
+          name: mm-budget
+          property: url
       - key: AI_SERVICE_URL
-        value: https://mm-ai.onrender.com
+        fromService:
+          type: web
+          name: mm-ai
+          property: url
       - key: AUTH_SERVICE_URL
-        value: https://mm-auth.onrender.com
+        fromService:
+          type: web
+          name: mm-auth
+          property: url
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: mm-user
+          property: url
 
   - type: web
     name: mm-transaction
     env: node
-        buildCommand: pnpm install --frozen-lockfile && pnpm --filter transaction-service build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter transaction-service build
     startCommand: node services/transaction-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -46,7 +63,7 @@ services:
   - type: web
     name: mm-budget
     env: node
-        buildCommand: pnpm install --frozen-lockfile && pnpm --filter budget-service build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter budget-service build
     startCommand: node services/budget-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -64,9 +81,39 @@ services:
           property: connectionString
 
   - type: web
+    name: mm-auth
+    env: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter auth-service build
+    startCommand: node services/auth-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mm-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+  - type: web
+    name: mm-user
+    env: node
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter user-service build
+    startCommand: node services/user-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mm-postgres
+          property: connectionString
+
+  - type: web
     name: mm-ai
     env: node
-        buildCommand: pnpm install --frozen-lockfile && pnpm --filter ai-service build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter ai-service build
     startCommand: node services/ai-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -88,7 +135,7 @@ services:
   - type: worker
     name: mm-worker
     env: node
-        buildCommand: pnpm install --frozen-lockfile && pnpm --filter worker-service build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter worker-service build
     startCommand: node services/worker-service/dist/main.js
     envVars:
       - key: NODE_ENV
@@ -108,7 +155,7 @@ services:
   - type: web
     name: mm-frontend
     env: static
-        buildCommand: cd frontend && pnpm install && pnpm build
+    buildCommand: cd frontend && pnpm install && pnpm build
     staticPublishPath: frontend/dist
     routes:
       - type: rewrite
@@ -117,8 +164,7 @@ services:
 
 databases:
   - name: mm-postgres
-        databaseName: money_manager
+    databaseName: money_manager
     user: mm_user
 
   - name: mm-redis
-    
