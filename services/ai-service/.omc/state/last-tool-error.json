@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"C:\\\\Users\\\\dangq\\\\OneDrive\\\\Documents\\\\GitHub\\\\Money_Manager-DIKA\\\" && node services/ai-service/dist/services/ai-service/src/main.js &\\nsleep 5\\necho \\\"Service started, testing endpoi...",
+  "error": "Exit code 7\n\u001b[32m[Nest] 8544  - \u001b[39m07/01/2026, 6:14:31 PM \u001b[32m    LOG\u001b[39m \u001b[38;5;3m[NestFactory] \u001b[39m\u001b[32mStarting Nest application...\u001b[39m\n{\"level\":\"WARN\",\"timestamp\":\"2026-07-01T11:14:31.420Z\",\"logger\":\"kafkajs\",\"message\":\"KafkaJS v2.0.0 switched default partitioner. To retain the same partitioning behavior as in previous versions, create the producer with the option \\\"createPartitioner: Partitioners.LegacyPartitioner\\\". See the migration guide at https://kafka.js.org/docs/migration-guide...",
+  "timestamp": "2026-07-01T11:14:36.832Z",
+  "retry_count": 2
+}

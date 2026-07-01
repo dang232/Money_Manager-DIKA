@@ -1,6 +1,8 @@
 // ponytail: AI service app module — wires providers, consumers, controller
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { EventBusModule, LoggerModule } from '@money-manager/infrastructure';
+import { aiConfig } from './config/ai.config';
 import { AiController } from './presentation/controllers/ai.controller';
 import { HealthController } from './presentation/controllers/health.controller';
 import { SuggestCategoryHandler } from './application/handlers/suggest-category.handler';
@@ -9,6 +11,7 @@ import { aiProviderFactory } from './infrastructure/providers/ai-provider.factor
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, load: [aiConfig] }),
     EventBusModule.forRoot(),
     LoggerModule,
   ],

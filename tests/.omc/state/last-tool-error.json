@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"C:\\\\Users\\\\dangq\\\\OneDrive\\\\Documents\\\\GitHub\\\\Money_Manager-DIKA\\\" && cat > /tmp/test-event.ts << 'EOF'\\n// Simulate what happens when TransactionCreatedEvent is JSON serialized and ...",
+  "error": "Exit code 1\n'ts-node' is not recognized as an internal or external command,\r\noperable program or batch file.",
+  "timestamp": "2026-07-01T04:37:38.210Z",
+  "retry_count": 1
+}

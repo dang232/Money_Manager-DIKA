@@ -17,22 +17,24 @@ export class TransactionCreatedConsumer implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     await this.eventBus.subscribe(TRANSACTION_EVENTS_TOPIC, 'budget-service-created', async (event: DomainEvent) => {
       if (event.eventType !== 'transaction.created') return;
-      const payload = event as unknown as {
-        userId: string;
-        categoryId: string;
-        amount: number;
-        currency: string;
-        type: TransactionType;
-        date: string;
-      };
 
-      const txDate = new Date(payload.date);
+      // Extract properties from event directly (not from payload)
+      const userId = (event as any).userId;
+      const categoryId = (event as any).categoryId;
+      const amount = (event as any).amount;
+      const currency = (event as any).currency;
+      const type = (event as any).type;
+      const date = (event as any).date;
+
+      if (!userId || !categoryId) return;
+
+      const txDate = new Date(date);
       await this.handler.execute(new UpdateRunningTotalCommand(
-        payload.userId,
-        payload.categoryId,
-        payload.amount,
-        payload.currency,
-        payload.type,
+        userId,
+        categoryId,
+        amount,
+        currency,
+        type,
         txDate.getFullYear(),
         txDate.getMonth() + 1,
       ));

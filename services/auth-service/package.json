@@ -16,6 +16,7 @@
     "@money-manager/infrastructure": "workspace:*",
     "@money-manager/shared-kernel": "workspace:*",
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
     "@mikro-orm/core": "^6.4.4",

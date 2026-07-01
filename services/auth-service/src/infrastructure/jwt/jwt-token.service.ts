@@ -15,6 +15,7 @@ export class JwtTokenService implements TokenService {
   private readonly ttlSeconds: number;
 
   constructor() {
+    // ConfigModule.forRoot({ isGlobal: true }) loads .env before this runs
     const envSecret = process.env['JWT_SECRET'];
     const isProd = process.env['NODE_ENV'] === 'production';
     if (isProd && (!envSecret || envSecret.length < 16)) {

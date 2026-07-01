@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd frontend && node -e \\\"\\nconst { chromium } = require('@playwright/test');\\n(async () => {\\n  const browser = await chromium.launch();\\n  const ctx = await browser.newContext({ viewport:...",
+  "tool_input_preview": "{\"command\":\"cd frontend && pnpm exec playwright test e2e/transactions.spec.ts -g \\\"create\\\" --reporter=list 2>&1 | tail -30\",\"timeout\":90000,\"description\":\"Run transaction creation tests\"}",
   "error": "Exit code 1\n/usr/bin/bash: line 1: cd: frontend: No such file or directory",
-  "timestamp": "2026-06-29T05:31:03.829Z",
+  "timestamp": "2026-07-01T09:21:16.144Z",
   "retry_count": 1
 }

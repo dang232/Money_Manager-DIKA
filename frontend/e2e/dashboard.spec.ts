@@ -27,8 +27,8 @@ const BUDGETS: {
   usagePercentage: number
   isExceeded: boolean
 }[] = [
-  { budgetId: 'b1', categoryId: 'cat-1', monthlyLimit: 1000000, currency: 'USD', runningTotal: 800000, usagePercentage: 80, isExceeded: false },
-  { budgetId: 'b2', categoryId: 'cat-2', monthlyLimit: 500000, currency: 'USD', runningTotal: 550000, usagePercentage: 110, isExceeded: true },
+  { budgetId: 'b1', categoryId: 'cat-1', monthlyLimit: 1000000, currency: 'VND', runningTotal: 800000, usagePercentage: 80, isExceeded: false },
+  { budgetId: 'b2', categoryId: 'cat-2', monthlyLimit: 500000, currency: 'VND', runningTotal: 550000, usagePercentage: 110, isExceeded: true },
 ]
 
 async function mockDashboardApis(page: import('@playwright/test').Page) {

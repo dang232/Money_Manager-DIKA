@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"ls services/auth-service/\",\"description\":\"List auth-service directory\"}",
+  "error": "Exit code 2\nls: cannot access 'services/auth-service/': No such file or directory",
+  "timestamp": "2026-07-01T03:49:25.528Z",
+  "retry_count": 1
+}

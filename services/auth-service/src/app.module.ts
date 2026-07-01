@@ -1,5 +1,6 @@
 // ponytail: NestJS app module — wires all layers together
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule, LoggerModule } from '@money-manager/infrastructure';
 import { UserEntity } from './infrastructure/persistence/user.entity';
 import { RefreshTokenEntity } from './infrastructure/persistence/refresh-token.entity';
@@ -22,6 +23,7 @@ import { HealthController } from './presentation/controllers/health.controller';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule.forRoot({
       host: process.env['AUTH_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['AUTH_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),

@@ -12,7 +12,7 @@ const BUDGETS = [
     budgetId: 'b1',
     categoryId: 'cat-1',
     monthlyLimit: 1000000,
-    currency: 'USD',
+    currency: 'VND',
     runningTotal: 500000,
     usagePercentage: 50,
     isExceeded: false,
@@ -21,7 +21,7 @@ const BUDGETS = [
     budgetId: 'b2',
     categoryId: 'cat-2',
     monthlyLimit: 500000,
-    currency: 'USD',
+    currency: 'VND',
     runningTotal: 400000,
     usagePercentage: 80,
     isExceeded: false,
@@ -33,7 +33,7 @@ const OVER_BUDGET = [
     budgetId: 'b3',
     categoryId: 'cat-1',
     monthlyLimit: 300000,
-    currency: 'USD',
+    currency: 'VND',
     runningTotal: 450000,
     usagePercentage: 150,
     isExceeded: true,
@@ -222,7 +222,7 @@ test.describe('Budgets', () => {
 
     expect(capturedBody.categoryId).toBe('cat-1')
     expect(capturedBody.monthlyLimit).toBe(600000)
-    expect(capturedBody.currency).toBe('USD')
+    expect(capturedBody.currency).toBe('VND')
     expect(capturedBody.year).toBeDefined()
     expect(capturedBody.month).toBeDefined()
   })

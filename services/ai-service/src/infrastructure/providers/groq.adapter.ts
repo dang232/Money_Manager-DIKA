@@ -1,34 +1,34 @@
-// ponytail: Groq adapter — calls Groq API for category suggestion via llama-3.1-8b-instant
+// ponytail: Groq adapter — calls Groq API for category suggestion
+import { Injectable, Inject } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
 import { AiProviderPort, CategoryInfo, CategorySuggestion } from '../../domain/interfaces/ai-provider.port';
+import { aiConfig } from '../../config/ai.config';
 
+@Injectable()
 export class GroqAdapter implements AiProviderPort {
-  private readonly apiKey: string;
-  private readonly baseUrl = 'https://api.groq.com/openai/v1/chat/completions';
-  private readonly model = 'llama-3.1-8b-instant';
-
-  constructor() {
-    this.apiKey = process.env['GROQ_API_KEY'] ?? '';
-  }
+  constructor(
+    @Inject(aiConfig.KEY) private readonly config: ConfigType<typeof aiConfig>,
+  ) {}
 
   async suggestCategory(description: string, categories: CategoryInfo[]): Promise<CategorySuggestion> {
     const categoryList = categories.map(c => `{id:"${c.id}", name:"${c.name}", type:"${c.type}"}`).join(', ');
     const prompt = `Given transaction description '${description}', pick the best category from: [${categoryList}]. Reply JSON only: {"categoryId": "...", "categoryName": "...", "confidence": 0-1, "reasoning": "..."}`;
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), this.config.timeoutMs);
 
     try {
-      const res = await fetch(this.baseUrl, {
+      const res = await fetch(`${this.config.apiBaseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
+          'Authorization': `Bearer ${this.config.apiKey}`,
         },
         body: JSON.stringify({
-          model: this.model,
+          model: this.config.modelName,
           messages: [{ role: 'user', content: prompt }],
           temperature: 0.1,
-          max_tokens: 200,
+          max_tokens: this.config.maxTokens,
         }),
         signal: controller.signal,
       });
@@ -50,7 +50,6 @@ export class GroqAdapter implements AiProviderPort {
 
   private parseResponse(content: string, categories: CategoryInfo[]): CategorySuggestion {
     try {
-      // Extract JSON from response (may be wrapped in markdown code blocks)
       const jsonMatch = content.match(/\{[\s\S]*\}/);
       if (!jsonMatch) return this.fallback(categories);
 

@@ -3,7 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useBudgetStore } from '@/stores/budget.store'
 import { useCategoryStore } from '@/stores/category.store'
 import { VueDraggable } from 'vue-draggable-plus'
-import { formatVND } from '@/lib/utils'
+import { formatVND, DEFAULT_CURRENCY } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -41,7 +41,7 @@ async function handleSetBudget() {
     await budgetStore.setBudget({
       categoryId: budgetForm.value.categoryId,
       monthlyLimit: amount,
-      currency: 'USD',
+      currency: DEFAULT_CURRENCY,
       year: now.getFullYear(),
       month: now.getMonth() + 1,
     })

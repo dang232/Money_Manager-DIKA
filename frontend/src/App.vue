@@ -2,11 +2,13 @@
 import { computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
+import { useSocketInit } from '@/composables/useSocketInit'
 import AppLayout from './components/layout/AppLayout.vue'
 import ToastContainer from '@/components/ToastContainer.vue'
 
 const route = useRoute()
 const authStore = useAuthStore()
+const { init: initSocket } = useSocketInit()
 
 // ponytail: guest routes (login, register, onboarding) render without app chrome
 const isGuestRoute = computed(() => !!route.meta?.guest)
@@ -16,6 +18,7 @@ onMounted(async () => {
   if (document.cookie.includes('mm-csrf=') && !authStore.user) {
     await authStore.fetchMe().catch(() => {})
   }
+  initSocket()
 })
 </script>
 

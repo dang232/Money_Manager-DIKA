@@ -1,7 +1,4 @@
 import axios from 'axios'
-import { useToast } from '@/composables/useToast'
-
-const { error: showError } = useToast()
 
 const httpClient = axios.create({
   baseURL: '/api',
@@ -49,7 +46,8 @@ httpClient.interceptors.response.use(
   },
   async (error) => {
     const original = error.config
-    if (error.response?.status === 401 && !original._retry) {
+    const isAuthEndpoint = original.url?.includes('/auth/login') || original.url?.includes('/auth/register')
+    if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true
       if (!refreshPromise) {
         refreshPromise = axios
@@ -71,7 +69,7 @@ httpClient.interceptors.response.use(
     if (status && status >= 500) {
       const msg = error.response?.data?.error?.message || error.message || 'Server error'
       console.error(`[${status}]`, error.config?.url, msg)
-      showError(`Server error (${status}): ${msg}`)
+      // ponytail: toast shown via LoginView error state
     }
     if (status === 503) {
       // ponytail: service unavailable — will retry via circuit breaker
@@ -80,7 +78,11 @@ httpClient.interceptors.response.use(
     const apiError = error.response?.data?.error
     if (apiError?.message) {
       error.message = apiError.message
+    } else if (error.response?.data?.message) {
+      error.message = error.response.data.message
     }
+    // ponytail: also expose the code for status-aware handling
+    ;(error as any).code = apiError?.code || error.response?.data?.code
     return Promise.reject(error)
   },
 )
