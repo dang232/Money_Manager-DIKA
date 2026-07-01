@@ -24,15 +24,19 @@ export interface ChatMessage {
 
 export const aiApi = {
   categorize(dto: CategorizeRequest) {
-    return httpClient.post<{ data: CategorizeResponse }>('/ai/categorize', dto)
+    // interceptor unwraps {data: CategorizeResponse} → CategorizeResponse
+    return httpClient.post<CategorizeResponse>('/ai/categorize', dto)
   },
   getInsights() {
-    return httpClient.get<{ data: { insights: Insight[] } }>('/ai/insights')
+    // interceptor unwraps {data: {insights}} → {insights}
+    return httpClient.get<{ insights: Insight[] }>('/ai/insights')
   },
   generateInsights() {
-    return httpClient.post<{ data: { insights: Insight[] } }>('/ai/insights')
+    // interceptor unwraps {data: {insights}} → {insights}
+    return httpClient.post<{ insights: Insight[] }>('/ai/insights')
   },
   chat(messages: ChatMessage[]) {
-    return httpClient.post<{ data: { reply: string } }>('/ai/chat', { messages })
+    // interceptor unwraps {data: {reply}} → {reply}
+    return httpClient.post<{ reply: string }>('/ai/chat', { messages })
   },
 }
