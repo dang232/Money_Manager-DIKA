@@ -2,6 +2,7 @@
 import { registerAs } from '@nestjs/config';
 
 export const AI_CONFIG_KEY = 'AI_CONFIG';
+export const AI_CONFIG = 'AI_CONFIG'; // Token for DI injection
 
 export type AiProviderType = 'anthropic' | 'groq' | 'custom' | 'mock';
 

@@ -9,7 +9,7 @@ import { MockAiAdapter } from './mock-ai.adapter';
 
 export const aiProviderFactory: Provider = {
   provide: AI_PROVIDER,
-  inject: [aiConfig.KEY],
+  inject: [aiConfig.KEY], // CONFIGURATION(AI_CONFIG)
   useFactory: (config: ConfigType<typeof aiConfig>) => {
     switch (config.providerType) {
       case 'anthropic':
