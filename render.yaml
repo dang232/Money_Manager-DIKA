@@ -16,13 +16,30 @@ services:
           name: mm-redis
           property: connectionString
       - key: TRANSACTION_SERVICE_URL
-        value: https://mm-transaction.onrender.com
+        fromService:
+          type: web
+          name: mm-transaction
+          property: url
       - key: BUDGET_SERVICE_URL
-        value: https://mm-budget.onrender.com
+        fromService:
+          type: web
+          name: mm-budget
+          property: url
       - key: AI_SERVICE_URL
-        value: https://mm-ai.onrender.com
+        fromService:
+          type: web
+          name: mm-ai
+          property: url
       - key: AUTH_SERVICE_URL
-        value: https://mm-auth.onrender.com
+        fromService:
+          type: web
+          name: mm-auth
+          property: url
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: mm-user
+          property: url
 
   - type: web
     name: mm-transaction
@@ -61,6 +78,38 @@ services:
           type: redis
           name: mm-redis
           property: connectionString
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mm-postgres
+          property: connectionString
+
+  - type: web
+    name: mm-auth
+    env: node
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter auth-service build
+    startCommand: node services/auth-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mm-postgres
+          property: connectionString
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+  - type: web
+    name: mm-user
+    env: node
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter user-service build
+    startCommand: node services/user-service/dist/main.js
+    envVars:
+      - key: NODE_ENV
+        value: production
       - key: DATABASE_URL
         fromDatabase:
           name: mm-postgres

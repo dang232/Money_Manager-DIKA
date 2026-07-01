@@ -2,6 +2,15 @@
 
 A personal finance tracker built as NestJS microservices with DDD, CQRS, and event-driven architecture.
 
+> **Assignment Compliance**: This application implements a Personal Expense Management system meeting all core requirements:
+> - ✅ Income & expense tracking with categories
+> - ✅ Monthly budget management with projections
+> - ✅ Dashboard with financial summaries
+> - ✅ AI-powered chat for spending insights
+> - ✅ Multi-user authentication
+> - ✅ Real-time WebSocket updates
+> - ✅ Full REST API with microservices architecture
+
 ## Architecture
 
 ```
@@ -56,7 +65,7 @@ Infrastructure
 | Frontend | Vue 3, Pinia, Tailwind CSS, GSAP |
 | Observability | Winston, Loki, Grafana |
 | Build | pnpm workspaces, Docker multi-stage |
-| Deploy | Render (7 deployables) |
+| Deploy | Render (9 deployables) |
 
 ## Design Notes
 
@@ -157,7 +166,14 @@ All routes are proxied through the gateway at `:3000`.
 
 Deployed on [Render](https://render.com) via `render.yaml`.
 
-Services deployed: gateway, transaction-service, budget-service, ai-service, worker-service, postgres-txn, postgres-budget.
+> ⚠️ **Render Free Tier Constraints**: The current `render.yaml` deploys to free tier which has limitations:
+> - Services sleep after 15 minutes of inactivity
+> - Limited to 512MB RAM per service
+> - No persistent disks (Redis for cache only)
+>
+> For production, upgrade to paid tier or deploy to a VPS.
+
+Services deployed: gateway, transaction-service, budget-service, ai-service, auth-service, user-service, worker-service, frontend, postgres, redis.
 
 Redis and messaging use Render's managed Redis with Redis Streams in cloud mode.
 
@@ -165,3 +181,17 @@ Redis and messaging use Render's managed Redis with Redis Streams in cloud mode.
 # manual deploy trigger (Render auto-deploys on push to main)
 git push origin main
 ```
+
+## Assumptions & Limitations
+
+### Architecture Decisions
+- **Single Database on Render**: Local development uses per-service PostgreSQL instances (microservices pattern), but Render free tier consolidates to a single database with shared schema
+- **Redis Streams as Event Bus**: Kafka (local) replaced with Redis Streams on Render for simplicity
+- **No mTLS in Cloud**: Mutual TLS certificates required locally are not configured on Render (services are internal)
+
+### Known Limitations
+- **Free Tier Sleep**: Render free services sleep after 15 min inactivity; first request may be slow
+- **Drag-to-reorder budgets**: UI has the component but feature is disabled pending composable fix
+- **GROQ API Key Required**: AI chat requires user to provide their own Groq API key
+- **No Email Verification**: User registration is instant without email verification
+- **Single Currency**: Currently hardcoded to VND; multi-currency support not implemented
