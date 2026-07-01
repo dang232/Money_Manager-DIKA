@@ -170,26 +170,26 @@
   "hotPaths": [
     {
       "path": "frontend\\src",
-      "accessCount": 38,
-      "lastAccessed": 1782912032466,
+      "accessCount": 39,
+      "lastAccessed": 1782924127905,
       "type": "directory"
     },
     {
       "path": "",
-      "accessCount": 33,
-      "lastAccessed": 1782908152515,
+      "accessCount": 34,
+      "lastAccessed": 1782916223621,
       "type": "directory"
     },
     {
       "path": "frontend\\src\\api\\http-client.ts",
-      "accessCount": 23,
-      "lastAccessed": 1782908513903,
+      "accessCount": 24,
+      "lastAccessed": 1782915605119,
       "type": "file"
     },
     {
       "path": "services",
-      "accessCount": 16,
-      "lastAccessed": 1782908162417,
+      "accessCount": 17,
+      "lastAccessed": 1782924151032,
       "type": "directory"
     },
     {
@@ -217,6 +217,12 @@
       "type": "file"
     },
     {
+      "path": "frontend",
+      "accessCount": 8,
+      "lastAccessed": 1782924135782,
+      "type": "directory"
+    },
+    {
       "path": "services\\transaction-service\\src\\presentation\\controllers\\transaction.controller.ts",
       "accessCount": 7,
       "lastAccessed": 1782823813363,
@@ -229,12 +235,6 @@
       "type": "file"
     },
     {
-      "path": "frontend",
-      "accessCount": 7,
-      "lastAccessed": 1782908481933,
-      "type": "directory"
-    },
-    {
       "path": "frontend\\src\\api\\transaction.api.ts",
       "accessCount": 7,
       "lastAccessed": 1782909529937,
@@ -245,6 +245,12 @@
       "accessCount": 6,
       "lastAccessed": 1782851561204,
       "type": "file"
+    },
+    {
+      "path": "services\\gateway\\src",
+      "accessCount": 6,
+      "lastAccessed": 1782924105612,
+      "type": "directory"
     },
     {
       "path": "services\\transaction-service\\src\\presentation\\dtos\\create-transaction.dto.ts",
@@ -289,10 +295,10 @@
       "type": "file"
     },
     {
-      "path": "services\\gateway\\src",
+      "path": "frontend\\src\\api\\ai.api.ts",
       "accessCount": 5,
-      "lastAccessed": 1782911818995,
-      "type": "directory"
+      "lastAccessed": 1782916827145,
+      "type": "file"
     },
     {
       "path": "services\\transaction-service\\src\\presentation\\dtos\\update-transaction.dto.ts",
@@ -349,12 +355,6 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\ai.api.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782908502345,
-      "type": "file"
-    },
-    {
       "path": "frontend\\src\\api\\user.api.ts",
       "accessCount": 2,
       "lastAccessed": 1782822820878,
@@ -380,8 +380,8 @@
     },
     {
       "path": "pnpm-workspace.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1782821453329,
+      "accessCount": 2,
+      "lastAccessed": 1782923706459,
       "type": "file"
     },
     {

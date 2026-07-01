@@ -1,39 +1,30 @@
-# ─── Base ─────────────────────────────────────────────────────────────────────
-# Build context: repo root (.) so pnpm workspace deps resolve.
-# See docker-compose.yml.
-FROM node:20-alpine AS base
+# ─── Build ────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
+ARG CACHEBUST=transaction-v2
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/transaction-service
-COPY services/transaction-service/package.json ./
-COPY services/transaction-service/tsconfig.json ./
-COPY services/transaction-service/nest-cli.json ./
+COPY services/transaction-service/package.json services/transaction-service/
+COPY services/transaction-service/tsconfig.json services/transaction-service/
+COPY services/transaction-service/nest-cli.json services/transaction-service/
 RUN pnpm install --no-frozen-lockfile
-
-# ─── Dev (used by docker-compose) ─────────────────────────────────────────────
-FROM base AS dev
-COPY services/transaction-service/src ./src
-CMD ["node", "-r", "ts-node/register", "src/main.ts"]
-
-# ─── Build ────────────────────────────────────────────────────────────────────
-FROM base AS build
-COPY services/transaction-service/src ./src
+COPY services/transaction-service/src services/transaction-service/src
+WORKDIR /app/services/transaction-service
 RUN pnpm build
 
 # ─── Production ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS prod
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/transaction-service
-COPY services/transaction-service/package.json ./
+COPY services/transaction-service/package.json services/transaction-service/
 RUN pnpm install --no-frozen-lockfile --prod
-COPY --from=build /workspace/services/transaction-service/dist ./dist
-CMD ["node", "dist/main"]
+COPY --from=build /app/services/transaction-service/dist services/transaction-service/dist
+WORKDIR /app/services/transaction-service
+CMD ["node", "dist/main.js"]

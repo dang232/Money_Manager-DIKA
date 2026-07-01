@@ -1,39 +1,30 @@
-# ─── Base ─────────────────────────────────────────────────────────────────────
-# Build context: repo root (.) so pnpm workspace deps resolve.
-# See docker-compose.yml.
-FROM node:20-alpine AS base
+# ─── Build ────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
+ARG CACHEBUST=budget-v2
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/budget-service
-COPY services/budget-service/package.json ./
-COPY services/budget-service/tsconfig.json ./
-COPY services/budget-service/nest-cli.json ./
+COPY services/budget-service/package.json services/budget-service/
+COPY services/budget-service/tsconfig.json services/budget-service/
+COPY services/budget-service/nest-cli.json services/budget-service/
 RUN pnpm install --no-frozen-lockfile
-
-# ─── Dev (used by docker-compose) ─────────────────────────────────────────────
-FROM base AS dev
-COPY services/budget-service/src ./src
-CMD ["node", "-r", "ts-node/register", "src/main.ts"]
-
-# ─── Build ────────────────────────────────────────────────────────────────────
-FROM base AS build
-COPY services/budget-service/src ./src
+COPY services/budget-service/src services/budget-service/src
+WORKDIR /app/services/budget-service
 RUN pnpm build
 
 # ─── Production ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS prod
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/budget-service
-COPY services/budget-service/package.json ./
+COPY services/budget-service/package.json services/budget-service/
 RUN pnpm install --no-frozen-lockfile --prod
-COPY --from=build /workspace/services/budget-service/dist ./dist
-CMD ["node", "dist/main"]
+COPY --from=build /app/services/budget-service/dist services/budget-service/dist
+WORKDIR /app/services/budget-service
+CMD ["node", "dist/main.js"]

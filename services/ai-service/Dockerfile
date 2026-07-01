@@ -1,39 +1,30 @@
-# ─── Base ─────────────────────────────────────────────────────────────────────
-# Build context: repo root (.) so pnpm workspace deps resolve.
-# See docker-compose.yml.
-FROM node:20-alpine AS base
+# ─── Build ────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
+ARG CACHEBUST=ai-v2
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/ai-service
-COPY services/ai-service/package.json ./
-COPY services/ai-service/tsconfig.json ./
-COPY services/ai-service/nest-cli.json ./
+COPY services/ai-service/package.json services/ai-service/
+COPY services/ai-service/tsconfig.json services/ai-service/
+COPY services/ai-service/nest-cli.json services/ai-service/
 RUN pnpm install --no-frozen-lockfile
-
-# ─── Dev (used by docker-compose) ─────────────────────────────────────────────
-FROM base AS dev
-COPY services/ai-service/src ./src
-CMD ["node", "-r", "ts-node/register", "src/main.ts"]
-
-# ─── Build ────────────────────────────────────────────────────────────────────
-FROM base AS build
-COPY services/ai-service/src ./src
+COPY services/ai-service/src services/ai-service/src
+WORKDIR /app/services/ai-service
 RUN pnpm build
 
 # ─── Production ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS prod
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/ai-service
-COPY services/ai-service/package.json ./
+COPY services/ai-service/package.json services/ai-service/
 RUN pnpm install --no-frozen-lockfile --prod
-COPY --from=build /workspace/services/ai-service/dist ./dist
-CMD ["node", "dist/main"]
+COPY --from=build /app/services/ai-service/dist services/ai-service/dist
+WORKDIR /app/services/ai-service
+CMD ["node", "dist/main.js"]

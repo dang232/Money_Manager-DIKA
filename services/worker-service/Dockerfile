@@ -1,39 +1,30 @@
-# ─── Base ─────────────────────────────────────────────────────────────────────
-# Build context: repo root (.) so pnpm workspace deps resolve.
-# See docker-compose.yml.
-FROM node:20-alpine AS base
-RUN npm install -g pnpm@9
-WORKDIR /workspace
+# ─── Build ────────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS build
+ARG CACHEBUST=worker-v4
+RUN echo "Cache bust v4 at $(date)" && npm install -g pnpm@9
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/worker-service
-COPY services/worker-service/package.json ./
-COPY services/worker-service/tsconfig.json ./
-COPY services/worker-service/nest-cli.json ./
+COPY services/worker-service/package.json services/worker-service/
+COPY services/worker-service/tsconfig.json services/worker-service/
+COPY services/worker-service/nest-cli.json services/worker-service/
 RUN pnpm install --no-frozen-lockfile
-
-# ─── Dev (used by docker-compose) ─────────────────────────────────────────────
-FROM base AS dev
-COPY services/worker-service/src ./src
-CMD ["node", "-r", "ts-node/register", "src/main.ts"]
-
-# ─── Build ────────────────────────────────────────────────────────────────────
-FROM base AS build
-COPY services/worker-service/src ./src
+COPY services/worker-service/src services/worker-service/src
+WORKDIR /app/services/worker-service
 RUN pnpm build
 
 # ─── Production ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS prod
 RUN npm install -g pnpm@9
-WORKDIR /workspace
+WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY tsconfig.base.json ./
 COPY packages/shared-kernel packages/shared-kernel
 COPY packages/infrastructure packages/infrastructure
-WORKDIR /workspace/services/worker-service
-COPY services/worker-service/package.json ./
+COPY services/worker-service/package.json services/worker-service/
 RUN pnpm install --no-frozen-lockfile --prod
-COPY --from=build /workspace/services/worker-service/dist ./dist
-CMD ["node", "dist/main"]
+COPY --from=build /app/services/worker-service/dist services/worker-service/dist
+WORKDIR /app/services/worker-service
+CMD ["node", "dist/main.js"]
