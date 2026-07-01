@@ -18,8 +18,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "pnpm exec tsc --noEmit 2>&1 | head -10",
-    "testCommand": "pnpm test --filter '!@money-manager/e2e-tests' 2>&1 | grep -E \"(Test Suites|Tests:|PASS|FAIL)\" | tail -20",
+    "buildCommand": "cd \"C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA\\services\\ai-service\" && pnpm build 2>&1 && cd ../.. && node services/ai-service/dist/services/ai-service/src/main.js 2>&1",
+    "testCommand": "cd /c/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/services/ai-service && pnpm test",
     "lintCommand": "pnpm lint",
     "devCommand": null,
     "scripts": {
@@ -169,32 +169,38 @@
   "hotPaths": [
     {
       "path": "frontend\\src",
-      "accessCount": 28,
-      "lastAccessed": 1782823881111,
+      "accessCount": 34,
+      "lastAccessed": 1782895041702,
       "type": "directory"
     },
     {
       "path": "",
-      "accessCount": 20,
-      "lastAccessed": 1782825992039,
+      "accessCount": 31,
+      "lastAccessed": 1782894944326,
       "type": "directory"
     },
     {
       "path": "frontend\\src\\api\\http-client.ts",
-      "accessCount": 16,
-      "lastAccessed": 1782851276910,
+      "accessCount": 22,
+      "lastAccessed": 1782900257607,
       "type": "file"
     },
     {
       "path": "services",
-      "accessCount": 14,
-      "lastAccessed": 1782825115646,
+      "accessCount": 15,
+      "lastAccessed": 1782852348443,
       "type": "directory"
     },
     {
       "path": "services\\gateway\\src\\proxy\\dashboard.controller.ts",
       "accessCount": 9,
       "lastAccessed": 1782830137859,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\stores\\transaction.store.ts",
+      "accessCount": 9,
+      "lastAccessed": 1782892644388,
       "type": "file"
     },
     {
@@ -210,15 +216,27 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\stores\\transaction.store.ts",
+      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
       "accessCount": 7,
-      "lastAccessed": 1782823994942,
+      "lastAccessed": 1782880395946,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\api\\auth.api.ts",
+      "accessCount": 6,
+      "lastAccessed": 1782851561204,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\api\\budget.api.ts",
+      "accessCount": 6,
+      "lastAccessed": 1782892500376,
       "type": "file"
     },
     {
       "path": "frontend\\src\\api\\transaction.api.ts",
-      "accessCount": 5,
-      "lastAccessed": 1782823372785,
+      "accessCount": 6,
+      "lastAccessed": 1782895016611,
       "type": "file"
     },
     {
@@ -258,9 +276,9 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\auth.api.ts",
+      "path": "frontend\\src\\stores\\dashboard.store.ts",
       "accessCount": 5,
-      "lastAccessed": 1782851002209,
+      "lastAccessed": 1782900216814,
       "type": "file"
     },
     {
@@ -270,15 +288,21 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\lib\\schemas.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782823372668,
+      "path": "services\\gateway\\src",
+      "accessCount": 4,
+      "lastAccessed": 1782892345166,
+      "type": "directory"
+    },
+    {
+      "path": "services\\budget-service\\src\\domain\\aggregates\\budget.aggregate.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782901856489,
       "type": "file"
     },
     {
-      "path": "frontend\\src\\api\\budget.api.ts",
+      "path": "frontend\\src\\lib\\schemas.ts",
       "accessCount": 3,
-      "lastAccessed": 1782823394997,
+      "lastAccessed": 1782823372668,
       "type": "file"
     },
     {
@@ -288,16 +312,40 @@
       "type": "file"
     },
     {
-      "path": "frontend\\src\\stores\\dashboard.store.ts",
+      "path": "services\\budget-service\\src\\presentation\\dtos\\budget.dto.ts",
       "accessCount": 3,
-      "lastAccessed": 1782823900032,
+      "lastAccessed": 1782880845465,
       "type": "file"
     },
     {
-      "path": "services\\gateway\\src",
+      "path": "frontend\\src\\views\\TransactionsView.vue",
       "accessCount": 3,
-      "lastAccessed": 1782823959927,
-      "type": "directory"
+      "lastAccessed": 1782880940339,
+      "type": "file"
+    },
+    {
+      "path": "packages\\shared-kernel\\src\\value-objects\\transaction-type.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782882591247,
+      "type": "file"
+    },
+    {
+      "path": "services\\transaction-service\\src\\presentation\\dtos\\transaction-response.dto.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782884277382,
+      "type": "file"
+    },
+    {
+      "path": "frontend\\src\\lib\\utils.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782903858036,
+      "type": "file"
+    },
+    {
+      "path": "packages\\shared-kernel\\src\\index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782903980382,
+      "type": "file"
     },
     {
       "path": "frontend\\src\\api\\user.api.ts",
@@ -312,45 +360,15 @@
       "type": "file"
     },
     {
-      "path": "services\\budget-service\\src\\presentation\\dtos\\budget.dto.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782822926091,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\views\\TransactionsView.vue",
-      "accessCount": 2,
-      "lastAccessed": 1782823059787,
-      "type": "file"
-    },
-    {
-      "path": "packages\\shared-kernel\\src\\value-objects\\transaction-type.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782823105764,
-      "type": "file"
-    },
-    {
       "path": "services\\worker-service\\src\\infrastructure\\persistence\\transaction.entity.ts",
       "accessCount": 2,
       "lastAccessed": 1782823121118,
       "type": "file"
     },
     {
-      "path": "services\\transaction-service\\src\\presentation\\dtos\\transaction-response.dto.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782823420557,
-      "type": "file"
-    },
-    {
       "path": "services\\gateway\\src\\proxy\\transaction-proxy.controller.ts",
       "accessCount": 2,
       "lastAccessed": 1782823813557,
-      "type": "file"
-    },
-    {
-      "path": "services\\gateway\\src\\proxy\\http-proxy.service.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782823834430,
       "type": "file"
     },
     {
@@ -402,12 +420,6 @@
       "type": "file"
     },
     {
-      "path": "packages\\shared-kernel\\src\\index.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782821575539,
-      "type": "file"
-    },
-    {
       "path": "services\\auth-service\\src\\domain\\aggregates\\user.aggregate.ts",
       "accessCount": 1,
       "lastAccessed": 1782821623370,
@@ -417,12 +429,6 @@
       "path": "services\\user-service\\src\\domain\\aggregates\\user-profile.aggregate.ts",
       "accessCount": 1,
       "lastAccessed": 1782821623481,
-      "type": "file"
-    },
-    {
-      "path": "services\\budget-service\\src\\domain\\aggregates\\budget.aggregate.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782821646248,
       "type": "file"
     },
     {
@@ -453,12 +459,6 @@
       "path": "frontend\\src\\api\\layout.api.ts",
       "accessCount": 1,
       "lastAccessed": 1782822821512,
-      "type": "file"
-    },
-    {
-      "path": "frontend\\src\\lib\\utils.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782822821681,
       "type": "file"
     },
     {

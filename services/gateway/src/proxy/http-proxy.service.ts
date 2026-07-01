@@ -76,9 +76,13 @@ export class HttpProxyService implements OnModuleInit {
     return this.circuitBreaker.execute<T>(serviceName, async () => {
       const response = await axios({ ...axiosConfig, validateStatus: () => true });
       if (response.status >= 400) {
+        // ponytail: extract message from ApiResponse envelope {error: {message}}
+        const data = response.data as Record<string, unknown> | undefined;
+        const errorMsg = (data?.error as Record<string, unknown>)?.message as string | undefined;
+        const message = errorMsg ?? (typeof data === 'string' ? data : 'Request failed');
         // ponytail: re-throw with downstream status; tagged as client error so the
         // circuit breaker's errorFilter skips it
-        const ex = new HttpException(response.data, response.status) as HttpException & Record<string, unknown>;
+        const ex = new HttpException(message, response.status) as HttpException & Record<string, unknown>;
         ex[CLIENT_ERROR_FLAG] = true;
         throw ex;
       }

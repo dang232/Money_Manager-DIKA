@@ -2,14 +2,14 @@
 import { Provider } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { AI_PROVIDER } from '../../domain/interfaces/ai-provider.port';
-import { aiConfig, AI_CONFIG_KEY } from '../../config/ai.config';
+import { aiConfig } from '../../config/ai.config';
 import { AnthropicAdapter } from './anthropic.adapter';
 import { GroqAdapter } from './groq.adapter';
 import { MockAiAdapter } from './mock-ai.adapter';
 
 export const aiProviderFactory: Provider = {
   provide: AI_PROVIDER,
-  inject: [AI_CONFIG_KEY],
+  inject: [aiConfig.KEY],
   useFactory: (config: ConfigType<typeof aiConfig>) => {
     switch (config.providerType) {
       case 'anthropic':

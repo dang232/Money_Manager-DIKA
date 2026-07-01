@@ -11,7 +11,7 @@ import { aiProviderFactory } from './infrastructure/providers/ai-provider.factor
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, load: [aiConfig] }),
     EventBusModule.forRoot(),
     LoggerModule,
   ],

@@ -19,7 +19,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  app.useGlobalFilters(new ApiExceptionFilter(), new HttpExceptionFilter(), new CircuitOpenFilter());
+  app.useGlobalFilters(new CircuitOpenFilter(), new HttpExceptionFilter(), new ApiExceptionFilter());
 
   await app.listen(3000);
 }

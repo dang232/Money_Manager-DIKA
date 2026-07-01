@@ -1,9 +1,11 @@
 // ponytail: Money value object — immutable, non-negative amount + currency
+export const DEFAULT_CURRENCY = 'VND'
+
 export class Money {
   readonly amount: number;
   readonly currency: string;
 
-  constructor(amount: number, currency = 'VND') {
+  constructor(amount: number, currency = DEFAULT_CURRENCY) {
     if (amount < 0) {
       throw new Error('Money amount cannot be negative');
     }

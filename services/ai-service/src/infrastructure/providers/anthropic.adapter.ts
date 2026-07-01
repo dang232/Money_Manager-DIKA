@@ -2,12 +2,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { AiProviderPort, CategoryInfo, CategorySuggestion, AI_PROVIDER } from '../../domain/interfaces/ai-provider.port';
-import { aiConfig, AI_CONFIG_KEY } from '../../config/ai.config';
+import { aiConfig } from '../../config/ai.config';
 
 @Injectable()
 export class AnthropicAdapter implements AiProviderPort {
   constructor(
-    @Inject(AI_CONFIG_KEY) private readonly config: ConfigType<typeof aiConfig>,
+    @Inject(aiConfig.KEY) private readonly config: ConfigType<typeof aiConfig>,
   ) {}
 
   async suggestCategory(description: string, categories: CategoryInfo[]): Promise<CategorySuggestion> {

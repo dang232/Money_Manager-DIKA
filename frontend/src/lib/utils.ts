@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
+export const DEFAULT_CURRENCY = 'VND'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -8,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export function formatVND(amount: number): string {
   return new Intl.NumberFormat('vi-VN', {
     style: 'currency',
-    currency: 'VND',
+    currency: DEFAULT_CURRENCY,
   }).format(amount)
 }
 

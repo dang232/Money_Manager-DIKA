@@ -33,14 +33,15 @@ describe('UpdateRunningTotalHandler', () => {
     ));
 
     expect(mockBudgetRepo.save).toHaveBeenCalledTimes(1);
-    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    // budget.updated + budget.exceeded = 2 events
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(2);
     expect(mockEventBus.publish).toHaveBeenCalledWith(
       'budget.events',
-      expect.objectContaining({ eventType: 'budget.exceeded' }),
+      expect.objectContaining({ eventType: 'budget.updated' }),
     );
   });
 
-  it('does NOT publish when expense stays under the limit', async () => {
+  it('publishes budget.updated but NOT budget.exceeded when expense stays under the limit', async () => {
     const budget = Budget.create({
       userId: new UserId('user-1'),
       categoryId: 'cat-1',
@@ -54,7 +55,12 @@ describe('UpdateRunningTotalHandler', () => {
     ));
 
     expect(mockBudgetRepo.save).toHaveBeenCalledTimes(1);
-    expect(mockEventBus.publish).not.toHaveBeenCalled();
+    // budget.updated is always published for expenses
+    expect(mockEventBus.publish).toHaveBeenCalledTimes(1);
+    expect(mockEventBus.publish).toHaveBeenCalledWith(
+      'budget.events',
+      expect.objectContaining({ eventType: 'budget.updated' }),
+    );
   });
 
   it('does nothing when no budget exists for the user/category/period', async () => {

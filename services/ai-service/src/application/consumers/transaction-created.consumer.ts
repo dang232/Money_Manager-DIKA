@@ -5,7 +5,7 @@ import { EventBusPort, DomainEvent } from '@money-manager/shared-kernel';
 import { EVENT_BUS_PORT, LOGGER_TOKEN } from '@money-manager/shared-kernel';
 import { SuggestCategoryHandler } from '../handlers/suggest-category.handler';
 import { SuggestCategoryCommand } from '../commands/suggest-category.command';
-import { aiConfig, AI_CONFIG_KEY } from '../../config/ai.config';
+import { aiConfig } from '../../config/ai.config';
 
 interface Logger { info(msg: string, meta?: any): void; error(msg: string, meta?: any): void; }
 
@@ -17,7 +17,7 @@ export class TransactionCreatedConsumer implements OnModuleInit {
   constructor(
     @Inject(EVENT_BUS_PORT) private readonly eventBus: EventBusPort,
     @Inject(LOGGER_TOKEN) private readonly logger: Logger,
-    @Inject(AI_CONFIG_KEY) private readonly config: ConfigType<typeof aiConfig>,
+    @Inject(aiConfig.KEY) private readonly config: ConfigType<typeof aiConfig>,
     private readonly suggestHandler: SuggestCategoryHandler,
   ) {}
 

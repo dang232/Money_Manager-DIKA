@@ -14,36 +14,44 @@ export class EventRelayService implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    await this.eventBus.subscribe('transaction.created', 'gateway', async (event: DomainEvent) => {
-      const userId = (event.payload as { userId?: string })?.userId || 'default';
-      this.wsGateway.emitToUser(userId, 'transaction:created', event.payload);
-      this.wsGateway.emitToUser(userId, 'dashboard:refresh', { reason: 'transaction.created' });
-      await this.invalidateDashboardCache(userId);
+    // Subscribe to transaction.events topic and filter by eventType
+    await this.eventBus.subscribe('transaction.events', 'gateway', async (event: DomainEvent) => {
+      const userId = this.extractUserId(event) || 'default';
+
+      if (event.eventType === 'transaction.created') {
+        this.wsGateway.emitToUser(userId, 'transaction.created', event);
+        this.wsGateway.emitToUser(userId, 'dashboard:refresh', { reason: 'transaction.created' });
+        await this.invalidateDashboardCache(userId);
+      } else if (event.eventType === 'transaction.updated') {
+        this.wsGateway.emitToUser(userId, 'transaction.updated', event);
+        this.wsGateway.emitToUser(userId, 'dashboard:refresh', { reason: 'transaction.updated' });
+        await this.invalidateDashboardCache(userId);
+      } else if (event.eventType === 'transaction.deleted') {
+        this.wsGateway.emitToUser(userId, 'transaction.deleted', event);
+        this.wsGateway.emitToUser(userId, 'dashboard:refresh', { reason: 'transaction.deleted' });
+        await this.invalidateDashboardCache(userId);
+      }
     });
 
-    await this.eventBus.subscribe('transaction.updated', 'gateway', async (event: DomainEvent) => {
-      const userId = (event.payload as { userId?: string })?.userId || 'default';
-      this.wsGateway.emitToUser(userId, 'transaction:updated', event.payload);
-      this.wsGateway.emitToUser(userId, 'dashboard:refresh', { reason: 'transaction.updated' });
-      await this.invalidateDashboardCache(userId);
-    });
+    // Subscribe to budget.events topic and filter by eventType
+    await this.eventBus.subscribe('budget.events', 'gateway', async (event: DomainEvent) => {
+      const userId = this.extractUserId(event) || 'default';
 
-    await this.eventBus.subscribe('transaction.deleted', 'gateway', async (event: DomainEvent) => {
-      const userId = (event.payload as { userId?: string })?.userId || 'default';
-      this.wsGateway.emitToUser(userId, 'transaction:deleted', event.payload);
-      this.wsGateway.emitToUser(userId, 'dashboard:refresh', { reason: 'transaction.deleted' });
-      await this.invalidateDashboardCache(userId);
+      if (event.eventType === 'budget.exceeded') {
+        this.wsGateway.emitToUser(userId, 'budget.exceeded', event);
+      } else if (event.eventType === 'budget.updated') {
+        this.wsGateway.emitToUser(userId, 'budget.updated', event);
+        await this.invalidateDashboardCache(userId);
+      }
     });
+  }
 
-    await this.eventBus.subscribe('budget.exceeded', 'gateway', async (event: DomainEvent) => {
-      const userId = (event.payload as { userId?: string })?.userId || 'default';
-      this.wsGateway.emitToUser(userId, 'budget:exceeded', event.payload);
-    });
-
-    await this.eventBus.subscribe('budget.updated', 'gateway', async (event: DomainEvent) => {
-      const userId = (event.payload as { userId?: string })?.userId || 'default';
-      this.wsGateway.emitToUser(userId, 'budget:updated', event.payload);
-    });
+  private extractUserId(event: DomainEvent): string {
+    // Try to extract userId from event directly (event properties)
+    const userId = (event as any).userId ||
+                    (event.payload && (event.payload as any).userId) ||
+                    'default';
+    return userId === 'default' ? 'default' : String(userId);
   }
 
   private async invalidateDashboardCache(userId: string): Promise<void> {

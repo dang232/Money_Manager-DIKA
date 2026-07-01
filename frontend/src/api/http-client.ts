@@ -46,7 +46,8 @@ httpClient.interceptors.response.use(
   },
   async (error) => {
     const original = error.config
-    if (error.response?.status === 401 && !original._retry) {
+    const isAuthEndpoint = original.url?.includes('/auth/login') || original.url?.includes('/auth/register')
+    if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
       original._retry = true
       if (!refreshPromise) {
         refreshPromise = axios
@@ -77,7 +78,11 @@ httpClient.interceptors.response.use(
     const apiError = error.response?.data?.error
     if (apiError?.message) {
       error.message = apiError.message
+    } else if (error.response?.data?.message) {
+      error.message = error.response.data.message
     }
+    // ponytail: also expose the code for status-aware handling
+    ;(error as any).code = apiError?.code || error.response?.data?.code
     return Promise.reject(error)
   },
 )

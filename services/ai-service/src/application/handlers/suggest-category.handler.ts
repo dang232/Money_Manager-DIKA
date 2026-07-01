@@ -5,7 +5,7 @@ import { EventBusPort, createEventMeta } from '@money-manager/shared-kernel';
 import { EVENT_BUS_PORT } from '@money-manager/shared-kernel';
 import { AiProviderPort, AI_PROVIDER, CategorySuggestion } from '../../domain/interfaces/ai-provider.port';
 import { SuggestCategoryCommand } from '../commands/suggest-category.command';
-import { aiConfig, AI_CONFIG_KEY } from '../../config/ai.config';
+import { aiConfig } from '../../config/ai.config';
 
 const SUGGESTION_TOPIC = 'ai.category.suggested';
 
@@ -14,7 +14,7 @@ export class SuggestCategoryHandler {
   constructor(
     @Inject(AI_PROVIDER) private readonly aiProvider: AiProviderPort,
     @Inject(EVENT_BUS_PORT) private readonly eventBus: EventBusPort,
-    @Inject(AI_CONFIG_KEY) private readonly config: ConfigType<typeof aiConfig>,
+    @Inject(aiConfig.KEY) private readonly config: ConfigType<typeof aiConfig>,
   ) {}
 
   async execute(cmd: SuggestCategoryCommand): Promise<CategorySuggestion> {

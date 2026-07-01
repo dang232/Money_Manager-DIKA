@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useCategoryStore } from '@/stores/category.store'
 import { useTransactionStore } from '@/stores/transaction.store'
 import { useBudgetStore } from '@/stores/budget.store'
+import { DEFAULT_CURRENCY } from '@/lib/utils'
 import type { CreateTransactionDto } from '@/api/transaction.api'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -84,7 +85,7 @@ async function finishStep2() {
       await budgetStore.setBudget({
         categoryId,
         monthlyLimit: amount,
-        currency: 'USD',
+        currency: DEFAULT_CURRENCY,
         year: now.getFullYear(),
         month: now.getMonth() + 1,
       })

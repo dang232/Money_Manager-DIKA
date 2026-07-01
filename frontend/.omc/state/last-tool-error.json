@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cat frontend/src/api/auth.api.ts\",\"description\":\"View auth.api.ts raw\"}",
-  "error": "Exit code 1\ncat: frontend/src/api/auth.api.ts: No such file or directory",
-  "timestamp": "2026-06-30T20:29:01.368Z",
+  "tool_input_preview": "{\"command\":\"docker exec kafka ls /opt/ 2>&1\",\"description\":\"Check kafka container structure\"}",
+  "error": "Exit code 1\nls: C:/Program Files/Git/opt/: No such file or directory",
+  "timestamp": "2026-07-01T09:33:37.642Z",
   "retry_count": 1
 }
