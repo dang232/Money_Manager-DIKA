@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1782907928313,
+  "lastScanned": 1782997970681,
   "projectRoot": "C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA",
   "techStack": {
     "languages": [
@@ -18,7 +18,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd \"C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA\" && pnpm install && pnpm build --filter gateway 2>&1 | head -50",
+    "buildCommand": "pnpm build",
     "testCommand": "pnpm test",
     "lintCommand": "pnpm lint",
     "devCommand": null,
@@ -55,7 +55,7 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 2,
-      "lastAccessed": 1782907928268,
+      "lastAccessed": 1782997970647,
       "keyFiles": [
         "BUGS-MULTI-USER-ISOLATION.md",
         "PROJECT.md"
@@ -64,8 +64,8 @@
     "frontend": {
       "path": "frontend",
       "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1782907928269,
+      "fileCount": 17,
+      "lastAccessed": 1782997970655,
       "keyFiles": [
         "components.json",
         "Dockerfile",
@@ -78,7 +78,7 @@
       "path": "infra",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1782907928279,
+      "lastAccessed": 1782997970656,
       "keyFiles": [
         "loki-config.yml"
       ]
@@ -87,14 +87,14 @@
       "path": "packages",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1782907928280,
+      "lastAccessed": 1782997970656,
       "keyFiles": []
     },
     "screenshots": {
       "path": "screenshots",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1782907928282,
+      "lastAccessed": 1782997970657,
       "keyFiles": [
         "01-dashboard.png",
         "02-after-logout.png",
@@ -107,7 +107,7 @@
       "path": "scripts",
       "purpose": "Build/utility scripts",
       "fileCount": 2,
-      "lastAccessed": 1782907928283,
+      "lastAccessed": 1782997970657,
       "keyFiles": [
         "gen-certs.cmd",
         "gen-certs.sh"
@@ -117,14 +117,14 @@
       "path": "services",
       "purpose": "Business logic services",
       "fileCount": 0,
-      "lastAccessed": 1782907928283,
+      "lastAccessed": 1782997970658,
       "keyFiles": []
     },
     "tests": {
       "path": "tests",
       "purpose": "Test files",
       "fileCount": 2,
-      "lastAccessed": 1782907928284,
+      "lastAccessed": 1782997970658,
       "keyFiles": [
         "package.json",
         "tsconfig.json"
@@ -133,9 +133,10 @@
     "frontend\\dist": {
       "path": "frontend\\dist",
       "purpose": "Distribution/build output",
-      "fileCount": 1,
-      "lastAccessed": 1782907928285,
+      "fileCount": 2,
+      "lastAccessed": 1782997970660,
       "keyFiles": [
+        "favicon.svg",
         "index.html"
       ]
     },
@@ -143,7 +144,7 @@
       "path": "infra\\migrations",
       "purpose": "Database migrations",
       "fileCount": 1,
-      "lastAccessed": 1782907928286,
+      "lastAccessed": 1782997970660,
       "keyFiles": [
         "001_create_card_layouts.sql"
       ]
@@ -152,7 +153,7 @@
       "path": "tests\\helpers",
       "purpose": "Helper functions",
       "fileCount": 4,
-      "lastAccessed": 1782907928289,
+      "lastAccessed": 1782997970662,
       "keyFiles": [
         "http.ts",
         "reset-db.ts",
@@ -163,7 +164,7 @@
       "path": "tests\\node_modules",
       "purpose": "Dependencies",
       "fileCount": 0,
-      "lastAccessed": 1782907928290,
+      "lastAccessed": 1782997970662,
       "keyFiles": []
     }
   },
