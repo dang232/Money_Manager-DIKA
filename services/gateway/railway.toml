@@ -1,0 +1,7 @@
+[build]
+builder = "nixpacks"
+nixpacksVersion = "0.26.0"
+
+[deploy]
+startCommand = "node dist/main.js"
+healthcheckPath = "/health"

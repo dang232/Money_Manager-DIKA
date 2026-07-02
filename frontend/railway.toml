@@ -1,0 +1,6 @@
+[build]
+builder = "nixpacks"
+nixpacksVersion = "0.26.0"
+
+[deploy]
+startCommand = "echo 'Static site served by nginx'"
