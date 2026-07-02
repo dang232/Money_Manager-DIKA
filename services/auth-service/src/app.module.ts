@@ -25,6 +25,7 @@ import { HealthController } from './presentation/controllers/health.controller';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule.forRoot({
+      clientUrl: process.env['AUTH_DATABASE_URL'] ?? process.env['DATABASE_URL'],
       host: process.env['AUTH_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['AUTH_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
       dbName: process.env['AUTH_DB_NAME'] ?? process.env['DB_NAME'] ?? 'auth_db',

@@ -26,6 +26,7 @@ import { CardLayoutController } from './presentation/controllers/card-layout.con
       password: process.env['REDIS_PASSWORD'],
     }),
     DatabaseModule.forRoot({
+      clientUrl: process.env['USER_DATABASE_URL'] ?? process.env['DATABASE_URL'],
       host: process.env['USER_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['USER_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
       dbName: process.env['USER_DB_NAME'] ?? process.env['DB_NAME'] ?? 'user_db',

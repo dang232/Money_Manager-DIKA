@@ -4,11 +4,12 @@ import { PostgreSqlDriver } from '@mikro-orm/postgresql';
 import type { MaybePromise } from '@mikro-orm/core';
 
 export interface MikroOrmConfig {
-  host: string;
-  port: number;
-  dbName: string;
-  user: string;
-  password: string;
+  host?: string;
+  port?: number;
+  dbName?: string;
+  user?: string;
+  password?: string;
+  clientUrl?: string;
   entities: any[];
   debug?: boolean;
   // ponytail: contextName for multi-DB services (worker-service uses two connections)
@@ -18,14 +19,20 @@ export interface MikroOrmConfig {
 @Module({})
 export class DatabaseModule {
   static forRoot(config: MikroOrmConfig): MaybePromise<DynamicModule> {
+    const connection = config.clientUrl
+      ? { clientUrl: config.clientUrl }
+      : {
+          host: config.host ?? 'localhost',
+          port: config.port ?? 5432,
+          dbName: config.dbName ?? 'postgres',
+          user: config.user ?? 'postgres',
+          password: config.password ?? 'postgres',
+        };
+
     return MikroOrmModule.forRoot({
       ...(config.contextName ? { contextName: config.contextName } : {}),
       driver: PostgreSqlDriver,
-      host: config.host,
-      port: config.port,
-      dbName: config.dbName,
-      user: config.user,
-      password: config.password,
+      ...connection,
       entities: config.entities,
       debug: config.debug ?? false,
       allowGlobalContext: true,

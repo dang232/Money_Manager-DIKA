@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd \\\"C:/Users/dangq/OneDrive/Documents/GitHub/Money_Manager-DIKA/frontend\\\" && railway up 2>&1\",\"timeout\":180000,\"description\":\"Deploy with Procfile\"}",
-  "error": "Exit code 1\nMultiple services found. Please specify a service via the `--service` flag.",
-  "timestamp": "2026-07-01T15:59:36.535Z",
-  "retry_count": 1
+  "tool_input_preview": "{\"command\":\"railway deploy --service frontend 2>&1\",\"description\":\"Deploy frontend\"}",
+  "error": "Exit code 1\nerror: unexpected argument '--service' found\n\nUsage: railway.exe deploy [OPTIONS]\n\nFor more information, try '--help'.",
+  "timestamp": "2026-07-02T11:11:25.202Z",
+  "retry_count": 8
 }

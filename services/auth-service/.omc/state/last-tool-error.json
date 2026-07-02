@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"ls services/auth-service/\",\"description\":\"List auth-service directory\"}",
-  "error": "Exit code 2\nls: cannot access 'services/auth-service/': No such file or directory",
-  "timestamp": "2026-07-01T03:49:25.528Z",
+  "tool_input_preview": "{\"command\":\"cd \\\"C:\\\\Users\\\\dangq\\\\OneDrive\\\\Documents\\\\GitHub\\\\Money_Manager-DIKA\\\" && railway up --service auth-service --path-as-root --detach -m \\\"Deploy auth with path-as-root\\\" 2>&1\",\"timeout\":6...",
+  "error": "Exit code 1\n--path-as-root requires a path to be specified",
+  "timestamp": "2026-07-02T08:01:18.457Z",
   "retry_count": 1
 }

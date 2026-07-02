@@ -19,6 +19,7 @@ import { HealthController } from './presentation/controllers/health.controller';
 @Module({
   imports: [
     DatabaseModule.forRoot({
+      clientUrl: process.env['TXN_DATABASE_URL'] ?? process.env['DATABASE_URL'],
       host: process.env['TXN_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['TXN_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
       dbName: process.env['TXN_DB_NAME'] ?? process.env['DB_NAME'] ?? 'txn_db',

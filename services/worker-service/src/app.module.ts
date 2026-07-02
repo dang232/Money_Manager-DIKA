@@ -13,6 +13,7 @@ const BUDGET_DB = 'budget';
   imports: [
     // ponytail: default context = txn_db so middleware/request-scoped EM work out of the box
     DatabaseModule.forRoot({
+      clientUrl: process.env['TXN_DATABASE_URL'],
       host: process.env['TXN_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['TXN_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
       dbName: process.env['TXN_DB_NAME'] ?? process.env['DB_NAME'] ?? 'txn_db',
@@ -24,6 +25,7 @@ const BUDGET_DB = 'budget';
     DatabaseModule.forFeature([TransactionEntity]),
     DatabaseModule.forRoot({
       contextName: BUDGET_DB,
+      clientUrl: process.env['BUDGET_DATABASE_URL'],
       host: process.env['BUDGET_DB_HOST'] ?? process.env['DB_HOST'] ?? 'localhost',
       port: Number(process.env['BUDGET_DB_PORT'] ?? process.env['DB_PORT'] ?? 5432),
       dbName: process.env['BUDGET_DB_NAME'] ?? 'budget_db',

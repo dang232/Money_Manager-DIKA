@@ -21,5 +21,5 @@ RUN pnpm build
 # ─── Production (nginx) ───────────────────────────────────────────────────────
 FROM nginx:stable-alpine AS prod
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
-RUN rm -f /etc/nginx/conf.d/*.conf && \
-    echo 'server { listen 5173; root /usr/share/nginx/html; index index.html; location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/conf.d/default.conf
+RUN mkdir -p /etc/nginx/templates && rm -f /etc/nginx/conf.d/*.conf && \
+    echo 'server { listen ${PORT}; root /usr/share/nginx/html; index index.html; location /api { proxy_pass http://${GATEWAY_PRIVATE_DOMAIN}:${GATEWAY_PORT}; proxy_http_version 1.1; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; } location /socket.io { proxy_pass http://${GATEWAY_PRIVATE_DOMAIN}:${GATEWAY_PORT}; proxy_http_version 1.1; proxy_set_header Upgrade $http_upgrade; proxy_set_header Connection "upgrade"; proxy_set_header Host $host; } location / { try_files $uri $uri/ /index.html; } }' > /etc/nginx/templates/default.conf.template
