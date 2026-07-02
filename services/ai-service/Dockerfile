@@ -14,4 +14,4 @@ WORKDIR /app/services/ai-service
 RUN pnpm build
 ENV NODE_PATH=/app/node_modules:/app/packages/infrastructure/node_modules:/app/packages/shared-kernel/node_modules
 WORKDIR /app/services/ai-service
-CMD ["node", "dist/services/ai-service/src/main.js"]
+CMD ["node", "dist/main.js"]
