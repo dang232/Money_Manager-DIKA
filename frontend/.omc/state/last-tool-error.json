@@ -1,7 +1,7 @@
 {
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"railway deploy --service frontend 2>&1\",\"description\":\"Deploy frontend\"}",
-  "error": "Exit code 1\nerror: unexpected argument '--service' found\n\nUsage: railway.exe deploy [OPTIONS]\n\nFor more information, try '--help'.",
-  "timestamp": "2026-07-02T11:11:25.202Z",
-  "retry_count": 8
+  "tool_name": "mcp__railway__environment_status",
+  "tool_input_preview": "{}",
+  "error": "MCP error -32603: Failed to get project: Unauthorized. Please run `railway login` again.",
+  "timestamp": "2026-07-02T11:34:10.259Z",
+  "retry_count": 1
 }
