@@ -14,4 +14,4 @@ WORKDIR /app/services/worker-service
 RUN pnpm build
 ENV NODE_PATH=/app/node_modules:/app/packages/infrastructure/node_modules:/app/packages/shared-kernel/node_modules
 WORKDIR /app/services/worker-service
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/services/worker-service/src/main.js"]

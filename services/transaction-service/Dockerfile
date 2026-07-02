@@ -14,4 +14,4 @@ WORKDIR /app/services/transaction-service
 RUN pnpm build
 ENV NODE_PATH=/app/node_modules:/app/packages/infrastructure/node_modules:/app/packages/shared-kernel/node_modules
 WORKDIR /app/services/transaction-service
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/services/transaction-service/src/main.js"]

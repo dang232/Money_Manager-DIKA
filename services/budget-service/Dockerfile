@@ -23,4 +23,4 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/packages ./packages
 COPY --from=build /app/services/budget-service/dist services/budget-service/dist
 WORKDIR /app/services/budget-service
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/services/budget-service/src/main.js"]
