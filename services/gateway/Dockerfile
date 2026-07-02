@@ -4,7 +4,6 @@ RUN npm install -g pnpm@9
 WORKDIR /app
 COPY ../pnpm-workspace.yaml ./
 COPY ../tsconfig.base.json ./
-COPY ../packages packages
 COPY package.json services/gateway/
 COPY tsconfig.json services/gateway/
 COPY nest-cli.json services/gateway/
