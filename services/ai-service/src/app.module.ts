@@ -14,7 +14,13 @@ import { aiProviderFactory } from './infrastructure/providers/ai-provider.factor
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [aiConfig] }),
-    EventBusModule.forRoot(),
+    EventBusModule.forRoot({
+      redis: {
+        host: process.env['REDIS_HOST'] ?? 'localhost',
+        port: Number(process.env['REDIS_PORT'] ?? 6379),
+        password: process.env['REDIS_PASSWORD'],
+      },
+    }),
     LoggerModule,
   ],
   controllers: [AiController, HealthController],

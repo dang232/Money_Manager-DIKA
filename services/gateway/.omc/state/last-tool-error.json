@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"RAILWAY_CALLER=\\\"skill:use-railway@1.3.0\\\" railway up --detach --service triumphant-benevolence --path-as-root services/transaction-service\",\"timeout\":300000,\"description\":\"Deploy transact...",
+  "error": "Exit code 1\nIndexing...\nservices/transaction-service: IO error for operation on services/transaction-service: The system cannot find the path specified. (os error 3)",
+  "timestamp": "2026-07-01T19:29:01.979Z",
+  "retry_count": 3
+}

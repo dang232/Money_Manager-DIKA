@@ -18,7 +18,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "pnpm build",
+    "buildCommand": "cd \"C:\\Users\\dangq\\OneDrive\\Documents\\GitHub\\Money_Manager-DIKA\" && pnpm install && pnpm build --filter gateway 2>&1 | head -50",
     "testCommand": "pnpm test",
     "lintCommand": "pnpm lint",
     "devCommand": null,
@@ -182,14 +182,14 @@
     },
     {
       "path": "frontend\\src\\api\\http-client.ts",
-      "accessCount": 24,
-      "lastAccessed": 1782915605119,
+      "accessCount": 25,
+      "lastAccessed": 1782945210878,
       "type": "file"
     },
     {
       "path": "services",
-      "accessCount": 17,
-      "lastAccessed": 1782924151032,
+      "accessCount": 18,
+      "lastAccessed": 1782970551143,
       "type": "directory"
     },
     {

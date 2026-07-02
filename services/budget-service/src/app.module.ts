@@ -36,7 +36,13 @@ import { HealthController } from './presentation/controllers/health.controller';
       debug: process.env['NODE_ENV'] !== 'production',
     }),
     DatabaseModule.forFeature([CategoryEntity, BudgetEntity]),
-    EventBusModule.forRoot(),
+    EventBusModule.forRoot({
+      redis: {
+        host: process.env['REDIS_HOST'] ?? 'localhost',
+        port: Number(process.env['REDIS_PORT'] ?? 6379),
+        password: process.env['REDIS_PASSWORD'],
+      },
+    }),
     CacheModule.forRoot({
       host: process.env['REDIS_HOST'] ?? 'localhost',
       port: Number(process.env['REDIS_PORT'] ?? 6379),

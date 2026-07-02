@@ -1,6 +1,6 @@
 # ─── Build ────────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS build
-ARG CACHEBUST=budget-v2
+ARG FORCE_REBUILD=budget-2024-v2
 RUN npm install -g pnpm@9
 WORKDIR /app
 COPY pnpm-workspace.yaml ./
@@ -17,14 +17,10 @@ RUN pnpm build
 
 # ─── Production ───────────────────────────────────────────────────────────────
 FROM node:20-alpine AS prod
-RUN npm install -g pnpm@9
+ARG FORCE_REBUILD=budget-2024-v2
 WORKDIR /app
-COPY pnpm-workspace.yaml ./
-COPY tsconfig.base.json ./
-COPY packages/shared-kernel packages/shared-kernel
-COPY packages/infrastructure packages/infrastructure
-COPY services/budget-service/package.json services/budget-service/
-RUN pnpm install --no-frozen-lockfile --prod
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/packages ./packages
 COPY --from=build /app/services/budget-service/dist services/budget-service/dist
 WORKDIR /app/services/budget-service
-CMD ["node", "dist/main.js"]
+CMD ["node", "dist/services/budget-service/src/main.js"]
